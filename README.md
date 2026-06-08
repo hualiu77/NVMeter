@@ -42,6 +42,44 @@ SwiftUI menu-bar app on top of `smartctl` that:
 | Signed/notarized `.app` release | ⏳ |
 | Pro modules (trends >30d, multi-machine, ML predict) | reserved |
 
+## Known limitations
+
+NVMeter is honest about what `smartctl` can and cannot do on macOS. Setting
+expectations up front so you don't install it and feel cheated:
+
+### ✅ Fully supported
+
+- **Internal Apple SSD** (NVMe via Apple Fabric) — temperature, wear, spare, media errors.
+- **Thunderbolt 3 / 4 / 5 NVMe enclosures and docks** — read as native PCIe, no quirk needed. Full NVMe smart-log.
+- **USB-NVMe enclosures with cooperative bridge chips** (JMicron JMS583, ASMedia ASM2362, Realtek RTL9210, etc.) — typically work via `-d sat,16` or vendor-specific `-d` flags. See [`NVMeter-drivedb`](https://github.com/hualiu77/NVMeter-drivedb) for verified entries.
+
+### ⚠️ Often blocked: USB-SATA enclosures and external HDDs
+
+Many USB-SATA bridge chips refuse to pass SMART commands through on macOS,
+returning `Operation not supported by device` regardless of which `-d`
+argument is tried. This is **not** a NVMeter bug — it's a fundamental
+limitation of macOS's user-space SCSI stack.
+
+For context: Linux's kernel includes a generic SAT (SCSI/ATA Translation)
+layer in `sd_mod` that handles most USB-SATA bridges transparently. macOS
+has no equivalent. Closed-source tools like DriveDx work around this by
+shipping their own `SATSMARTDriver` kernel extension, but kext requirements
+on Apple Silicon (SIP disabled, Reduced Security boot, etc.) make this a
+non-starter for an open, frictionless install. NVMeter does **not** ship a
+kext.
+
+Known macOS-blocked families include WD Elements / My Passport (`1058:25a3`
+and relatives), most older Seagate Backup Plus, and various no-brand
+USB-SATA enclosures. When NVMeter detects one, it shows a friendly
+"SMART pass-through blocked by macOS — try an NVMe enclosure or use Linux"
+message instead of a scary error.
+
+### ⛔ Not supported
+
+- **CD/DVD drives, MMC/SD card readers, RAID volumes.** Out of scope.
+- **Drives behind hardware RAID controllers** that hide the underlying disks.
+- **Disk images** (`disk4`, `disk5` style synthetic devices) — they have no underlying physical drive to query.
+
 ## Building from source
 
 Requirements: macOS 13+, Xcode 15+ / Swift 5.9+, `smartmontools` installed (`brew install smartmontools`).
