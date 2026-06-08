@@ -8,7 +8,7 @@ body:
         ## Wrong repo?
         New enclosure adapters live in **NVMeter-drivedb** (CC0, no Swift).
         If you already have the data, please submit a YAML PR there instead:
-        <https://github.com/REPLACE_ME/NVMeter-drivedb>
+        <https://github.com/hualiu77/NVMeter-drivedb>
 
         This issue template is only for **collecting** the data needed to
         write a YAML entry, when you don't have it yet.

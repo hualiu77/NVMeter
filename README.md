@@ -21,7 +21,7 @@ SwiftUI menu-bar app on top of `smartctl` that:
 ## Project values
 
 1. **Personal use is free, forever.** The core monitoring app is AGPL-3.0 and will not be moved behind a paywall. See [BUSINESS.md](BUSINESS.md) for the open-core boundary.
-2. **The community owns the device-compatibility database.** USB / Thunderbolt bridge-chip pass-through quirks live in a separate **public-domain (CC0)** repository: [NVMeter-drivedb](https://github.com/REPLACE_ME/NVMeter-drivedb). Contributing a new enclosure is one YAML file, no Swift required.
+2. **The community owns the device-compatibility database.** USB / Thunderbolt bridge-chip pass-through quirks live in a separate **public-domain (CC0)** repository: [NVMeter-drivedb](https://github.com/hualiu77/NVMeter-drivedb). Contributing a new enclosure is one YAML file, no Swift required.
 3. **No telemetry, ever, in the open-source build.**
 
 ## Status
@@ -43,7 +43,7 @@ SwiftUI menu-bar app on top of `smartctl` that:
 Requirements: macOS 13+, Xcode 15+ / Swift 5.9+, `smartmontools` installed (`brew install smartmontools`).
 
 ```bash
-git clone https://github.com/REPLACE_ME/NVMeter.git
+git clone https://github.com/hualiu77/NVMeter.git
 cd NVMeter
 swift build
 swift test
@@ -54,7 +54,7 @@ The app shells out to `smartctl` from `/opt/homebrew/bin/smartctl` (Homebrew on 
 
 ## Contributing
 
-- **Adding support for a new USB/Thunderbolt enclosure?** Send a YAML PR to [NVMeter-drivedb](https://github.com/REPLACE_ME/NVMeter-drivedb) — no Swift required. See its `CONTRIBUTING.md`.
+- **Adding support for a new USB/Thunderbolt enclosure?** Send a YAML PR to [NVMeter-drivedb](https://github.com/hualiu77/NVMeter-drivedb) — no Swift required. See its `CONTRIBUTING.md`.
 - **Code changes?** See [CONTRIBUTING.md](CONTRIBUTING.md). All non-trivial PRs require a signed [CLA](CLA.md) so we can keep the open-core licensing options open without ever changing what's free.
 
 ## License

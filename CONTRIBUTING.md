@@ -6,7 +6,7 @@ Thanks for considering a contribution!
 
 | What you want to do | Where to send it |
 |---|---|
-| Add support for a USB / Thunderbolt enclosure | [NVMeter-drivedb](https://github.com/REPLACE_ME/NVMeter-drivedb) — one YAML file, **no Swift required** |
+| Add support for a USB / Thunderbolt enclosure | [NVMeter-drivedb](https://github.com/hualiu77/NVMeter-drivedb) — one YAML file, **no Swift required** |
 | Fix a bug in the app | this repo |
 | Add a feature to the app | open an issue first to discuss whether it belongs in the OSS build or is out of scope |
 | Add docs | this repo |
