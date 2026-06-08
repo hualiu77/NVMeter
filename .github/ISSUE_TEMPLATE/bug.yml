@@ -1,0 +1,22 @@
+name: Bug report
+description: Something doesn't work
+labels: [bug]
+body:
+  - type: input
+    id: mac
+    attributes: { label: Mac model + macOS version, placeholder: "Mac Studio M2 Ultra, macOS 14.5" }
+    validations: { required: true }
+  - type: input
+    id: version
+    attributes: { label: NVMeter version / commit SHA }
+    validations: { required: true }
+  - type: textarea
+    id: repro
+    attributes: { label: Steps to reproduce }
+    validations: { required: true }
+  - type: textarea
+    id: smartctl
+    attributes:
+      label: smartctl output for the affected device
+      description: "Paste `smartctl -a /dev/diskN` here. Redact serial numbers if you wish."
+      render: text

@@ -1,0 +1,51 @@
+NVMeter
+Copyright (C) 2026  The NVMeter Authors
+
+This program is free software: you can redistribute it and/or modify
+it under the terms of the GNU Affero General Public License as published by
+the Free Software Foundation, either version 3 of the License, or
+(at your option) any later version. See LICENSE for the full text.
+
+===============================================================================
+Third-party software shipped with or invoked by NVMeter
+===============================================================================
+
+1. smartmontools (smartctl)
+   - License: GPL-2.0-or-later
+   - Upstream: https://www.smartmontools.org/
+   - Source:   https://github.com/smartmontools/smartmontools
+
+   NVMeter invokes the unmodified `smartctl` executable as a separate
+   process and parses its JSON output. The released `.app` bundle embeds
+   the unmodified `smartctl` binary for convenience. In compliance with
+   GPL-2.0 §3, the full corresponding source code for the embedded
+   smartctl version is available at the upstream URL above, and a copy
+   of the GPL-2.0 license text is included in the `.app` bundle under
+   `Contents/Resources/licenses/smartmontools-LICENSE.txt`.
+
+2. GRDB.swift
+   - License: MIT
+   - Upstream: https://github.com/groue/GRDB.swift
+
+3. Yams
+   - License: MIT
+   - Upstream: https://github.com/jpsim/Yams
+
+===============================================================================
+Data
+===============================================================================
+
+NVMeter ships and loads bridge-chip pass-through definitions from the
+companion repository `NVMeter-drivedb`, which is released under CC0-1.0
+(public domain dedication). See:
+
+   https://github.com/REPLACE_ME/NVMeter-drivedb
+
+===============================================================================
+Trademarks
+===============================================================================
+
+"NVMeter" and the NVMeter logo are trademarks of the NVMeter Authors.
+The AGPL-3.0 license grants you copyright and patent permissions but does
+NOT grant trademark rights. You may not use the "NVMeter" name or logo to
+endorse or promote derivative products without prior written permission.

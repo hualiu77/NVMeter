@@ -1,0 +1,16 @@
+.DS_Store
+.build/
+.swiftpm/
+Package.resolved
+*.xcodeproj/
+xcuserdata/
+DerivedData/
+*.xcscheme
+build/
+dist/
+*.app
+*.dmg
+*.zip
+.env
+.env.local
+secrets/

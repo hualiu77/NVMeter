@@ -1,0 +1,43 @@
+name: My USB / Thunderbolt enclosure doesn't read SMART
+description: Triage data so we (or you!) can add a bridge entry
+labels: [bridge-db, help wanted]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        ## Wrong repo?
+        New enclosure adapters live in **NVMeter-drivedb** (CC0, no Swift).
+        If you already have the data, please submit a YAML PR there instead:
+        <https://github.com/REPLACE_ME/NVMeter-drivedb>
+
+        This issue template is only for **collecting** the data needed to
+        write a YAML entry, when you don't have it yet.
+  - type: input
+    id: model
+    attributes: { label: Enclosure brand + model, placeholder: "Orico M2PVC3-G20" }
+    validations: { required: true }
+  - type: input
+    id: nvme
+    attributes: { label: Drive inside, placeholder: "Crucial P3 Plus 1TB" }
+  - type: textarea
+    id: usb
+    attributes:
+      label: USB device info
+      description: "Paste `system_profiler SPUSBDataType | grep -A 6 -i <enclosure-name>` or the whole SPUSBDataType."
+      render: text
+    validations: { required: true }
+  - type: textarea
+    id: smartctl
+    attributes:
+      label: smartctl probe output
+      description: |
+        Run all of these and paste:
+        ```
+        smartctl --scan
+        smartctl -a /dev/diskN
+        smartctl -d sat -a /dev/diskN
+        smartctl -d sat,16 -a /dev/diskN
+        smartctl -d jmb39x -a /dev/diskN
+        ```
+      render: text
+    validations: { required: true }

@@ -1,0 +1,39 @@
+import Foundation
+
+public actor MonitoringService {
+    private let runner: SmartctlRunner
+    private let scorer = HealthScorer()
+    private let store: HistoryStore
+    private let interval: TimeInterval
+
+    public init(runner: SmartctlRunner, store: HistoryStore, interval: TimeInterval = 300) {
+        self.runner = runner
+        self.store = store
+        self.interval = interval
+    }
+
+    public func tickOnce() async throws -> [(SmartctlInfo, HealthAssessment)] {
+        let scanned = try runner.scan()
+        var results: [(SmartctlInfo, HealthAssessment)] = []
+        for d in scanned {
+            guard let info = try? runner.info(device: d.name) else { continue }
+            let assessment = scorer.assess(info)
+            let sample = HealthSample(
+                id: nil,
+                deviceName: info.device.name,
+                serial: info.serial_number,
+                timestamp: Date(),
+                temperatureC: info.temperature?.current ?? info.nvme_smart_health_information_log?.temperature,
+                percentageUsed: info.nvme_smart_health_information_log?.percentage_used,
+                availableSpare: info.nvme_smart_health_information_log?.available_spare,
+                mediaErrors: info.nvme_smart_health_information_log?.media_errors,
+                dataUnitsWritten: info.nvme_smart_health_information_log?.data_units_written,
+                healthLevel: assessment.level.rawValue
+            )
+            try? store.insert(sample)
+            results.append((info, assessment))
+        }
+        try? store.prune()
+        return results
+    }
+}
