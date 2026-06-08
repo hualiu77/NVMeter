@@ -1,5 +1,9 @@
 # NVMeter
 
+[![CI](https://github.com/hualiu77/NVMeter/actions/workflows/ci.yml/badge.svg)](https://github.com/hualiu77/NVMeter/actions/workflows/ci.yml)
+[![License: AGPL v3](https://img.shields.io/badge/License-AGPL_v3-blue.svg)](LICENSE)
+[![CLA assistant](https://cla-assistant.io/readme/badge/hualiu77/NVMeter)](https://cla-assistant.io/hualiu77/NVMeter)
+
 A native macOS menu-bar SMART monitor for internal and external NVMe/SATA SSDs.
 Free and open source forever for personal use.
 
