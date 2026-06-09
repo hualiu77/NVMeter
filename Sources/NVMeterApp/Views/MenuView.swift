@@ -97,7 +97,7 @@ struct MenuView: View {
             Spacer()
 
             Button {
-                openSettings()
+                showSettingsWindow(using: { openSettings() })
             } label: {
                 Image(systemName: "gearshape")
             }
