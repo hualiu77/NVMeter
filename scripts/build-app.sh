@@ -121,19 +121,38 @@ ZIP="$BUILD_DIR/${APP_NAME}-${VERSION}.zip"
 rm -f "$ZIP"
 ( cd "$BUILD_DIR" && /usr/bin/ditto -c -k --sequesterRsrc --keepParent "$APP_NAME.app" "$(basename "$ZIP")" )
 
-# ── 7 · Summary ───────────────────────────────────────────────────────────
-echo "[7/7] done"
+# ── 7 · Notarize + staple (opt-in) ────────────────────────────────────────
+if [[ "${NOTARIZE:-0}" == "1" ]]; then
+    PROFILE="${KEYCHAIN_PROFILE:-nvmeter-notarize}"
+    echo "[7/8] notarize via keychain profile '$PROFILE'"
+    xcrun notarytool submit "$ZIP" --keychain-profile "$PROFILE" --wait 2>&1 | tee "$BUILD_DIR/notarize.log"
+
+    echo "       staple ticket"
+    xcrun stapler staple "$APP_DIR"
+
+    # Refresh the zip so it contains the stapled bundle (otherwise users
+    # who unzip on a machine without internet will hit the Gatekeeper
+    # "verifying" hang on first launch).
+    rm -f "$ZIP"
+    ( cd "$BUILD_DIR" && /usr/bin/ditto -c -k --sequesterRsrc --keepParent "$APP_NAME.app" "$(basename "$ZIP")" )
+fi
+
+# ── 8 · Optional DMG ──────────────────────────────────────────────────────
+if [[ "${MAKE_DMG:-0}" == "1" ]]; then
+    echo "[8/8] dmg"
+    bash scripts/make-dmg.sh "$APP_DIR" "$BUILD_DIR/${APP_NAME}-${VERSION}.dmg"
+fi
+
+# ── Summary ───────────────────────────────────────────────────────────────
 echo
 echo "  App:       $APP_DIR"
 echo "  Zip:       $ZIP   ($(du -sh "$ZIP" | cut -f1))"
+if [[ -f "$BUILD_DIR/${APP_NAME}-${VERSION}.dmg" ]]; then
+    echo "  DMG:       $BUILD_DIR/${APP_NAME}-${VERSION}.dmg   ($(du -sh "$BUILD_DIR/${APP_NAME}-${VERSION}.dmg" | cut -f1))"
+fi
 echo
 echo "Next steps:"
 echo "  • Test locally:      open '$APP_DIR'"
-if [[ "${SKIP_SIGN:-0}" != "1" ]]; then
-    echo "  • Notarize:          xcrun notarytool submit '$ZIP' \\"
-    echo "                          --apple-id <your-apple-id> \\"
-    echo "                          --team-id 38H257A346 \\"
-    echo "                          --password <app-specific-password> \\"
-    echo "                          --wait"
-    echo "  • Staple:            xcrun stapler staple '$APP_DIR'"
+if [[ "${NOTARIZE:-0}" != "1" && "${SKIP_SIGN:-0}" != "1" ]]; then
+    echo "  • Notarize + DMG:    NOTARIZE=1 MAKE_DMG=1 bash scripts/build-app.sh"
 fi
