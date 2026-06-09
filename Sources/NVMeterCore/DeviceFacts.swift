@@ -18,6 +18,7 @@ public struct DeviceFacts: Sendable, Equatable {
     public var capacityBytes: Int64
     public var usedBytes: Int64?
     public var powerOnHours: Int?
+    public var lifetimeWrittenBytes: Int64?    // cumulative host writes
     public var mountPoints: [String]        // e.g. ["/Volumes/1TNVME"]
 
     public init(
@@ -29,6 +30,7 @@ public struct DeviceFacts: Sendable, Equatable {
         capacityBytes: Int64 = 0,
         usedBytes: Int64? = nil,
         powerOnHours: Int? = nil,
+        lifetimeWrittenBytes: Int64? = nil,
         mountPoints: [String] = []
     ) {
         self.bus = bus
@@ -39,6 +41,7 @@ public struct DeviceFacts: Sendable, Equatable {
         self.capacityBytes = capacityBytes
         self.usedBytes = usedBytes
         self.powerOnHours = powerOnHours
+        self.lifetimeWrittenBytes = lifetimeWrittenBytes
         self.mountPoints = mountPoints
     }
 
@@ -63,6 +66,11 @@ public struct DeviceFacts: Sendable, Equatable {
         let days = Double(h) / 24
         if days < 365 { return String(format: "%.0f days", days) }
         return String(format: "%.1f years", days / 365.0)
+    }
+
+    /// Pretty-print lifetime host writes: "98 GB" / "12 TB" etc (decimal).
+    public var lifetimeWrittenHuman: String? {
+        lifetimeWrittenBytes.map { Self.humanBytes($0) }
     }
 
     static func humanBytes(_ bytes: Int64) -> String {

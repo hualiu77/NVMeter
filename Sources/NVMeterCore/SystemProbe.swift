@@ -31,6 +31,12 @@ public actor SystemProbe {
             }
             facts.powerOnHours = info.nvme_smart_health_information_log?.power_on_hours
                 ?? info.power_on_time?.hours
+
+            // NVMe spec: data_units_written is in units of 1000 × 512 bytes
+            // (i.e. 500_000 bytes per unit, rounded up).
+            if let units = info.nvme_smart_health_information_log?.data_units_written {
+                facts.lifetimeWrittenBytes = units * 500_000
+            }
         }
 
         if let du = diskutilInfo(devicePath: devicePath) {

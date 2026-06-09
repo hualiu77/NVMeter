@@ -127,25 +127,33 @@ struct DeviceCard: View {
     }
 
     private var metrics: some View {
-        HStack(alignment: .firstTextBaseline, spacing: Theme.Spacing.l) {
+        HStack(alignment: .firstTextBaseline, spacing: Theme.Spacing.m) {
             if let t = snapshot.temperatureC {
-                metric(value: "\(t)°", unit: "C", label: "Temp")
+                metric(value: "\(t)°", unit: "C", label: "Temp", help: helpTemp)
             }
             if let u = snapshot.percentageUsed {
-                metric(value: "\(u)", unit: "%", label: "Wear")
+                metric(value: "\(u)", unit: "%", label: "Wear", help: helpWear)
             }
             if let h = snapshot.facts.powerOnHuman {
                 let parts = h.split(separator: " ", maxSplits: 1)
                 metric(value: String(parts.first ?? ""),
                        unit: String(parts.dropFirst().first ?? ""),
-                       label: "Power-on")
+                       label: "Power-on",
+                       help: helpPowerOn)
+            }
+            if let w = snapshot.facts.lifetimeWrittenHuman {
+                let parts = w.split(separator: " ", maxSplits: 1)
+                metric(value: String(parts.first ?? ""),
+                       unit: String(parts.dropFirst().first ?? ""),
+                       label: "Written",
+                       help: helpWritten)
             }
             Spacer(minLength: 0)
             levelPill
         }
     }
 
-    private func metric(value: String, unit: String, label: String) -> some View {
+    private func metric(value: String, unit: String, label: String, help: String) -> some View {
         VStack(alignment: .leading, spacing: 2) {
             HStack(alignment: .firstTextBaseline, spacing: 1) {
                 Text(value)
@@ -155,12 +163,56 @@ struct DeviceCard: View {
                     .font(.caption2.weight(.medium))
                     .foregroundStyle(.secondary)
             }
-            Text(label)
-                .font(.system(size: 9).weight(.medium))
-                .foregroundStyle(.secondary)
-                .textCase(.uppercase)
-                .tracking(0.4)
+            HStack(spacing: 2) {
+                Text(label)
+                    .font(.system(size: 9).weight(.medium))
+                    .foregroundStyle(.secondary)
+                    .textCase(.uppercase)
+                    .tracking(0.4)
+                Image(systemName: "info.circle")
+                    .font(.system(size: 8))
+                    .foregroundStyle(.tertiary)
+            }
         }
+        .help(help)
+    }
+
+    // MARK: - Tooltip copy (Apple SSDs report SMART quirkily — call it out)
+
+    private var isAppleInternal: Bool { snapshot.facts.bus == .internalNVMe }
+
+    private var helpTemp: String {
+        "Current drive temperature from SMART. Color thresholds are set in Settings → Thresholds."
+    }
+
+    private var helpWear: String {
+        if isAppleInternal {
+            return """
+            Apple's NVMe controller reports wear in coarse integer steps and almost always shows 0% even after years of heavy use — Apple does not publish a TBW figure, so the firmware has no reliable denominator to compute against.
+
+            Use the "Written" tile to gauge endurance instead.
+            """
+        }
+        return "SSD's own estimate of NAND endurance used. 0% is brand new; 100% means the drive has reached its manufacturer-rated TBW. Most drives keep working past 100% — the warranty just no longer covers it."
+    }
+
+    private var helpPowerOn: String {
+        if isAppleInternal {
+            return """
+            Cumulative time the Apple SSD has been in the active (S0) state.
+
+            Sleep, Power Nap, and shutdown DO NOT count — so on a Mac that's rarely turned off, this number can lag wall-clock time substantially (it tracks "hours actively in use" more than "hours since manufacture").
+            """
+        }
+        return "Cumulative hours the drive has been powered on since manufacture. Shutdown breaks this counter; sleep with the drive still powered does not."
+    }
+
+    private var helpWritten: String {
+        """
+        Total bytes the host has written to NAND since manufacture. Compare against the drive's TBW endurance rating to estimate remaining life — most consumer NVMe drives are rated for 200–1200 TBW per terabyte of capacity.
+
+        On Apple SSDs this is the most reliable longevity signal, since the per-cent "wear" field is unreliable.
+        """
     }
 
     private var levelPill: some View {
