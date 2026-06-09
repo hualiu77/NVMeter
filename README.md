@@ -1,14 +1,22 @@
 # NVMeter
 
+[![Download](https://img.shields.io/github/v/release/hualiu77/NVMeter?label=Download%20DMG&style=for-the-badge&color=2BB1B8&logo=apple)](https://github.com/hualiu77/NVMeter/releases/latest)
+&nbsp;
 [![CI](https://github.com/hualiu77/NVMeter/actions/workflows/ci.yml/badge.svg)](https://github.com/hualiu77/NVMeter/actions/workflows/ci.yml)
 [![License: AGPL v3](https://img.shields.io/badge/License-AGPL_v3-blue.svg)](LICENSE)
 [![CLA assistant](https://cla-assistant.io/readme/badge/hualiu77/NVMeter)](https://cla-assistant.io/hualiu77/NVMeter)
+[![Notarized](https://img.shields.io/badge/Notarized-Apple-success?logo=apple)](#install)
 
 A native macOS menu-bar SMART monitor for internal and external NVMe/SATA SSDs.
 Free and open source forever for personal use.
 
-> ⚠️ Early scaffold — not yet ready for end users. Bridges DB and CI in place;
-> packaged `.app` not yet shipped.
+## Install
+
+1. Download the latest [**NVMeter-x.y.z.dmg**](https://github.com/hualiu77/NVMeter/releases/latest) (signed with Developer ID and notarized by Apple — no Gatekeeper warnings).
+2. Open the DMG, drag **NVMeter.app** into the **Applications** folder.
+3. Launch from Spotlight (`⌘+Space → NVMeter`). A chip icon appears in your menu bar.
+
+Requires **macOS 14 Sonoma or later** on an **Apple Silicon Mac**.
 
 ## Why
 
@@ -30,17 +38,23 @@ SwiftUI menu-bar app on top of `smartctl` that:
 
 ## Status
 
+Current release: **[v0.1.0](https://github.com/hualiu77/NVMeter/releases/tag/v0.1.0)** — first signed & notarized public build.
+
 | Layer | State |
 |---|---|
 | `smartctl` JSON wrapper | ✅ |
 | Health scoring (temperature / wear / spare / media errors) | ✅ |
 | SQLite history store (GRDB) | ✅ |
-| Menu-bar SwiftUI shell | ✅ scaffold |
+| Menu-bar SwiftUI shell with brand mark | ✅ |
+| Per-drive capacity bar, brand, connection, dock-name detection | ✅ |
+| 24h / 7d / 30d trend charts (Swift Charts) | ✅ |
+| Threshold-based system notifications | ✅ |
+| Signed (Developer ID) + Apple-notarized `.app` + `.dmg` | ✅ |
 | Bridge-DB loader (YAML) | ✅ |
-| Notifications + thresholds | ⏳ |
+| Bridge-DB **consumed at runtime** for `-d` auto-retry | ⏳ (next release) |
+| Sparkle auto-update | ⏳ (next release) |
 | Long self-test runner UI | ⏳ |
-| Signed/notarized `.app` release | ⏳ |
-| Pro modules (trends >30d, multi-machine, ML predict) | reserved |
+| Pro modules (multi-machine, ML predict, cloud sync) | reserved |
 
 ## Known limitations
 
@@ -89,10 +103,21 @@ git clone https://github.com/hualiu77/NVMeter.git
 cd NVMeter
 swift build
 swift test
-swift run NVMeterApp
+swift run NVMeterApp        # for development; shells out to /opt/homebrew/bin/smartctl
 ```
 
-The app shells out to `smartctl` from `/opt/homebrew/bin/smartctl` (Homebrew on Apple Silicon) or `/usr/local/bin/smartctl` (Intel). Released `.app` bundles will embed `smartctl` directly and ship the GPLv2 notice alongside.
+To build a signed, notarized `.app` + `.dmg` like the one on the Releases page:
+
+```bash
+# One-time keychain setup (creates an app-specific password on appleid.apple.com first):
+xcrun notarytool store-credentials nvmeter-notarize \
+    --apple-id "<your-apple-id>" --team-id <your-team-id>
+
+# Then any release build is a single command:
+NOTARIZE=1 MAKE_DMG=1 bash scripts/build-app.sh
+```
+
+This produces `build/NVMeter.app`, `build/NVMeter-<ver>.zip`, and `build/NVMeter-<ver>.dmg`, all signed with your Developer ID and stapled with Apple's notarization ticket. See `scripts/build-app.sh` for the full pipeline.
 
 ## Contributing
 
