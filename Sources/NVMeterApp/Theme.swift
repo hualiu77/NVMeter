@@ -17,8 +17,8 @@ enum Theme {
     }
 
     enum Layout {
-        static let windowWidth: CGFloat = 360
-        static let maxHeight: CGFloat = 600
+        static let windowWidth: CGFloat = 420
+        static let maxHeight: CGFloat = 640
         static let cardRadius: CGFloat = 10
         static let cardPadding: CGFloat = 12
     }

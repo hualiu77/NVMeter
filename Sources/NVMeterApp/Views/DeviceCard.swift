@@ -163,18 +163,14 @@ struct DeviceCard: View {
                     .font(.caption2.weight(.medium))
                     .foregroundStyle(.secondary)
             }
-            HStack(spacing: 2) {
-                Text(label)
-                    .font(.system(size: 9).weight(.medium))
-                    .foregroundStyle(.secondary)
-                    .textCase(.uppercase)
-                    .tracking(0.4)
-                Image(systemName: "info.circle")
-                    .font(.system(size: 8))
-                    .foregroundStyle(.tertiary)
-            }
+            Text(label)
+                .font(.system(size: 9).weight(.medium))
+                .foregroundStyle(.secondary)
+                .textCase(.uppercase)
+                .tracking(0.4)
+                .fixedSize()       // don't truncate the label
         }
-        .help(help)
+        .help(help)                 // hover to see the explanation
     }
 
     // MARK: - Tooltip copy (Apple SSDs report SMART quirkily — call it out)

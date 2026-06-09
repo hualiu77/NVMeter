@@ -28,6 +28,7 @@ struct MenuView: View {
                 Text(last, format: .relative(presentation: .named))
                     .font(.caption2)
                     .foregroundStyle(.secondary)
+                    .help("Hover any metric tile to see what it means · See Settings → Help for the full reference")
             }
         }
         .padding(.horizontal, Theme.Spacing.l)

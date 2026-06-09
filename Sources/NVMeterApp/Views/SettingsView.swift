@@ -140,34 +140,51 @@ struct SettingsView: View {
 
 /// Brings the Settings window to the front reliably.
 ///
-/// macOS 14's `openSettings()` opens / focuses the window only when the
-/// app is already frontmost. Menu-bar apps are usually NOT frontmost, so
-/// the window stays buried under whatever the user was just doing. We:
-///   1. Activate this app (pulls all our windows toward the front),
-///   2. Call `openSettings()` (creates the window if it doesn't exist),
-///   3. On the next runloop tick, find the window by title and force it
-///      forward — this handles the "window already exists but is hidden"
-///      case that step 2 alone won't fix.
+/// Three pitfalls combine for menu-bar apps:
+///
+/// 1. **Activation policy.** A pure menu-bar app runs as `.accessory`,
+///    which means `NSApp.activate(...)` cannot actually pull windows to
+///    the foreground — accessory apps are designed not to take focus.
+///    The window then appears desaturated (non-key) and clicks elsewhere
+///    leave it stuck behind. We bump the policy to `.regular` while the
+///    Settings window is in play.
+///
+/// 2. **Window naming.** SwiftUI's Settings scene titles its window
+///    after the *currently selected tab* — "General", "Help", … — not
+///    the literal "Settings". Filtering on the word "Settings" misses
+///    it entirely. We discriminate by window *class* (skip popovers,
+///    panels, status windows) instead.
+///
+/// 3. **Timing.** `openSettings()` returns before SwiftUI has actually
+///    created/raised the window. We retry the focus pass over a few
+///    runloop ticks to catch every state (already-open behind another
+///    app, just-being-created, already-frontmost).
 @MainActor
 func showSettingsWindow(using openSettings: () -> Void) {
+    if NSApp.activationPolicy() != .regular {
+        NSApp.setActivationPolicy(.regular)
+    }
     NSApp.activate(ignoringOtherApps: true)
     openSettings()
-    DispatchQueue.main.async {
-        let candidates = NSApp.windows.filter { window in
-            // SwiftUI's Settings scene names the window "Settings" (en) or
-            // the localized equivalent. Match by being a non-status visible
-            // window with a non-empty title, falling back to identifier.
-            guard window.isVisible else { return false }
-            if window.title.localizedCaseInsensitiveContains("Setting") { return true }
-            if window.title.localizedCaseInsensitiveContains("Preference") { return true }
-            if window.title == "NVMeter" { return false }  // not our popover
-            return window.identifier?.rawValue.localizedCaseInsensitiveContains("setting") == true
-        }
-        for window in candidates {
-            window.collectionBehavior.insert(.moveToActiveSpace)
+
+    func focusSettings() {
+        for window in NSApp.windows where window.isVisible && window.canBecomeMain {
+            // Skip the menu-bar popover (NSPopoverWindow / panel-style).
+            let className = String(describing: type(of: window))
+            if className.contains("Popover") { continue }
+            if className.contains("StatusBar") { continue }
+            if window.isFloatingPanel { continue }
+
+            window.orderFrontRegardless()
             window.makeKeyAndOrderFront(nil)
         }
+        NSApp.activate(ignoringOtherApps: true)
     }
+
+    // Try at 0, 50ms, and 150ms to handle every creation/timing case.
+    focusSettings()
+    DispatchQueue.main.asyncAfter(deadline: .now() + 0.05) { focusSettings() }
+    DispatchQueue.main.asyncAfter(deadline: .now() + 0.15) { focusSettings() }
 }
 
 #Preview { SettingsView() }
