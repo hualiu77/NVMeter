@@ -227,19 +227,39 @@ struct DeviceCard: View {
     }
 
     private var blockedNotice: some View {
-        HStack(alignment: .top, spacing: 6) {
-            Image(systemName: "exclamationmark.triangle.fill")
-                .foregroundStyle(.orange)
-                .imageScale(.small)
-            VStack(alignment: .leading, spacing: 2) {
-                Text("SMART pass-through blocked by macOS")
-                    .font(.caption.weight(.medium))
-                    .foregroundStyle(.primary)
-                Text("Most USB-SATA & USB-NVMe bridges can't expose SMART on macOS. Capacity and connection still shown.")
-                    .font(.caption2)
-                    .foregroundStyle(.secondary)
-                    .fixedSize(horizontal: false, vertical: true)
+        VStack(alignment: .leading, spacing: 6) {
+            HStack(alignment: .top, spacing: 6) {
+                Image(systemName: "exclamationmark.triangle.fill")
+                    .foregroundStyle(.orange)
+                    .imageScale(.small)
+                VStack(alignment: .leading, spacing: 2) {
+                    Text("SMART pass-through blocked by macOS")
+                        .font(.caption.weight(.medium))
+                        .foregroundStyle(.primary)
+                    Text("Most USB-SATA & USB-NVMe bridges can't expose SMART on macOS. Capacity and connection still shown.")
+                        .font(.caption2)
+                        .foregroundStyle(.secondary)
+                        .fixedSize(horizontal: false, vertical: true)
+                }
             }
+
+            Button {
+                IssueReporter.report(for: snapshot)
+            } label: {
+                HStack(spacing: 4) {
+                    Image(systemName: "paperplane.fill").imageScale(.small)
+                    Text("Help map this enclosure")
+                }
+                .font(.caption.weight(.medium))
+                .foregroundStyle(.orange)
+                .padding(.horizontal, 8)
+                .padding(.vertical, 3)
+                .background(
+                    Capsule().fill(Color.orange.opacity(0.18))
+                )
+            }
+            .buttonStyle(.plain)
+            .help("Opens a pre-filled GitHub Issue with your ioreg + smartctl probe results so we can add this enclosure to the community database.")
         }
         .padding(8)
         .frame(maxWidth: .infinity, alignment: .leading)
