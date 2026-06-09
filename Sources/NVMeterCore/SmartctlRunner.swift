@@ -25,9 +25,56 @@ public struct SmartctlRunner {
         self.binaryPath = found
     }
 
+    /// Enumerate physical whole-disks via `diskutil list -plist` and return
+    /// them as `/dev/diskN` device paths.
+    ///
+    /// We deliberately do NOT use `smartctl --scan` on macOS: it returns
+    /// IOService paths (e.g. `IOService:/AppleARMPE/.../NS_01@1`) rather
+    /// than BSD device paths. Those work for smartctl itself but break any
+    /// downstream consumer that wants to call `diskutil` or `statfs` with
+    /// the same identifier.
     public func scan() throws -> [ScannedDevice] {
-        let data = try run(["--scan", "--json=c"])
-        return try decode(SmartctlScan.self, from: data).devices
+        let plist = try diskutilListPlist()
+        guard let entries = plist["AllDisksAndPartitions"] as? [[String: Any]] else { return [] }
+        return entries.compactMap { entry in
+            guard let id = entry["DeviceIdentifier"] as? String else { return nil }
+            // Fast path: synthesized APFS containers carry this key. Skip
+            // without spawning a subprocess — these are not real hardware.
+            if entry["APFSPhysicalStores"] != nil { return nil }
+            // Remaining candidates may still be disk images (sparsebundles,
+            // simulator volumes). One diskutil info call confirms.
+            if isVirtual(deviceIdentifier: id) { return nil }
+            return ScannedDevice(name: "/dev/\(id)", type: "auto", protocol_: nil)
+        }
+    }
+
+    private func diskutilListPlist() throws -> [String: Any] {
+        let p = Process()
+        p.executableURL = URL(fileURLWithPath: "/usr/sbin/diskutil")
+        p.arguments = ["list", "-plist"]
+        let out = Pipe()
+        p.standardOutput = out
+        p.standardError = Pipe()
+        try p.run()
+        p.waitUntilExit()
+        let data = out.fileHandleForReading.readDataToEndOfFile()
+        return (try PropertyListSerialization.propertyList(from: data, format: nil)) as? [String: Any] ?? [:]
+    }
+
+    private func isVirtual(deviceIdentifier id: String) -> Bool {
+        let p = Process()
+        p.executableURL = URL(fileURLWithPath: "/usr/sbin/diskutil")
+        p.arguments = ["info", "-plist", "/dev/\(id)"]
+        let out = Pipe()
+        p.standardOutput = out
+        p.standardError = Pipe()
+        guard (try? p.run()) != nil else { return false }
+        p.waitUntilExit()
+        let data = out.fileHandleForReading.readDataToEndOfFile()
+        let plist = (try? PropertyListSerialization.propertyList(from: data, format: nil)) as? [String: Any]
+        if let kind = plist?["VirtualOrPhysical"] as? String, kind == "Virtual" { return true }
+        if let proto = plist?["BusProtocol"] as? String, proto == "Disk Image" { return true }
+        return false
     }
 
     public func info(device: String, extraArgs: [String] = []) throws -> SmartctlInfo {
