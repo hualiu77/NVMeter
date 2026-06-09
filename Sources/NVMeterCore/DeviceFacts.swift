@@ -14,6 +14,7 @@ public struct DeviceFacts: Sendable, Equatable {
     public var connectionLabel: String      // e.g. "Apple Fabric (internal)"
     public var dockName: String?            // e.g. "WERO TBT5 1M2-DOCK"
     public var brand: String?               // resolved from PCI vendor or model
+    public var modelHint: String?           // diskutil MediaName, fallback when smartctl blocked
     public var capacityBytes: Int64
     public var usedBytes: Int64?
     public var powerOnHours: Int?
@@ -24,6 +25,7 @@ public struct DeviceFacts: Sendable, Equatable {
         connectionLabel: String = "Unknown",
         dockName: String? = nil,
         brand: String? = nil,
+        modelHint: String? = nil,
         capacityBytes: Int64 = 0,
         usedBytes: Int64? = nil,
         powerOnHours: Int? = nil,
@@ -33,6 +35,7 @@ public struct DeviceFacts: Sendable, Equatable {
         self.connectionLabel = connectionLabel
         self.dockName = dockName
         self.brand = brand
+        self.modelHint = modelHint
         self.capacityBytes = capacityBytes
         self.usedBytes = usedBytes
         self.powerOnHours = powerOnHours

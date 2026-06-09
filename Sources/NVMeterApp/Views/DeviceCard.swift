@@ -10,16 +10,30 @@ struct DeviceSnapshot: Identifiable {
     let level: HealthLevel
     let reasons: [String]
     let facts: DeviceFacts
+    let isBlocked: Bool
 
     init(report: DeviceReport) {
-        self.modelName = report.info.model_name ?? "Unknown device"
-        self.devicePath = report.info.device.name
-        self.temperatureC = report.info.temperature?.current
-            ?? report.info.nvme_smart_health_information_log?.temperature
-        self.percentageUsed = report.info.nvme_smart_health_information_log?.percentage_used
-        self.level = report.assessment.level
-        self.reasons = report.assessment.reasons
-        self.facts = report.facts
+        switch report {
+        case .healthy(let info, let assessment, let facts):
+            self.modelName = info.model_name ?? facts.modelHint ?? "Unknown device"
+            self.devicePath = info.device.name
+            self.temperatureC = info.temperature?.current
+                ?? info.nvme_smart_health_information_log?.temperature
+            self.percentageUsed = info.nvme_smart_health_information_log?.percentage_used
+            self.level = assessment.level
+            self.reasons = assessment.reasons
+            self.facts = facts
+            self.isBlocked = false
+        case .blocked(let path, let facts):
+            self.modelName = facts.modelHint ?? "External drive"
+            self.devicePath = path
+            self.temperatureC = nil
+            self.percentageUsed = nil
+            self.level = .unknown
+            self.reasons = []
+            self.facts = facts
+            self.isBlocked = true
+        }
     }
 }
 
@@ -31,7 +45,8 @@ struct DeviceCard: View {
             header
             subtitle
             if snapshot.facts.usageFraction != nil { capacityBar }
-            metrics
+            if !snapshot.isBlocked { metrics }
+            else { blockedNotice }
             connectionChip
             if !snapshot.reasons.isEmpty { reasonsBlock }
         }
@@ -49,7 +64,7 @@ struct DeviceCard: View {
     private var header: some View {
         HStack(alignment: .firstTextBaseline, spacing: Theme.Spacing.xs) {
             Circle()
-                .fill(Theme.color(for: snapshot.level))
+                .fill(snapshot.isBlocked ? Color.orange : Theme.color(for: snapshot.level))
                 .frame(width: 8, height: 8)
                 .offset(y: -1)
             Text(snapshot.modelName)
@@ -160,6 +175,29 @@ struct DeviceCard: View {
         .foregroundStyle(Theme.color(for: snapshot.level))
         .background(
             Capsule().fill(Theme.color(for: snapshot.level).opacity(0.15))
+        )
+    }
+
+    private var blockedNotice: some View {
+        HStack(alignment: .top, spacing: 6) {
+            Image(systemName: "exclamationmark.triangle.fill")
+                .foregroundStyle(.orange)
+                .imageScale(.small)
+            VStack(alignment: .leading, spacing: 2) {
+                Text("SMART pass-through blocked by macOS")
+                    .font(.caption.weight(.medium))
+                    .foregroundStyle(.primary)
+                Text("Most USB-SATA & USB-NVMe bridges can't expose SMART on macOS. Capacity and connection still shown.")
+                    .font(.caption2)
+                    .foregroundStyle(.secondary)
+                    .fixedSize(horizontal: false, vertical: true)
+            }
+        }
+        .padding(8)
+        .frame(maxWidth: .infinity, alignment: .leading)
+        .background(
+            RoundedRectangle(cornerRadius: 6)
+                .fill(Color.orange.opacity(0.08))
         )
     }
 

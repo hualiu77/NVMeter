@@ -16,21 +16,29 @@ public actor SystemProbe {
 
     public init() {}
 
-    public func probe(devicePath: String, info: SmartctlInfo) async -> DeviceFacts {
+    /// Probe a device. `info` is nil for devices smartctl couldn't read
+    /// (most USB-SATA bridges on macOS) — in that case we fill `modelHint`
+    /// and `brand` from `diskutil info`'s MediaName as a graceful fallback.
+    public func probe(devicePath: String, info: SmartctlInfo?) async -> DeviceFacts {
         var facts = DeviceFacts()
 
-        if let vendorID = info.nvme_pci_vendor?.id {
-            facts.brand = PCIVendor.name(forID: UInt32(vendorID))
+        if let info {
+            if let vendorID = info.nvme_pci_vendor?.id {
+                facts.brand = PCIVendor.name(forID: UInt32(vendorID))
+            }
+            if facts.brand == nil, let model = info.model_name {
+                facts.brand = inferBrand(fromModel: model)
+            }
+            facts.powerOnHours = info.nvme_smart_health_information_log?.power_on_hours
+                ?? info.power_on_time?.hours
         }
-        if facts.brand == nil, let model = info.model_name {
-            facts.brand = inferBrand(fromModel: model)
-        }
-
-        facts.powerOnHours = info.nvme_smart_health_information_log?.power_on_hours
-            ?? info.power_on_time?.hours
 
         if let du = diskutilInfo(devicePath: devicePath) {
             facts.capacityBytes = du.size
+            facts.modelHint = du.mediaName
+            if facts.brand == nil, let media = du.mediaName {
+                facts.brand = inferBrand(fromModel: media)
+            }
 
             switch du.busProtocol {
             case "Apple Fabric":
@@ -74,6 +82,7 @@ public actor SystemProbe {
         var size: Int64
         var busProtocol: String?
         var isInternal: Bool
+        var mediaName: String?
     }
 
     private func diskutilInfo(devicePath: String) -> DiskutilInfo? {
@@ -82,7 +91,8 @@ public actor SystemProbe {
         return DiskutilInfo(
             size: size,
             busProtocol: plist["BusProtocol"] as? String,
-            isInternal: (plist["Internal"] as? Bool) ?? false
+            isInternal: (plist["Internal"] as? Bool) ?? false,
+            mediaName: plist["MediaName"] as? String
         )
     }
 
@@ -165,13 +175,19 @@ public actor SystemProbe {
         return max(0, total - free)
     }
 
-    /// "disk6s2" → "disk6";  "disk6" → "disk6".
+    /// "disk0s2" → "disk0";  "disk14s3" → "disk14";  "disk6" → "disk6".
+    ///
+    /// We can't just `firstIndex(of: "s")` because the literal "disk" itself
+    /// contains an 's' (the one in "di**s**k"), which would slice the wrong
+    /// place and silently break the synthesized-container → physical-disk
+    /// mapping. Walk the prefix explicitly: consume "disk" then digits.
     private func stripPartition(_ deviceID: String) -> String {
-        guard let sIdx = deviceID.firstIndex(of: "s"),
-              sIdx > deviceID.startIndex,
-              deviceID[deviceID.index(before: sIdx)].isNumber
-        else { return deviceID }
-        return String(deviceID[..<sIdx])
+        guard deviceID.hasPrefix("disk") else { return deviceID }
+        var endIdx = deviceID.index(deviceID.startIndex, offsetBy: 4)
+        while endIdx < deviceID.endIndex, deviceID[endIdx].isNumber {
+            endIdx = deviceID.index(after: endIdx)
+        }
+        return String(deviceID[..<endIdx])
     }
 
     // MARK: - Thunderbolt

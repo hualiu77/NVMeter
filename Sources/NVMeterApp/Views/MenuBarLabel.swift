@@ -1,11 +1,14 @@
 import SwiftUI
 
-/// Menu-bar status item: BentoMark, optionally followed by a colored
-/// status dot + the hottest drive's current temperature.
+/// Menu-bar status item.
 ///
-/// The dot is a SwiftUI `Shape` (not Text), which renders reliably in
-/// the menu bar even when AppKit applies template-image treatment to
-/// the rest of the label. Text color is also set, as a belt-and-braces.
+/// macOS aggressively templates `MenuBarExtra` label content — SwiftUI
+/// `Shape` fills and `.foregroundStyle()` on text are silently dropped
+/// down to the menu-bar's text color. The reliable way to show color
+/// is to use **emoji glyphs**, which are stored as colored bitmaps in
+/// the system font and survive template treatment unchanged.
+///
+/// So the dot we render is `🟢 / 🟡 / 🔴` rather than a SwiftUI Circle.
 struct MenuBarLabel: View {
     @ObservedObject var model: AppModel
     @AppStorage(SettingsKeys.showTempInMenuBar) private var showTemp = true
@@ -18,19 +21,17 @@ struct MenuBarLabel: View {
                 .frame(width: 16, height: 16)
 
             if showTemp, let temp = model.hottestTemp {
-                Circle()
-                    .fill(color(forTemp: temp))
-                    .frame(width: 6, height: 6)
-                Text("\(temp)°")
+                Text(menuText(for: temp))
                     .font(.system(size: 13, weight: .medium).monospacedDigit())
-                    .foregroundStyle(color(forTemp: temp))
             }
         }
     }
 
-    private func color(forTemp temp: Int) -> Color {
-        if temp < warningTemp { .green }
-        else if temp < criticalTemp { .yellow }
-        else { .red }
+    private func menuText(for temp: Int) -> String {
+        let dot: String
+        if temp >= criticalTemp { dot = "🔴" }
+        else if temp >= warningTemp { dot = "🟡" }
+        else { dot = "🟢" }
+        return "\(dot) \(temp)°"
     }
 }
