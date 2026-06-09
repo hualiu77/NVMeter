@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+    <!-- We are NOT sandboxed: smartctl needs raw access to /dev/diskN,
+         we shell out to diskutil and system_profiler, and we read user
+         volume capacities via FileManager.attributesOfFileSystem. None
+         of this is allowed in the App Store sandbox. Distribution path
+         is Developer ID + notarization, not the App Store. -->
+    <key>com.apple.security.app-sandbox</key>
+    <false/>
+
+    <!-- Required so the hardened-runtime loader will accept our embedded
+         smartctl binary (which is signed with our Developer ID but lives
+         outside any system-trusted location). -->
+    <key>com.apple.security.cs.disable-library-validation</key>
+    <true/>
+</dict>
+</plist>

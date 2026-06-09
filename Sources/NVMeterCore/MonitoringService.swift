@@ -38,6 +38,11 @@ public actor MonitoringService {
         self.interval = interval
     }
 
+    /// Recent samples for one device, newest first.
+    public func history(devicePath: String, limit: Int = 2000) throws -> [HealthSample] {
+        try store.recent(device: devicePath, limit: limit)
+    }
+
     public func tickOnce() async throws -> [DeviceReport] {
         let scanned = try runner.scan()
         var results: [DeviceReport] = []

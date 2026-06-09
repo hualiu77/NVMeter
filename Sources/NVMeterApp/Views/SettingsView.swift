@@ -1,16 +1,19 @@
 import SwiftUI
 import AppKit
+import Combine
 
 enum SettingsKeys {
     static let showTempInMenuBar = "showTempInMenuBar"
     static let warningTempC      = "warningTempC"
     static let criticalTempC     = "criticalTempC"
+    static let notificationsEnabled = "notificationsEnabled"
 }
 
 struct SettingsView: View {
     @AppStorage(SettingsKeys.showTempInMenuBar) private var showTemp = true
     @AppStorage(SettingsKeys.warningTempC)      private var warningTemp = 60
     @AppStorage(SettingsKeys.criticalTempC)     private var criticalTemp = 70
+    @AppStorage(SettingsKeys.notificationsEnabled) private var notifyEnabled = true
 
     var body: some View {
         TabView {
@@ -35,6 +38,17 @@ struct SettingsView: View {
                 Text("Menu bar")
             } footer: {
                 Text("When off, only the NVMeter icon is shown.")
+                    .font(.caption)
+                    .foregroundStyle(.secondary)
+            }
+
+            Section {
+                Toggle("Notify when a drive crosses a threshold", isOn: $notifyEnabled)
+                    .help("Posts a system notification when a drive enters the warning or critical band. Debounced to once per device per 5 minutes.")
+            } header: {
+                Text("Notifications")
+            } footer: {
+                Text("First time you enable this, macOS will ask for permission. You can revisit it under System Settings → Notifications → NVMeter.")
                     .font(.caption)
                     .foregroundStyle(.secondary)
             }
@@ -161,15 +175,23 @@ struct SettingsView: View {
 ///    app, just-being-created, already-frontmost).
 @MainActor
 func showSettingsWindow(using openSettings: () -> Void) {
+    bringWindowToFront { openSettings() }
+}
+
+/// Generic "open this window AND make it the key foreground window" —
+/// works for the Settings scene, the History window, anything else.
+/// Handles the menu-bar-app activation-policy gymnastics in one place.
+@MainActor
+func bringWindowToFront(opening open: () -> Void) {
     if NSApp.activationPolicy() != .regular {
         NSApp.setActivationPolicy(.regular)
     }
     NSApp.activate(ignoringOtherApps: true)
-    openSettings()
+    open()
 
     func focusSettings() {
-        for window in NSApp.windows where window.isVisible && window.canBecomeMain {
-            // Skip the menu-bar popover (NSPopoverWindow / panel-style).
+        var foundOne = false
+        for window in NSApp.windows where window.isVisible && window.canBecomeMain {  // shared with bringWindowToFront
             let className = String(describing: type(of: window))
             if className.contains("Popover") { continue }
             if className.contains("StatusBar") { continue }
@@ -177,14 +199,48 @@ func showSettingsWindow(using openSettings: () -> Void) {
 
             window.orderFrontRegardless()
             window.makeKeyAndOrderFront(nil)
+            SettingsWindowWatcher.shared.watch(window)
+            foundOne = true
         }
-        NSApp.activate(ignoringOtherApps: true)
+        if foundOne { NSApp.activate(ignoringOtherApps: true) }
     }
 
-    // Try at 0, 50ms, and 150ms to handle every creation/timing case.
     focusSettings()
     DispatchQueue.main.asyncAfter(deadline: .now() + 0.05) { focusSettings() }
     DispatchQueue.main.asyncAfter(deadline: .now() + 0.15) { focusSettings() }
+}
+
+/// Observes the Settings window so that we can revert to `.accessory`
+/// activation policy (hiding the Dock icon) the moment the user closes it.
+@MainActor
+final class SettingsWindowWatcher {
+    static let shared = SettingsWindowWatcher()
+
+    fileprivate var watched: [ObjectIdentifier: NSObjectProtocol] = [:]
+
+    /// Idempotent: re-watching the same window is a no-op.
+    func watch(_ window: NSWindow) {
+        let key = ObjectIdentifier(window)
+        guard watched[key] == nil else { return }
+
+        let token = NotificationCenter.default.addObserver(
+            forName: NSWindow.willCloseNotification,
+            object: window,
+            queue: .main
+        ) { [weak window] _ in
+            // Hop onto MainActor so we can touch SettingsWindowWatcher's
+            // isolated state and NSApp without a Sendable warning.
+            Task { @MainActor [weak window] in
+                if let w = window {
+                    SettingsWindowWatcher.shared.watched.removeValue(forKey: ObjectIdentifier(w))
+                }
+                if NSApp.activationPolicy() != .accessory {
+                    NSApp.setActivationPolicy(.accessory)
+                }
+            }
+        }
+        watched[key] = token
+    }
 }
 
 #Preview { SettingsView() }

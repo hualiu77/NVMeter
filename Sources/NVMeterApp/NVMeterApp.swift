@@ -16,6 +16,11 @@ struct NVMeterApp: App {
         Settings {
             SettingsView()
         }
+
+        Window("NVMeter — History", id: "history") {
+            HistoryView(model: model)
+        }
+        .defaultSize(width: 720, height: 540)
     }
 }
 
@@ -53,7 +58,10 @@ final class AppModel: ObservableObject {
                     appropriateFor: nil, create: true
                 ).appendingPathComponent("NVMeter", isDirectory: true)
                 try FileManager.default.createDirectory(at: supportDir, withIntermediateDirectories: true)
-                let store = try HistoryStore(url: supportDir.appendingPathComponent("history.sqlite"))
+                let store = try HistoryStore(
+                    url: supportDir.appendingPathComponent("history.sqlite"),
+                    retentionDays: 30
+                )
                 let svc = MonitoringService(runner: runner, store: store, interval: 300)
                 await MainActor.run { self.service = svc }
 
@@ -75,6 +83,12 @@ final class AppModel: ObservableObject {
         isRefreshing = false
     }
 
+    /// Async accessor so views can pull SQLite history off the actor.
+    func history(devicePath: String, limit: Int = 2000) async -> [HealthSample] {
+        guard let svc = service else { return [] }
+        return (try? await svc.history(devicePath: devicePath, limit: limit)) ?? []
+    }
+
     private func tick() async {
         guard let svc = service else { return }
         do {
@@ -82,6 +96,17 @@ final class AppModel: ObservableObject {
             self.devices = results.map { DeviceSnapshot(report: $0) }
             self.lastUpdated = Date()
             self.lastError = nil
+
+            // Hand snapshots to the notifier with the user's current
+            // threshold / enabled settings (read here so the Notifier
+            // doesn't need its own @AppStorage plumbing).
+            let defaults = UserDefaults.standard
+            let settings = NotificationSettings(
+                enabled: defaults.object(forKey: SettingsKeys.notificationsEnabled) as? Bool ?? true,
+                warningC: defaults.object(forKey: SettingsKeys.warningTempC) as? Int ?? 60,
+                criticalC: defaults.object(forKey: SettingsKeys.criticalTempC) as? Int ?? 70
+            )
+            await Notifier.shared.evaluate(self.devices, settings: settings)
         } catch {
             self.lastError = error.localizedDescription
         }

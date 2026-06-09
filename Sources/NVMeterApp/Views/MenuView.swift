@@ -4,6 +4,7 @@ import NVMeterCore
 struct MenuView: View {
     @ObservedObject var model: AppModel
     @Environment(\.openSettings) private var openSettings
+    @Environment(\.openWindow)   private var openWindow
 
     var body: some View {
         VStack(alignment: .leading, spacing: 0) {
@@ -94,6 +95,14 @@ struct MenuView: View {
             }
             .buttonStyle(.borderless)
             .disabled(model.isRefreshing)
+
+            Button {
+                bringWindowToFront { openWindow(id: "history") }
+            } label: {
+                Label("History", systemImage: "chart.line.uptrend.xyaxis")
+            }
+            .buttonStyle(.borderless)
+            .help("Long-term trend charts")
 
             Spacer()
 
