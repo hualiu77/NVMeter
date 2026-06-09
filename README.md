@@ -82,7 +82,7 @@ message instead of a scary error.
 
 ## Building from source
 
-Requirements: macOS 13+, Xcode 15+ / Swift 5.9+, `smartmontools` installed (`brew install smartmontools`).
+Requirements: macOS 14+ (Sonoma), Xcode 15+ / Swift 5.9+, `smartmontools` installed (`brew install smartmontools`).
 
 ```bash
 git clone https://github.com/hualiu77/NVMeter.git
