@@ -22,14 +22,14 @@ struct MenuView: View {
         HStack(spacing: Theme.Spacing.s) {
             BentoMark()
                 .frame(width: 22, height: 22)
-            Text("NVMeter")
+            Text(LR("NVMeter"))
                 .font(.title3.weight(.bold))
             Spacer()
             if let last = model.lastUpdated {
                 Text(last, format: .relative(presentation: .named))
                     .font(.caption2)
                     .foregroundStyle(.secondary)
-                    .help("Hover any metric tile to see what it means · See Settings → Help for the full reference")
+                    .help(L("Hover any metric tile to see what it means · See Settings → Help for the full reference"))
             }
         }
         .padding(.horizontal, Theme.Spacing.l)
@@ -60,7 +60,7 @@ struct MenuView: View {
         VStack(spacing: Theme.Spacing.s) {
             ProgressView()
                 .controlSize(.small)
-            Text("Reading SMART data…")
+            Text(LR("Reading SMART data…"))
                 .font(.callout)
                 .foregroundStyle(.secondary)
         }
@@ -70,14 +70,14 @@ struct MenuView: View {
 
     private func errorState(_ message: String) -> some View {
         VStack(alignment: .leading, spacing: Theme.Spacing.s) {
-            Label("Could not read SMART data", systemImage: "exclamationmark.triangle.fill")
+            Label(LR("Could not read SMART data"), systemImage: "exclamationmark.triangle.fill")
                 .font(.callout.weight(.semibold))
                 .foregroundStyle(.orange)
             Text(message)
                 .font(.caption)
                 .foregroundStyle(.secondary)
                 .textSelection(.enabled)
-            Text("Make sure smartmontools is installed:\n  brew install smartmontools")
+            Text(LR("Make sure smartmontools is installed:\n  brew install smartmontools"))
                 .font(.caption.monospaced())
                 .foregroundStyle(.secondary)
                 .padding(.top, 4)
@@ -91,7 +91,7 @@ struct MenuView: View {
             Button {
                 Task { await model.refreshNow() }
             } label: {
-                Label("Refresh", systemImage: "arrow.clockwise")
+                Label(LR("Refresh"), systemImage: "arrow.clockwise")
             }
             .buttonStyle(.borderless)
             .disabled(model.isRefreshing)
@@ -99,10 +99,10 @@ struct MenuView: View {
             Button {
                 bringWindowToFront { openWindow(id: "history") }
             } label: {
-                Label("History", systemImage: "chart.line.uptrend.xyaxis")
+                Label(LR("History"), systemImage: "chart.line.uptrend.xyaxis")
             }
             .buttonStyle(.borderless)
-            .help("Long-term trend charts")
+            .help(L("Long-term trend charts"))
 
             Spacer()
 
@@ -112,7 +112,7 @@ struct MenuView: View {
                 Image(systemName: "gearshape")
             }
             .buttonStyle(.borderless)
-            .help("Settings")
+            .help(L("Settings"))
 
             Button {
                 NSApplication.shared.terminate(nil)
@@ -120,7 +120,7 @@ struct MenuView: View {
                 Image(systemName: "power")
             }
             .buttonStyle(.borderless)
-            .help("Quit NVMeter")
+            .help(L("Quit NVMeter"))
         }
         .padding(.horizontal, Theme.Spacing.l)
         .padding(.vertical, Theme.Spacing.s)

@@ -17,7 +17,7 @@ struct NVMeterApp: App {
             SettingsView()
         }
 
-        Window("NVMeter — History", id: "history") {
+        Window(LR("NVMeter — History"), id: "history") {
             HistoryView(model: model)
         }
         .defaultSize(width: 720, height: 540)

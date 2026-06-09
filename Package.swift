@@ -22,7 +22,8 @@ let package = Package(
         ),
         .executableTarget(
             name: "NVMeterApp",
-            dependencies: ["NVMeterCore"]
+            dependencies: ["NVMeterCore"],
+            resources: [.process("Resources")]
         ),
         .testTarget(
             name: "NVMeterCoreTests",

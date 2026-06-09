@@ -129,23 +129,23 @@ struct DeviceCard: View {
     private var metrics: some View {
         HStack(alignment: .firstTextBaseline, spacing: Theme.Spacing.m) {
             if let t = snapshot.temperatureC {
-                metric(value: "\(t)°", unit: "C", label: "Temp", help: helpTemp)
+                metric(value: "\(t)°", unit: L("C"), label: L("Temp"), help: helpTemp)
             }
             if let u = snapshot.percentageUsed {
-                metric(value: "\(u)", unit: "%", label: "Wear", help: helpWear)
+                metric(value: "\(u)", unit: "%", label: L("Wear"), help: helpWear)
             }
             if let h = snapshot.facts.powerOnHuman {
                 let parts = h.split(separator: " ", maxSplits: 1)
                 metric(value: String(parts.first ?? ""),
                        unit: String(parts.dropFirst().first ?? ""),
-                       label: "Power-on",
+                       label: L("Power-on"),
                        help: helpPowerOn)
             }
             if let w = snapshot.facts.lifetimeWrittenHuman {
                 let parts = w.split(separator: " ", maxSplits: 1)
                 metric(value: String(parts.first ?? ""),
                        unit: String(parts.dropFirst().first ?? ""),
-                       label: "Written",
+                       label: L("Written"),
                        help: helpWritten)
             }
             Spacer(minLength: 0)
@@ -215,7 +215,7 @@ struct DeviceCard: View {
         HStack(spacing: 4) {
             Image(systemName: Theme.systemImage(for: snapshot.level))
                 .imageScale(.small)
-            Text(snapshot.level.rawValue.capitalized)
+            Text(localizedLevelLabel(snapshot.level))
                 .font(.caption.weight(.medium))
         }
         .padding(.horizontal, 8)
@@ -233,10 +233,10 @@ struct DeviceCard: View {
                     .foregroundStyle(.orange)
                     .imageScale(.small)
                 VStack(alignment: .leading, spacing: 2) {
-                    Text("SMART pass-through blocked by macOS")
+                    Text(LR("SMART pass-through blocked by macOS"))
                         .font(.caption.weight(.medium))
                         .foregroundStyle(.primary)
-                    Text("Most USB-SATA & USB-NVMe bridges can't expose SMART on macOS. Capacity and connection still shown.")
+                    Text(LR("Most USB-SATA & USB-NVMe bridges can't expose SMART on macOS. Capacity and connection still shown."))
                         .font(.caption2)
                         .foregroundStyle(.secondary)
                         .fixedSize(horizontal: false, vertical: true)
@@ -248,7 +248,7 @@ struct DeviceCard: View {
             } label: {
                 HStack(spacing: 4) {
                     Image(systemName: "paperplane.fill").imageScale(.small)
-                    Text("Help map this enclosure")
+                    Text(LR("Help map this enclosure"))
                 }
                 .font(.caption.weight(.medium))
                 .foregroundStyle(.orange)
@@ -259,7 +259,7 @@ struct DeviceCard: View {
                 )
             }
             .buttonStyle(.plain)
-            .help("Opens a pre-filled GitHub Issue with your ioreg + smartctl probe results so we can add this enclosure to the community database.")
+            .help(L("Opens a pre-filled GitHub Issue with your ioreg + smartctl probe results so we can add this enclosure to the community database."))
         }
         .padding(8)
         .frame(maxWidth: .infinity, alignment: .leading)
@@ -284,6 +284,15 @@ struct DeviceCard: View {
         .background(
             Capsule().fill(Color.primary.opacity(0.05))
         )
+    }
+
+    private func localizedLevelLabel(_ level: HealthLevel) -> String {
+        switch level {
+        case .good:     L("Good")
+        case .warning:  L("Warning")
+        case .critical: L("Critical")
+        case .unknown:  L("Unknown")
+        }
     }
 
     private var connectionIcon: String {

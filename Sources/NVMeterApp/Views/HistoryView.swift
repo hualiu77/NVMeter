@@ -37,14 +37,14 @@ struct HistoryView: View {
 
     private var toolbar: some View {
         HStack(spacing: Theme.Spacing.l) {
-            Picker("Drive", selection: $selectedDevice) {
+            Picker(LR("Drive"), selection: $selectedDevice) {
                 ForEach(devicePickerOptions, id: \.self) { path in
                     Text(deviceLabel(for: path)).tag(path)
                 }
             }
             .frame(minWidth: 200)
 
-            Picker("Range", selection: $range) {
+            Picker(LR("Range"), selection: $range) {
                 ForEach(Range.allCases) { r in
                     Text(r.rawValue).tag(r)
                 }
@@ -57,7 +57,7 @@ struct HistoryView: View {
             if isLoading {
                 ProgressView().controlSize(.small)
             }
-            Text("\(filteredSamples.count) samples")
+            Text(String(localized: "\(filteredSamples.count) samples", bundle: .module))
                 .font(.caption)
                 .foregroundStyle(.secondary)
                 .monospacedDigit()
@@ -100,26 +100,26 @@ struct HistoryView: View {
     @ViewBuilder
     private var content: some View {
         if selectedDevice.isEmpty {
-            empty("No drives to chart yet.")
+            empty(L("No drives to chart yet."))
         } else if filteredSamples.isEmpty {
-            empty("No samples for this range yet — NVMeter polls every 5 minutes.")
+            empty(L("No samples for this range yet — NVMeter polls every 5 minutes."))
         } else {
             ScrollView {
                 VStack(spacing: Theme.Spacing.l) {
                     chartSection(
-                        title: "Temperature",
+                        title: L("Temperature"),
                         unit: "°C",
                         values: filteredSamples.compactMap { s in s.temperatureC.map { (s.timestamp, Double($0)) } },
                         accent: .red
                     )
                     chartSection(
-                        title: "Wear (NAND % used)",
+                        title: L("Wear (NAND % used)"),
                         unit: "%",
                         values: filteredSamples.compactMap { s in s.percentageUsed.map { (s.timestamp, Double($0)) } },
                         accent: .orange
                     )
                     chartSection(
-                        title: "Lifetime writes",
+                        title: L("Lifetime writes"),
                         unit: "TB",
                         values: filteredSamples.compactMap { s in s.dataUnitsWritten.map { (s.timestamp, Double($0) * 500_000 / 1e12) } },
                         accent: Theme.Brand.primary
@@ -157,7 +157,7 @@ struct HistoryView: View {
             }
 
             if values.isEmpty {
-                Text("No data for this metric.")
+                Text(LR("No data for this metric."))
                     .font(.caption).foregroundStyle(.tertiary)
                     .padding(.vertical, 30)
             } else {

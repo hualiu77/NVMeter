@@ -23,8 +23,17 @@ enum IssueReporter {
     /// Build the report and open it in the browser. Safe to call from
     /// the main thread; the diagnostic gathering runs off-actor.
     static func report(for snapshot: DeviceSnapshot) {
-        // Snapshot the few fields the detached work needs so we don't
-        // capture the @MainActor-bound struct across an isolation hop.
+        // If the user has already submitted a report for this device's
+        // model hint recently, ask before opening another issue. We do
+        // this BEFORE the (expensive) ioreg/smartctl probe so spamming
+        // the button doesn't lock up the UI.
+        if let prev = ReportHistory.shared.lastReport(for: snapshot.modelName),
+           Date().timeIntervalSince(prev.lastReportedAt) < 30 * 24 * 3600 {
+            if !confirmDuplicate(modelName: snapshot.modelName, previous: prev) {
+                return
+            }
+        }
+
         let modelName    = snapshot.modelName
         let devicePath   = snapshot.devicePath
         let connection   = snapshot.facts.connectionLabel
@@ -42,8 +51,25 @@ enum IssueReporter {
                 mountPoints: mountPoints,
                 version: version
             )
-            await MainActor.run { openOrCopy(title: title, body: body) }
+            await MainActor.run {
+                openOrCopy(title: title, body: body)
+                ReportHistory.shared.recordSubmission(model: modelName)
+            }
         }
+    }
+
+    private static func confirmDuplicate(modelName: String, previous: ReportRecord) -> Bool {
+        let daysAgo = Int(Date().timeIntervalSince(previous.lastReportedAt) / 86400)
+        let alert = NSAlert()
+        alert.messageText = String(localized: "Already reported", bundle: .module)
+        alert.informativeText = String(localized:
+            "You've already submitted \(previous.count) report(s) for **\(modelName)** — the most recent was \(daysAgo) day(s) ago. Are you sure you want to file another?",
+            bundle: .module
+        )
+        alert.alertStyle = .informational
+        alert.addButton(withTitle: String(localized: "Submit anyway", bundle: .module))
+        alert.addButton(withTitle: String(localized: "Cancel", bundle: .module))
+        return alert.runModal() == .alertFirstButtonReturn
     }
 
     // MARK: - Composition (nonisolated — safe off-actor)
