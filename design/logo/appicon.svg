@@ -1,0 +1,31 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1024 1024" role="img" aria-label="NVMeter app icon">
+  <title>NVMeter — macOS app icon (1024×1024)</title>
+  <!--
+    macOS app icon. Dark charcoal plate (#1A2A2E) so the cyan mark pops,
+    with a subtle top-to-bottom highlight to avoid looking flat.
+    Plate uses the standard macOS Big Sur+ corner radius (~22.5% of side
+    = 230pt on a 1024 canvas). macOS does NOT auto-round app icons; the
+    rounded plate must be baked into the source.
+  -->
+  <defs>
+    <linearGradient id="plate" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#243A3F"/>
+      <stop offset="1" stop-color="#142023"/>
+    </linearGradient>
+  </defs>
+
+  <!-- Plate -->
+  <rect x="0" y="0" width="1024" height="1024" rx="230" ry="230" fill="url(#plate)"/>
+
+  <!-- Inner shadow / subtle ring for depth -->
+  <rect x="6" y="6" width="1012" height="1012" rx="226" ry="226"
+        fill="none" stroke="rgba(255,255,255,0.06)" stroke-width="2"/>
+
+  <!-- Centered mark (scaled 10x from the 64-unit master) -->
+  <g transform="translate(192 192) scale(10)">
+    <g fill="none" stroke="#2BB1B8" stroke-linecap="round" stroke-linejoin="round">
+      <path d="M 14 6 H 50 Q 58 6 58 14 V 26 L 53 26 V 32 L 58 32 V 50 Q 58 58 50 58 H 14 Q 6 58 6 50 V 14 Q 6 6 14 6 Z" stroke-width="3"/>
+      <path d="M 18 42 L 18 22 L 32 32 L 46 22 L 46 42" stroke-width="5"/>
+    </g>
+  </g>
+</svg>

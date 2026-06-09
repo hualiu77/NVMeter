@@ -3,7 +3,7 @@ import PackageDescription
 
 let package = Package(
     name: "NVMeter",
-    platforms: [.macOS(.v13)],
+    platforms: [.macOS(.v14)],
     products: [
         .library(name: "NVMeterCore", targets: ["NVMeterCore"]),
         .executable(name: "NVMeterApp", targets: ["NVMeterApp"]),

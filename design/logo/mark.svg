@@ -1,0 +1,23 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" role="img" aria-label="NVMeter mark">
+  <title>NVMeter mark — M in a chip frame with M.2 key notch</title>
+  <g fill="none" stroke="#2BB1B8" stroke-linecap="round" stroke-linejoin="round">
+    <!-- Rounded chip frame with a clean rectangular M-key notch on the right edge -->
+    <path d="M 14 6
+             H 50
+             Q 58 6 58 14
+             V 26
+             L 53 26
+             V 32
+             L 58 32
+             V 50
+             Q 58 58 50 58
+             H 14
+             Q 6 58 6 50
+             V 14
+             Q 6 6 14 6 Z"
+          stroke-width="3"/>
+
+    <!-- Centered M -->
+    <path d="M 18 42 L 18 22 L 32 32 L 46 22 L 46 42" stroke-width="5"/>
+  </g>
+</svg>

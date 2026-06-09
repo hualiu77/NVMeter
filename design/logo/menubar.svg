@@ -1,0 +1,14 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" role="img" aria-label="NVMeter menu bar icon">
+  <title>NVMeter — 16×16 template icon for the macOS menu bar</title>
+  <!--
+    Single-color template image. Uses currentColor so SwiftUI's
+    .foregroundStyle() and AppKit's template-image inversion both work.
+    Strokes are sized for 16px rendering — checked against 1× and 2×.
+  -->
+  <g fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round">
+    <!-- Chip frame with M-key notch on right -->
+    <path d="M 3.5 2 H 12.5 Q 14 2 14 3.5 V 6.5 L 13 6.5 V 9.5 L 14 9.5 V 12.5 Q 14 14 12.5 14 H 3.5 Q 2 14 2 12.5 V 3.5 Q 2 2 3.5 2 Z" stroke-width="1.25"/>
+    <!-- Centered M -->
+    <path d="M 5 10.5 L 5 6 L 8 8.5 L 11 6 L 11 10.5" stroke-width="1.6"/>
+  </g>
+</svg>
