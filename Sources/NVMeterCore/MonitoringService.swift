@@ -1,8 +1,16 @@
 import Foundation
 
+/// Result of polling one device: smartctl data + scored health + system facts.
+public struct DeviceReport: Sendable {
+    public let info: SmartctlInfo
+    public let assessment: HealthAssessment
+    public let facts: DeviceFacts
+}
+
 public actor MonitoringService {
     private let runner: SmartctlRunner
     private let scorer = HealthScorer()
+    private let probe = SystemProbe()
     private let store: HistoryStore
     private let interval: TimeInterval
 
@@ -12,12 +20,14 @@ public actor MonitoringService {
         self.interval = interval
     }
 
-    public func tickOnce() async throws -> [(SmartctlInfo, HealthAssessment)] {
+    public func tickOnce() async throws -> [DeviceReport] {
         let scanned = try runner.scan()
-        var results: [(SmartctlInfo, HealthAssessment)] = []
+        var results: [DeviceReport] = []
         for d in scanned {
             guard let info = try? runner.info(device: d.name) else { continue }
             let assessment = scorer.assess(info)
+            let facts = await probe.probe(devicePath: d.name, info: info)
+
             let sample = HealthSample(
                 id: nil,
                 deviceName: info.device.name,
@@ -31,7 +41,7 @@ public actor MonitoringService {
                 healthLevel: assessment.level.rawValue
             )
             try? store.insert(sample)
-            results.append((info, assessment))
+            results.append(DeviceReport(info: info, assessment: assessment, facts: facts))
         }
         try? store.prune()
         return results

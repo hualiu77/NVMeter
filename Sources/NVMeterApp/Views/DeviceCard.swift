@@ -9,19 +9,17 @@ struct DeviceSnapshot: Identifiable {
     let percentageUsed: Int?
     let level: HealthLevel
     let reasons: [String]
+    let facts: DeviceFacts
 
-    init(info: SmartctlInfo, assessment: HealthAssessment) {
-        self.modelName = info.model_name ?? "Unknown device"
-        self.devicePath = info.device.name
-        self.temperatureC = info.temperature?.current
-            ?? info.nvme_smart_health_information_log?.temperature
-        self.percentageUsed = info.nvme_smart_health_information_log?.percentage_used
-        self.level = assessment.level
-        self.reasons = assessment.reasons
-    }
-
-    init(_ pair: (SmartctlInfo, HealthAssessment)) {
-        self.init(info: pair.0, assessment: pair.1)
+    init(report: DeviceReport) {
+        self.modelName = report.info.model_name ?? "Unknown device"
+        self.devicePath = report.info.device.name
+        self.temperatureC = report.info.temperature?.current
+            ?? report.info.nvme_smart_health_information_log?.temperature
+        self.percentageUsed = report.info.nvme_smart_health_information_log?.percentage_used
+        self.level = report.assessment.level
+        self.reasons = report.assessment.reasons
+        self.facts = report.facts
     }
 }
 
@@ -31,8 +29,11 @@ struct DeviceCard: View {
     var body: some View {
         VStack(alignment: .leading, spacing: Theme.Spacing.s) {
             header
+            subtitle
+            if snapshot.facts.usageFraction != nil { capacityBar }
             metrics
-            if !snapshot.reasons.isEmpty { reasons }
+            connectionChip
+            if !snapshot.reasons.isEmpty { reasonsBlock }
         }
         .padding(Theme.Layout.cardPadding)
         .frame(maxWidth: .infinity, alignment: .leading)
@@ -43,6 +44,8 @@ struct DeviceCard: View {
         )
     }
 
+    // MARK: - Sections
+
     private var header: some View {
         HStack(alignment: .firstTextBaseline, spacing: Theme.Spacing.xs) {
             Circle()
@@ -52,6 +55,7 @@ struct DeviceCard: View {
             Text(snapshot.modelName)
                 .font(.subheadline.weight(.semibold))
                 .lineLimit(1)
+                .truncationMode(.middle)
             Spacer(minLength: Theme.Spacing.s)
             Text(snapshot.devicePath)
                 .font(.caption.monospaced())
@@ -59,13 +63,67 @@ struct DeviceCard: View {
         }
     }
 
+    private var subtitle: some View {
+        HStack(spacing: 4) {
+            if let brand = snapshot.facts.brand {
+                Text(brand)
+                Text("·").foregroundStyle(.tertiary)
+            }
+            Text(snapshot.facts.capacityHuman)
+            Spacer()
+        }
+        .font(.caption)
+        .foregroundStyle(.secondary)
+    }
+
+    private var capacityBar: some View {
+        VStack(alignment: .leading, spacing: 4) {
+            GeometryReader { geo in
+                ZStack(alignment: .leading) {
+                    RoundedRectangle(cornerRadius: 3)
+                        .fill(Color.primary.opacity(0.10))
+                    RoundedRectangle(cornerRadius: 3)
+                        .fill(usageColor)
+                        .frame(width: geo.size.width * (snapshot.facts.usageFraction ?? 0))
+                }
+            }
+            .frame(height: 6)
+
+            HStack {
+                if let usage = snapshot.facts.usageHuman {
+                    Text(usage)
+                }
+                Spacer()
+                if let frac = snapshot.facts.usageFraction {
+                    Text("\(Int(frac * 100))%")
+                        .monospacedDigit()
+                }
+            }
+            .font(.caption2)
+            .foregroundStyle(.secondary)
+        }
+    }
+
+    private var usageColor: Color {
+        let f = snapshot.facts.usageFraction ?? 0
+        if f >= 0.90 { return .red }
+        if f >= 0.75 { return .orange }
+        return Theme.Brand.primary
+    }
+
     private var metrics: some View {
         HStack(alignment: .firstTextBaseline, spacing: Theme.Spacing.l) {
             if let t = snapshot.temperatureC {
-                metric(value: "\(t)°", unit: "C", label: "Temperature")
+                metric(value: "\(t)°", unit: "C", label: "Temp")
             }
             if let u = snapshot.percentageUsed {
                 metric(value: "\(u)", unit: "%", label: "Wear")
+            }
+            if let h = snapshot.facts.powerOnHuman {
+                let parts = h.split(separator: " ", maxSplits: 1)
+                metric(value: String(parts.first ?? ""),
+                       unit: String(parts.dropFirst().first ?? ""),
+                       label: "Power-on")
             }
             Spacer(minLength: 0)
             levelPill
@@ -76,14 +134,14 @@ struct DeviceCard: View {
         VStack(alignment: .leading, spacing: 2) {
             HStack(alignment: .firstTextBaseline, spacing: 1) {
                 Text(value)
-                    .font(.title2.weight(.semibold).monospacedDigit())
+                    .font(.title3.weight(.semibold).monospacedDigit())
                     .foregroundStyle(.primary)
                 Text(unit)
                     .font(.caption2.weight(.medium))
                     .foregroundStyle(.secondary)
             }
             Text(label)
-                .font(.caption2)
+                .font(.system(size: 9).weight(.medium))
                 .foregroundStyle(.secondary)
                 .textCase(.uppercase)
                 .tracking(0.4)
@@ -105,7 +163,33 @@ struct DeviceCard: View {
         )
     }
 
-    private var reasons: some View {
+    private var connectionChip: some View {
+        HStack(spacing: 4) {
+            Image(systemName: connectionIcon)
+                .imageScale(.small)
+            Text(snapshot.facts.connectionLabel)
+                .lineLimit(1)
+                .truncationMode(.middle)
+        }
+        .font(.caption2)
+        .foregroundStyle(.secondary)
+        .padding(.horizontal, 8)
+        .padding(.vertical, 3)
+        .background(
+            Capsule().fill(Color.primary.opacity(0.05))
+        )
+    }
+
+    private var connectionIcon: String {
+        switch snapshot.facts.bus {
+        case .internalNVMe: "internaldrive"
+        case .thunderbolt:  "bolt.circle"
+        case .usb:          "cable.connector"
+        case .unknown:      "questionmark.circle"
+        }
+    }
+
+    private var reasonsBlock: some View {
         VStack(alignment: .leading, spacing: 2) {
             ForEach(snapshot.reasons, id: \.self) { reason in
                 HStack(alignment: .top, spacing: 4) {
@@ -117,54 +201,5 @@ struct DeviceCard: View {
             }
         }
         .padding(.top, 2)
-    }
-}
-
-#Preview {
-    VStack(spacing: Theme.Spacing.m) {
-        DeviceCard(snapshot: .preview(
-            name: "APPLE SSD AP0512Z", path: "/dev/disk0",
-            temp: 35, used: 0, level: .good, reasons: []
-        ))
-        DeviceCard(snapshot: .preview(
-            name: "CT1000P3PSSD8", path: "/dev/disk6",
-            temp: 73, used: 8, level: .warning,
-            reasons: ["Temperature 73°C is high"]
-        ))
-        DeviceCard(snapshot: .preview(
-            name: "Samsung 980 Pro 2TB", path: "/dev/disk7",
-            temp: 84, used: 92, level: .critical,
-            reasons: ["NAND wear at 92%", "Temperature 84°C is critical"]
-        ))
-    }
-    .padding()
-    .frame(width: Theme.Layout.windowWidth)
-}
-
-extension DeviceSnapshot {
-    static func preview(
-        name: String, path: String,
-        temp: Int?, used: Int?, level: HealthLevel, reasons: [String]
-    ) -> DeviceSnapshot {
-        // SwiftUI previews only — bypass the normal init via reflection-free
-        // direct field assignment using a small helper init below.
-        DeviceSnapshot(
-            modelName: name, devicePath: path,
-            temperatureC: temp, percentageUsed: used,
-            level: level, reasons: reasons
-        )
-    }
-
-    private init(
-        modelName: String, devicePath: String,
-        temperatureC: Int?, percentageUsed: Int?,
-        level: HealthLevel, reasons: [String]
-    ) {
-        self.modelName = modelName
-        self.devicePath = devicePath
-        self.temperatureC = temperatureC
-        self.percentageUsed = percentageUsed
-        self.level = level
-        self.reasons = reasons
     }
 }

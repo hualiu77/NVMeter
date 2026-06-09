@@ -9,7 +9,7 @@ enum SettingsKeys {
 struct SettingsView: View {
     @AppStorage(SettingsKeys.showTempInMenuBar) private var showTemp = true
     @AppStorage(SettingsKeys.warningTempC)      private var warningTemp = 60
-    @AppStorage(SettingsKeys.criticalTempC)     private var criticalTemp = 80
+    @AppStorage(SettingsKeys.criticalTempC)     private var criticalTemp = 70
 
     var body: some View {
         TabView {
@@ -59,7 +59,7 @@ struct SettingsView: View {
             } header: {
                 Text("Temperature thresholds")
             } footer: {
-                Text("NVMe drives typically throttle around 70 °C and signal critical around 80 °C. Defaults match the NVMe spec recommendations.")
+                Text("Defaults: green below warning, yellow between warning and critical, red at or above critical. Spec values for NVMe throttling vary by drive; these thresholds are conservative and match what most users want to see at a glance.")
                     .font(.caption)
                     .foregroundStyle(.secondary)
             }

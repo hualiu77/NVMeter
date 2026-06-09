@@ -31,13 +31,10 @@ public struct HealthScorer {
         let temp = info.temperature?.current ?? info.nvme_smart_health_information_log?.temperature
         if let t = temp {
             switch t {
-            case ...60: break
-            case 61...69:
+            case ...59: break
+            case 60...69:
                 reasons.append("Temperature \(t)°C is elevated")
-                level = max(level, .warning); score -= 5
-            case 70...79:
-                reasons.append("Temperature \(t)°C is high")
-                level = max(level, .warning); score -= 15
+                level = max(level, .warning); score -= 10
             default:
                 reasons.append("Temperature \(t)°C is critical")
                 level = max(level, .critical); score -= 30

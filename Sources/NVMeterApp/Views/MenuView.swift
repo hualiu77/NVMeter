@@ -41,15 +41,16 @@ struct MenuView: View {
         } else if model.devices.isEmpty {
             loadingState
         } else {
-            ScrollView {
-                VStack(spacing: Theme.Spacing.m) {
-                    ForEach(model.devices) { device in
-                        DeviceCard(snapshot: device)
-                    }
+            // ScrollView collapses to zero height inside a self-sizing
+            // MenuBarExtra(.window) popover, so we lay out devices in a
+            // plain VStack and let the window size to content. With many
+            // devices we'll add a properly-bounded ScrollView later.
+            VStack(spacing: Theme.Spacing.m) {
+                ForEach(model.devices) { device in
+                    DeviceCard(snapshot: device)
                 }
-                .padding(Theme.Spacing.l)
             }
-            .frame(maxHeight: Theme.Layout.maxHeight)
+            .padding(Theme.Spacing.l)
         }
     }
 

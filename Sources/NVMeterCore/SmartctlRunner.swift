@@ -81,9 +81,15 @@ public struct SmartctlInfo: Decodable, Sendable {
     public let user_capacity: Capacity?
     public let temperature: TempInfo?
     public let nvme_smart_health_information_log: NVMeHealth?
+    public let nvme_pci_vendor: PCIVendorInfo?
     public let smart_status: SmartStatus?
     public let power_on_time: PowerOn?
     public let power_cycle_count: Int?
+
+    public struct PCIVendorInfo: Decodable, Sendable {
+        public let id: Int?
+        public let subsystem_id: Int?
+    }
 
     public struct DeviceInfo: Decodable, Sendable {
         public let name: String

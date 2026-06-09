@@ -79,7 +79,7 @@ final class AppModel: ObservableObject {
         guard let svc = service else { return }
         do {
             let results = try await svc.tickOnce()
-            self.devices = results.map(DeviceSnapshot.init)
+            self.devices = results.map { DeviceSnapshot(report: $0) }
             self.lastUpdated = Date()
             self.lastError = nil
         } catch {

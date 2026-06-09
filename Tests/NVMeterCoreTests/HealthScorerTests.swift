@@ -27,9 +27,16 @@ final class HealthScorerTests: XCTestCase {
         XCTAssertGreaterThanOrEqual(a.score, 95)
     }
 
-    func testHotDriveWarns() {
-        let a = HealthScorer().assess(info(temp: 75))
+    func testElevatedTempWarns() {
+        // 60-69°C is the new warning band.
+        let a = HealthScorer().assess(info(temp: 65))
         XCTAssertEqual(a.level, .warning)
+    }
+
+    func testHotDriveIsCritical() {
+        // 70°C+ is critical under the user-chosen thresholds.
+        let a = HealthScorer().assess(info(temp: 75))
+        XCTAssertEqual(a.level, .critical)
     }
 
     func testCriticalTemperature() {
