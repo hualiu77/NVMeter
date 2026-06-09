@@ -137,11 +137,22 @@ if [[ "${NOTARIZE:-0}" == "1" ]]; then
     ( cd "$BUILD_DIR" && /usr/bin/ditto -c -k --sequesterRsrc --keepParent "$APP_NAME.app" "$(basename "$ZIP")" )
 fi
 
-# ── 8 · Optional DMG ──────────────────────────────────────────────────────
+# ── 8 · Optional DMG (notarized + stapled) ────────────────────────────────
 if [[ "${MAKE_DMG:-0}" == "1" ]]; then
+    DMG="$BUILD_DIR/${APP_NAME}-${VERSION}.dmg"
     echo "[8/8] dmg"
-    bash scripts/make-dmg.sh "$APP_DIR" "$BUILD_DIR/${APP_NAME}-${VERSION}.dmg"
+    bash scripts/make-dmg.sh "$APP_DIR" "$DMG"
+
+    if [[ "${NOTARIZE:-0}" == "1" ]]; then
+        PROFILE="${KEYCHAIN_PROFILE:-nvmeter-notarize}"
+        echo "       notarize dmg via '$PROFILE'"
+        xcrun notarytool submit "$DMG" --keychain-profile "$PROFILE" --wait 2>&1 | tee "$BUILD_DIR/notarize-dmg.log"
+        xcrun stapler staple "$DMG"
+    fi
 fi
+
+# Strip leftover Finder xattrs from the .app — they can confuse Gatekeeper.
+xattr -cr "$APP_DIR" 2>/dev/null || true
 
 # ── Summary ───────────────────────────────────────────────────────────────
 echo
