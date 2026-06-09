@@ -133,15 +133,32 @@ public actor SystemProbe {
 
         // Pass 2: walk every volume / mounted partition and tally against
         // the physical disk it lives on.
+        //
+        // CAREFUL on APFS containers: every volume inside a container
+        // shares the same physical pool, and `statfs` on any of them
+        // reports the SAME container-level used bytes. Summing them would
+        // 5×-count the same data (e.g. Apple boot SSD would report 2 TB
+        // used of a 500 GB disk). So for each container we take the
+        // first mounted volume's usage exactly once and list all the
+        // mount points for display purposes.
         for entry in entries {
             guard let id = entry["DeviceIdentifier"] as? String else { continue }
             let realDisk = synthToPhysical[id] ?? id
 
+            // Plain (non-APFS) partitions: each is its own physical region.
             for part in (entry["Partitions"] as? [[String: Any]] ?? []) {
-                accumulate(part, into: &map, key: realDisk)
+                accumulatePartition(part, into: &map, key: realDisk)
             }
-            for vol in (entry["APFSVolumes"] as? [[String: Any]] ?? []) {
-                accumulate(vol, into: &map, key: realDisk)
+
+            // APFS container: collect all mounts, but charge usage only once.
+            let mountedAPFSVolumes: [String] = (entry["APFSVolumes"] as? [[String: Any]] ?? [])
+                .compactMap { ($0["MountPoint"] as? String).flatMap { $0.isEmpty ? nil : $0 } }
+            if let representative = mountedAPFSVolumes.first,
+               let containerUsed = statfsUsage(at: representative) {
+                var existing = map[realDisk] ?? DiskMountSummary(mountPoints: [], usedBytes: 0)
+                existing.mountPoints.append(contentsOf: mountedAPFSVolumes)
+                existing.usedBytes += containerUsed
+                map[realDisk] = existing
             }
         }
 
@@ -150,12 +167,13 @@ public actor SystemProbe {
         return map
     }
 
-    private func accumulate(
-        _ volumeEntry: [String: Any],
+    /// Accumulate one non-APFS partition (independent physical region).
+    private func accumulatePartition(
+        _ partition: [String: Any],
         into map: inout [String: DiskMountSummary],
         key: String
     ) {
-        guard let mount = volumeEntry["MountPoint"] as? String, !mount.isEmpty else { return }
+        guard let mount = partition["MountPoint"] as? String, !mount.isEmpty else { return }
         guard let usage = statfsUsage(at: mount) else { return }
         var existing = map[key] ?? DiskMountSummary(mountPoints: [], usedBytes: 0)
         existing.mountPoints.append(mount)
