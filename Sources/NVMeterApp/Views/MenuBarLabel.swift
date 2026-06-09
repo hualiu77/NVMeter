@@ -1,8 +1,11 @@
 import SwiftUI
 
-/// Menu-bar status item: BentoMark, optionally followed by the hottest
-/// drive's current temperature, colored green/yellow/red against
-/// user-configurable thresholds.
+/// Menu-bar status item: BentoMark, optionally followed by a colored
+/// status dot + the hottest drive's current temperature.
+///
+/// The dot is a SwiftUI `Shape` (not Text), which renders reliably in
+/// the menu bar even when AppKit applies template-image treatment to
+/// the rest of the label. Text color is also set, as a belt-and-braces.
 struct MenuBarLabel: View {
     @ObservedObject var model: AppModel
     @AppStorage(SettingsKeys.showTempInMenuBar) private var showTemp = true
@@ -15,6 +18,9 @@ struct MenuBarLabel: View {
                 .frame(width: 16, height: 16)
 
             if showTemp, let temp = model.hottestTemp {
+                Circle()
+                    .fill(color(forTemp: temp))
+                    .frame(width: 6, height: 6)
                 Text("\(temp)°")
                     .font(.system(size: 13, weight: .medium).monospacedDigit())
                     .foregroundStyle(color(forTemp: temp))
@@ -22,7 +28,6 @@ struct MenuBarLabel: View {
         }
     }
 
-    /// <warn → green, [warn, crit) → yellow, ≥crit → red.
     private func color(forTemp temp: Int) -> Color {
         if temp < warningTemp { .green }
         else if temp < criticalTemp { .yellow }

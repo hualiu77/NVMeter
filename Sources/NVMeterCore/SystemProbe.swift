@@ -8,19 +8,17 @@ import Foundation
 /// the App sandbox-friendly and easy to test.
 public actor SystemProbe {
 
-    // Cached Thunderbolt scan, refreshed every 30 s. Walking the TB tree is
-    // cheap but adds ~80 ms which we don't want on every menu-bar tick.
     private var cachedThunderboltDocks: [String] = []
     private var thunderboltCachedAt: Date = .distantPast
 
+    private var cachedDiskMap: [String: DiskMountSummary] = [:]
+    private var diskMapCachedAt: Date = .distantPast
+
     public init() {}
 
-    /// Build a `DeviceFacts` for one disk (e.g. `/dev/disk6`) given the
-    /// smartctl output we already have. Best-effort; missing fields are nil.
     public func probe(devicePath: String, info: SmartctlInfo) async -> DeviceFacts {
         var facts = DeviceFacts()
 
-        // Brand from PCI vendor ID (NVMe), fallback to model prefix.
         if let vendorID = info.nvme_pci_vendor?.id {
             facts.brand = PCIVendor.name(forID: UInt32(vendorID))
         }
@@ -28,11 +26,9 @@ public actor SystemProbe {
             facts.brand = inferBrand(fromModel: model)
         }
 
-        // Power-on hours from NVMe smart log (or fallback to power_on_time).
         facts.powerOnHours = info.nvme_smart_health_information_log?.power_on_hours
             ?? info.power_on_time?.hours
 
-        // Capacity, bus, mount points from diskutil.
         if let du = diskutilInfo(devicePath: devicePath) {
             facts.capacityBytes = du.size
 
@@ -41,8 +37,6 @@ public actor SystemProbe {
                 facts.bus = .internalNVMe
                 facts.connectionLabel = "Apple Fabric (internal)"
             case "PCI-Express":
-                // External NVMe — almost certainly Thunderbolt on a Mac
-                // (Apple doesn't expose raw PCIe to user-facing ports).
                 facts.bus = du.isInternal ? .internalNVMe : .thunderbolt
                 facts.connectionLabel = du.isInternal
                     ? "PCI-Express (internal)"
@@ -56,7 +50,6 @@ public actor SystemProbe {
             }
         }
 
-        // For Thunderbolt devices, append the first connected dock name.
         if facts.bus == .thunderbolt {
             let docks = await thunderboltDocks()
             if let first = docks.first {
@@ -65,15 +58,17 @@ public actor SystemProbe {
             }
         }
 
-        // Mount points + used bytes (sum across all volumes on this disk).
-        let (mounts, used) = mountPointsAndUsage(forWholeDisk: devicePath)
-        facts.mountPoints = mounts
-        facts.usedBytes = used
+        // Mount points + used bytes, computed from a parsed global disk map.
+        let id = devicePath.replacingOccurrences(of: "/dev/", with: "")
+        if let summary = diskMap()[id] {
+            facts.mountPoints = summary.mountPoints
+            facts.usedBytes = summary.usedBytes
+        }
 
         return facts
     }
 
-    // MARK: - diskutil
+    // MARK: - diskutil info (per-device)
 
     private struct DiskutilInfo {
         var size: Int64
@@ -91,39 +86,92 @@ public actor SystemProbe {
         )
     }
 
-    private func mountPointsAndUsage(forWholeDisk devicePath: String) -> (mounts: [String], usedBytes: Int64?) {
-        guard let listPlist = runPlist(["/usr/sbin/diskutil", "list", "-plist", devicePath]),
-              let allDisksAndPartitions = listPlist["AllDisksAndPartitions"] as? [[String: Any]] else {
-            return ([], nil)
+    // MARK: - global disk map (cached)
+
+    private struct DiskMountSummary {
+        var mountPoints: [String]
+        var usedBytes: Int64
+    }
+
+    /// Returns a cached `wholeDiskID → mounted volumes` map.
+    /// Handles APFS synthesized containers: a volume mounted from `disk7s1`
+    /// whose container `disk7` is backed by `disk6s2` is correctly counted
+    /// against the *physical* whole disk `disk6`.
+    private func diskMap() -> [String: DiskMountSummary] {
+        if Date().timeIntervalSince(diskMapCachedAt) < 5 { return cachedDiskMap }
+
+        var map: [String: DiskMountSummary] = [:]
+        guard let plist = runPlist(["/usr/sbin/diskutil", "list", "-plist"]),
+              let entries = plist["AllDisksAndPartitions"] as? [[String: Any]]
+        else {
+            cachedDiskMap = map
+            diskMapCachedAt = Date()
+            return map
         }
 
-        // Gather all child volume identifiers (partitions + APFS volumes).
-        var childIDs: [String] = []
-        for entry in allDisksAndPartitions {
-            if let parts = entry["Partitions"] as? [[String: Any]] {
-                childIDs.append(contentsOf: parts.compactMap { $0["DeviceIdentifier"] as? String })
+        // Pass 1: synthesized-container → physical whole-disk mapping.
+        // Entry of `disk7` carries `APFSPhysicalStores` with `DeviceIdentifier = "disk6s2"`.
+        // `disk6s2` → `disk6` after stripping the partition suffix.
+        var synthToPhysical: [String: String] = [:]
+        for entry in entries {
+            guard let id = entry["DeviceIdentifier"] as? String,
+                  let stores = entry["APFSPhysicalStores"] as? [[String: Any]],
+                  let firstStoreDev = stores.first?["DeviceIdentifier"] as? String
+            else { continue }
+            synthToPhysical[id] = stripPartition(firstStoreDev)
+        }
+
+        // Pass 2: walk every volume / mounted partition and tally against
+        // the physical disk it lives on.
+        for entry in entries {
+            guard let id = entry["DeviceIdentifier"] as? String else { continue }
+            let realDisk = synthToPhysical[id] ?? id
+
+            for part in (entry["Partitions"] as? [[String: Any]] ?? []) {
+                accumulate(part, into: &map, key: realDisk)
             }
-            if let apfsVols = entry["APFSVolumes"] as? [[String: Any]] {
-                childIDs.append(contentsOf: apfsVols.compactMap { $0["DeviceIdentifier"] as? String })
+            for vol in (entry["APFSVolumes"] as? [[String: Any]] ?? []) {
+                accumulate(vol, into: &map, key: realDisk)
             }
         }
 
-        var mounts: [String] = []
-        var totalUsed: Int64 = 0
-        var sawAny = false
+        cachedDiskMap = map
+        diskMapCachedAt = Date()
+        return map
+    }
 
-        for id in childIDs {
-            guard let plist = runPlist(["/usr/sbin/diskutil", "info", "-plist", "/dev/\(id)"]) else { continue }
-            guard let mount = plist["MountPoint"] as? String, !mount.isEmpty else { continue }
-            mounts.append(mount)
-            if let total = (plist["TotalSize"] as? NSNumber)?.int64Value,
-               let free  = (plist["FreeSpace"] as? NSNumber)?.int64Value {
-                totalUsed += max(0, total - free)
-                sawAny = true
-            }
-        }
+    private func accumulate(
+        _ volumeEntry: [String: Any],
+        into map: inout [String: DiskMountSummary],
+        key: String
+    ) {
+        guard let mount = volumeEntry["MountPoint"] as? String, !mount.isEmpty else { return }
+        guard let usage = statfsUsage(at: mount) else { return }
+        var existing = map[key] ?? DiskMountSummary(mountPoints: [], usedBytes: 0)
+        existing.mountPoints.append(mount)
+        existing.usedBytes += usage
+        map[key] = existing
+    }
 
-        return (mounts, sawAny ? totalUsed : nil)
+    /// Returns USED bytes (total − free) for a mounted filesystem.
+    /// Uses Foundation's `FileManager.attributesOfFileSystem(forPath:)`
+    /// which wraps `statvfs(3)` and gives more accurate numbers than
+    /// diskutil's `FreeSpace`, which can be 0 just after a remount.
+    private func statfsUsage(at path: String) -> Int64? {
+        guard let attrs = try? FileManager.default.attributesOfFileSystem(forPath: path),
+              let total = (attrs[.systemSize] as? NSNumber)?.int64Value,
+              let free = (attrs[.systemFreeSize] as? NSNumber)?.int64Value
+        else { return nil }
+        return max(0, total - free)
+    }
+
+    /// "disk6s2" → "disk6";  "disk6" → "disk6".
+    private func stripPartition(_ deviceID: String) -> String {
+        guard let sIdx = deviceID.firstIndex(of: "s"),
+              sIdx > deviceID.startIndex,
+              deviceID[deviceID.index(before: sIdx)].isNumber
+        else { return deviceID }
+        return String(deviceID[..<sIdx])
     }
 
     // MARK: - Thunderbolt
@@ -144,12 +192,11 @@ public actor SystemProbe {
 
         var names: [String] = []
         func walk(_ node: [String: Any]) {
-            // Apple uses "_name" plus a vendor-name-key for connected devices.
             if let kind = node["_name"] as? String,
-               !kind.lowercased().contains("bus") {  // skip host bus entries
-                names.append(kind)
+               !kind.lowercased().contains("bus") {
+                let vendor = (node["vendor_name_key"] as? String) ?? ""
+                names.append(vendor.isEmpty ? kind : "\(vendor) \(kind)")
             }
-            // Children appear as nested arrays under various keys.
             for value in node.values {
                 if let arr = value as? [[String: Any]] {
                     for child in arr { walk(child) }
@@ -157,7 +204,6 @@ public actor SystemProbe {
             }
         }
         for bus in buses { walk(bus) }
-        // De-duplicate while preserving order.
         var seen = Set<String>()
         return names.filter { seen.insert($0).inserted }
     }
@@ -187,8 +233,6 @@ public actor SystemProbe {
         return out.fileHandleForReading.readDataToEndOfFile()
     }
 
-    // MARK: - small helpers
-
     private func inferBrand(fromModel model: String) -> String? {
         let lower = model.lowercased()
         let prefixes: [(String, String)] = [
@@ -198,7 +242,7 @@ public actor SystemProbe {
             ("seagate", "Seagate"), ("kingston", "Kingston"), ("adata", "ADATA"),
             ("lexar", "Lexar"), ("pny", "PNY"), ("apple", "Apple"),
             ("teamgroup", "Team Group"), ("corsair", "Corsair"), ("kioxia", "Kioxia"),
-            ("ct", "Crucial"),       // CTxxxx model prefix
+            ("ct", "Crucial"),
         ]
         for (needle, brand) in prefixes where lower.hasPrefix(needle) { return brand }
         return nil
