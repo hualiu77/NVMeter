@@ -30,7 +30,16 @@ for entry in \
     "1024 icon_512x512@2x   "
 do
     read -r size name <<< "$entry"
-    magick -background none "$SVG" -resize "${size}x${size}" "$OUT_DIR/${name}.png"
+    # Force sRGB output. ImageMagick with librsvg often produces
+    # grayscale+alpha (8-bit color-type=4) PNGs for SVGs whose only
+    # color comes from strokes, which makes the resulting icon render
+    # as a pure black silhouette in the macOS notification banner.
+    # `-colorspace sRGB -define png:color-type=6` forces full RGBA.
+    magick -background none -density 600 "$SVG" \
+           -resize "${size}x${size}" \
+           -colorspace sRGB \
+           -define png:color-type=6 \
+           "PNG32:$OUT_DIR/${name}.png"
 done
 
 echo "Compiling $ICNS ..."

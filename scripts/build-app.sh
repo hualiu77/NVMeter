@@ -83,9 +83,8 @@ fi
 
 # ── 4 · Icon ──────────────────────────────────────────────────────────────
 echo "[4/7] icon"
-if [[ ! -f "$BUILD_DIR/AppIcon.icns" ]]; then
-    bash scripts/make-icns.sh
-fi
+# Always re-render: cheap (~1s) and avoids stale color profiles.
+swift scripts/render-icns.swift
 cp "$BUILD_DIR/AppIcon.icns" "$APP_DIR/Contents/Resources/AppIcon.icns"
 
 # ── 5 · Code sign ─────────────────────────────────────────────────────────
