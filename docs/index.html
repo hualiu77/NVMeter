@@ -39,7 +39,10 @@ a { color: var(--brand-dim); }
 .lang-toggle button:first-child { border-radius: 8px 0 0 8px; }
 .lang-toggle button:last-child  { border-radius: 0 8px 8px 0; }
 .lang-toggle button.active { background: var(--brand); color: #fff; border-color: var(--brand); }
-[lang="zh-Hans"] .en, :not([lang="zh-Hans"]) .zh { display: none; }
+/* Anchor to the html root: a bare :not([lang]) would match every
+   untagged ancestor (body, section, div…), hiding .zh in BOTH modes. */
+html[lang="zh-Hans"] .en { display: none; }
+html:not([lang="zh-Hans"]) .zh { display: none; }
 
 /* hero */
 header { padding: 88px 0 56px; text-align: center; }
