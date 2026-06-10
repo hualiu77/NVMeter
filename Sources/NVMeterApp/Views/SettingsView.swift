@@ -10,10 +10,12 @@ enum SettingsKeys {
 }
 
 struct SettingsView: View {
+    @ObservedObject var updater: UpdaterManager
     @AppStorage(SettingsKeys.showTempInMenuBar) private var showTemp = true
     @AppStorage(SettingsKeys.warningTempC)      private var warningTemp = 60
     @AppStorage(SettingsKeys.criticalTempC)     private var criticalTemp = 70
     @AppStorage(SettingsKeys.notificationsEnabled) private var notifyEnabled = true
+    @State private var autoUpdate = true
 
     var body: some View {
         TabView {
@@ -52,8 +54,29 @@ struct SettingsView: View {
                     .font(.caption)
                     .foregroundStyle(.secondary)
             }
+
+            Section {
+                Toggle(LR("Check for updates automatically"), isOn: $autoUpdate)
+                    .onChange(of: autoUpdate) { _, newValue in
+                        updater.automaticallyChecksForUpdates = newValue
+                    }
+                HStack {
+                    Text(String(localized: "Version \(updater.currentVersion)", bundle: localizationBundle))
+                        .foregroundStyle(.secondary)
+                    Spacer()
+                    Button(LR("Check Now")) { updater.checkForUpdates() }
+                        .disabled(!updater.canCheckForUpdates)
+                }
+            } header: {
+                Text(LR("Updates"))
+            } footer: {
+                Text(LR("Updates are downloaded from GitHub Releases and verified with both Apple notarization and Sparkle's EdDSA signature."))
+                    .font(.caption)
+                    .foregroundStyle(.secondary)
+            }
         }
         .formStyle(.grouped)
+        .onAppear { autoUpdate = updater.automaticallyChecksForUpdates }
     }
 
     private var thresholdsTab: some View {
@@ -243,4 +266,4 @@ final class SettingsWindowWatcher {
     }
 }
 
-#Preview { SettingsView() }
+#Preview { SettingsView(updater: UpdaterManager()) }

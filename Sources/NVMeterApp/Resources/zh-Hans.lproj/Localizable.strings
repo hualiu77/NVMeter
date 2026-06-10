@@ -94,3 +94,8 @@
 "Already in the database: %@" = "已收录于数据库:%@";
 "This enclosure's bridge chip is already catalogued in NVMeter-drivedb. macOS still blocks SMART pass-through for it." = "该硬盘盒的桥接芯片已收录在 NVMeter-drivedb 中。macOS 仍然阻止其 SMART 透传。";
 "Memory cards don't support SMART — capacity shown above." = "存储卡本身不支持 SMART——上方仍显示容量信息。";
+"Check for updates automatically" = "自动检查更新";
+"Check Now" = "立即检查";
+"Updates" = "更新";
+"Version %@" = "版本 %@";
+"Updates are downloaded from GitHub Releases and verified with both Apple notarization and Sparkle's EdDSA signature." = "更新从 GitHub Releases 下载,并经过 Apple 公证与 Sparkle EdDSA 签名双重校验。";

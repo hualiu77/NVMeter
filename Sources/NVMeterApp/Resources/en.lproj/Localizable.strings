@@ -94,3 +94,8 @@
 "Already in the database: %@" = "Already in the database: %@";
 "This enclosure's bridge chip is already catalogued in NVMeter-drivedb. macOS still blocks SMART pass-through for it." = "This enclosure's bridge chip is already catalogued in NVMeter-drivedb. macOS still blocks SMART pass-through for it.";
 "Memory cards don't support SMART — capacity shown above." = "Memory cards don't support SMART — capacity shown above.";
+"Check for updates automatically" = "Check for updates automatically";
+"Check Now" = "Check Now";
+"Updates" = "Updates";
+"Version %@" = "Version %@";
+"Updates are downloaded from GitHub Releases and verified with both Apple notarization and Sparkle's EdDSA signature." = "Updates are downloaded from GitHub Releases and verified with both Apple notarization and Sparkle's EdDSA signature.";

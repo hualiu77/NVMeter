@@ -12,6 +12,7 @@ let package = Package(
     dependencies: [
         .package(url: "https://github.com/groue/GRDB.swift.git", from: "6.29.0"),
         .package(url: "https://github.com/jpsim/Yams.git", from: "5.1.0"),
+        .package(url: "https://github.com/sparkle-project/Sparkle", from: "2.6.0"),
     ],
     targets: [
         .target(
@@ -23,8 +24,16 @@ let package = Package(
         ),
         .executableTarget(
             name: "NVMeterApp",
-            dependencies: ["NVMeterCore"],
-            resources: [.process("Resources")]
+            dependencies: [
+                "NVMeterCore",
+                .product(name: "Sparkle", package: "Sparkle"),
+            ],
+            resources: [.process("Resources")],
+            linkerSettings: [
+                // The packaged .app carries Sparkle.framework in
+                // Contents/Frameworks; the binary must search there.
+                .unsafeFlags(["-Xlinker", "-rpath", "-Xlinker", "@executable_path/../Frameworks"])
+            ]
         ),
         .testTarget(
             name: "NVMeterCoreTests",

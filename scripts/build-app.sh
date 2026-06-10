@@ -65,6 +65,13 @@ chmod +x "$APP_DIR/Contents/MacOS/NVMeterApp" "$APP_DIR/Contents/MacOS/smartctl"
 for bundle in .build/release/*.bundle; do
     [[ -d "$bundle" ]] && cp -R "$bundle" "$APP_DIR/Contents/Resources/"
 done
+
+# Sparkle.framework — the binary links it at @rpath, which Package.swift
+# points at @executable_path/../Frameworks.
+SPARKLE_FW=".build/artifacts/sparkle/Sparkle/Sparkle.xcframework/macos-arm64_x86_64/Sparkle.framework"
+[[ -d "$SPARKLE_FW" ]] || { echo "ERROR: Sparkle.framework not found at $SPARKLE_FW" >&2; exit 1; }
+mkdir -p "$APP_DIR/Contents/Frameworks"
+cp -R "$SPARKLE_FW" "$APP_DIR/Contents/Frameworks/"
 ls "$APP_DIR/Contents/Resources/" | grep -q "NVMeter_NVMeterApp.bundle" \
     || { echo "ERROR: resource bundle missing from app" >&2; exit 1; }
 
@@ -117,7 +124,21 @@ cp "$BUILD_DIR/AppIcon.icns" "$APP_DIR/Contents/Resources/AppIcon.icns"
 if [[ "${SKIP_SIGN:-0}" == "1" ]]; then
     echo "[5/7] SKIP_SIGN=1 — leaving unsigned"
 else
-    echo "[5/7] code sign (hardened runtime, embedded smartctl first)"
+    echo "[5/7] code sign (hardened runtime, nested code first)"
+
+    # Sparkle's nested executables must each carry our Developer ID +
+    # hardened runtime for notarization. Per Sparkle's documented order:
+    # XPC services → Autoupdate → Updater.app → the framework itself.
+    FW="$APP_DIR/Contents/Frameworks/Sparkle.framework"
+    codesign --force --options runtime --timestamp --sign "$SIGN_ID" \
+             "$FW/Versions/B/XPCServices/Downloader.xpc"
+    codesign --force --options runtime --timestamp --sign "$SIGN_ID" \
+             "$FW/Versions/B/XPCServices/Installer.xpc"
+    codesign --force --options runtime --timestamp --sign "$SIGN_ID" \
+             "$FW/Versions/B/Autoupdate"
+    codesign --force --options runtime --timestamp --sign "$SIGN_ID" \
+             "$FW/Versions/B/Updater.app"
+    codesign --force --options runtime --timestamp --sign "$SIGN_ID" "$FW"
 
     # Sign the embedded smartctl FIRST. Nested executables must be signed
     # before the enclosing bundle, otherwise codesign on the bundle errors
@@ -179,6 +200,27 @@ fi
 
 # Strip leftover Finder xattrs from the .app — they can confuse Gatekeeper.
 xattr -cr "$APP_DIR" 2>/dev/null || true
+
+# ── 9 · Appcast for Sparkle (opt-in, requires notarized zip) ──────────────
+if [[ "${APPCAST:-0}" == "1" ]]; then
+    echo "[9/9] generate appcast"
+    GENERATE_APPCAST=".build/artifacts/sparkle/Sparkle/bin/generate_appcast"
+    [[ -x "$GENERATE_APPCAST" ]] || { echo "ERROR: generate_appcast missing (swift build first)" >&2; exit 1; }
+
+    # generate_appcast scans a directory of update archives, signs each
+    # with the EdDSA key from the login keychain, and writes appcast.xml.
+    APPCAST_DIR="$BUILD_DIR/appcast"
+    mkdir -p "$APPCAST_DIR"
+    cp "$ZIP" "$APPCAST_DIR/"
+
+    "$GENERATE_APPCAST" \
+        --download-url-prefix "https://github.com/hualiu77/NVMeter/releases/download/v${VERSION}/" \
+        --maximum-deltas 0 \
+        -o appcast.xml \
+        "$APPCAST_DIR"
+
+    echo "       appcast.xml updated — commit it to main so SUFeedURL serves it"
+fi
 
 # ── Summary ───────────────────────────────────────────────────────────────
 echo

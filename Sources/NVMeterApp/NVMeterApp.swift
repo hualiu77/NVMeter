@@ -4,6 +4,7 @@ import NVMeterCore
 @main
 struct NVMeterApp: App {
     @StateObject private var model = AppModel()
+    @StateObject private var updater = UpdaterManager()
 
     var body: some Scene {
         MenuBarExtra {
@@ -14,7 +15,7 @@ struct NVMeterApp: App {
         .menuBarExtraStyle(.window)
 
         Settings {
-            SettingsView()
+            SettingsView(updater: updater)
         }
 
         Window(LR("NVMeter — History"), id: "history") {
