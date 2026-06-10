@@ -31,11 +31,21 @@ public actor MonitoringService {
     private let probe = SystemProbe()
     private let store: HistoryStore
     private let interval: TimeInterval
+    private let bridgeDB: BridgeDatabase
+    /// Remembered per-device working args so retries cost one process
+    /// spawn instead of a probe loop on every tick.
+    private var workingArgsByDevice: [String: [String]] = [:]
 
-    public init(runner: SmartctlRunner, store: HistoryStore, interval: TimeInterval = 300) {
+    public init(
+        runner: SmartctlRunner,
+        store: HistoryStore,
+        interval: TimeInterval = 300,
+        bridgeDB: BridgeDatabase = .loadDefault()
+    ) {
         self.runner = runner
         self.store = store
         self.interval = interval
+        self.bridgeDB = bridgeDB
     }
 
     /// Recent samples for one device, newest first.
@@ -45,10 +55,35 @@ public actor MonitoringService {
 
     public func tickOnce() async throws -> [DeviceReport] {
         let scanned = try runner.scan()
+        // Snapshot the USB device list once per tick — it's the same for
+        // every disk and ioreg costs ~50 ms.
+        let usbDevices = USBDeviceCatalog.enumerate()
+
         var results: [DeviceReport] = []
         for d in scanned {
-            let info = try? runner.info(device: d.name)
-            let facts = await probe.probe(devicePath: d.name, info: info)
+            var info = try? runner.info(device: d.name)
+            var matchedEntry: BridgeEntry?
+            var workingArgs: [String]?
+
+            // Default open failed → try the community bridge database.
+            if info == nil {
+                (info, matchedEntry, workingArgs) = retryViaBridgeDB(
+                    devicePath: d.name, usbDevices: usbDevices
+                )
+            } else if let cached = workingArgsByDevice[d.name] {
+                workingArgs = cached
+            }
+
+            var facts = await probe.probe(devicePath: d.name, info: info)
+            // Even when retry fails, knowing the bridge is in the DB is
+            // valuable UI state ("already catalogued, macOS-blocked").
+            if matchedEntry == nil, info == nil,
+               let media = facts.modelHint,
+               let usb = USBDeviceCatalog.match(mediaName: media, in: usbDevices) {
+                matchedEntry = bridgeDB.lookup(usbID: usb.usbID)
+            }
+            facts.knownBridgeName = matchedEntry?.bridge
+            facts.workingSmartctlArgs = workingArgs
 
             if let info {
                 let assessment = scorer.assess(info)
@@ -77,5 +112,51 @@ public actor MonitoringService {
         }
         try? store.prune()
         return results
+    }
+
+    /// Map the disk's MediaName to an attached USB device, look up its
+    /// USB ID in the bridge database, and re-run smartctl with the entry's
+    /// `-d` flags. Caches the working args per device path.
+    private func retryViaBridgeDB(
+        devicePath: String,
+        usbDevices: [USBDevice]
+    ) -> (SmartctlInfo?, BridgeEntry?, [String]?) {
+        // Cheapest first: previously-discovered working args.
+        if let cached = workingArgsByDevice[devicePath],
+           let info = try? runner.info(device: devicePath, extraArgs: cached) {
+            return (info, nil, cached)
+        }
+
+        guard let mediaName = mediaName(for: devicePath),
+              let usb = USBDeviceCatalog.match(mediaName: mediaName, in: usbDevices),
+              let entry = bridgeDB.lookup(usbID: usb.usbID)
+        else { return (nil, nil, nil) }
+
+        guard !entry.smartctl_args.isEmpty else {
+            // Catalogued as known-blocked (e.g. WD Elements on macOS).
+            return (nil, entry, nil)
+        }
+
+        if let info = try? runner.info(device: devicePath, extraArgs: entry.smartctl_args) {
+            workingArgsByDevice[devicePath] = entry.smartctl_args
+            return (info, entry, entry.smartctl_args)
+        }
+        // Entry exists but the flags don't work on macOS — still report
+        // the match so the UI can say "known bridge, blocked by macOS".
+        return (nil, entry, nil)
+    }
+
+    private func mediaName(for devicePath: String) -> String? {
+        let p = Process()
+        p.executableURL = URL(fileURLWithPath: "/usr/sbin/diskutil")
+        p.arguments = ["info", "-plist", devicePath]
+        let out = Pipe()
+        p.standardOutput = out
+        p.standardError = Pipe()
+        guard (try? p.run()) != nil else { return nil }
+        p.waitUntilExit()
+        let data = out.fileHandleForReading.readDataToEndOfFile()
+        let plist = (try? PropertyListSerialization.propertyList(from: data, format: nil)) as? [String: Any]
+        return plist?["MediaName"] as? String
     }
 }

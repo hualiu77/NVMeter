@@ -49,7 +49,18 @@ struct MenuView: View {
             // devices we'll add a properly-bounded ScrollView later.
             VStack(spacing: Theme.Spacing.m) {
                 ForEach(model.devices) { device in
-                    DeviceCard(snapshot: device)
+                    if device.isBlocked {
+                        DeviceCard(snapshot: device)
+                    } else {
+                        Button {
+                            model.detailRequestPath = device.devicePath
+                            bringWindowToFront { openWindow(id: "detail") }
+                        } label: {
+                            DeviceCard(snapshot: device)
+                        }
+                        .buttonStyle(.plain)
+                        .help(L("Click for all SMART attributes"))
+                    }
                 }
             }
             .padding(Theme.Spacing.l)

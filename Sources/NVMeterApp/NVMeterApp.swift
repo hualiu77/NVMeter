@@ -21,6 +21,11 @@ struct NVMeterApp: App {
             HistoryView(model: model)
         }
         .defaultSize(width: 720, height: 540)
+
+        Window(LR("NVMeter — Details"), id: "detail") {
+            DetailView(model: model)
+        }
+        .defaultSize(width: 620, height: 640)
     }
 }
 
@@ -30,6 +35,9 @@ final class AppModel: ObservableObject {
     @Published var lastError: String?
     @Published var lastUpdated: Date?
     @Published var isRefreshing: Bool = false
+    /// Set by a card click just before opening the detail window so the
+    /// window opens focused on that drive. Consumed once by DetailView.
+    var detailRequestPath: String?
 
     private var loopTask: Task<Void, Never>?
     private var service: MonitoringService?

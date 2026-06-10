@@ -19,7 +19,14 @@ public struct DeviceFacts: Sendable, Equatable {
     public var usedBytes: Int64?
     public var powerOnHours: Int?
     public var lifetimeWrittenBytes: Int64?    // cumulative host writes
-    public var mountPoints: [String]        // e.g. ["/Volumes/1TNVME"]
+    public var mountPoints: [String]
+    /// Bridge-database entry name matched by USB ID, if any. Set even for
+    /// blocked devices — it lets the UI say "this enclosure is already in
+    /// the community database" instead of asking for a report.
+    public var knownBridgeName: String?
+    /// The smartctl `-d` args that actually worked for this device, when
+    /// the default open failed and a bridge-DB retry succeeded.
+    public var workingSmartctlArgs: [String]?        // e.g. ["/Volumes/1TNVME"]
 
     public init(
         bus: Bus = .unknown,
@@ -31,7 +38,9 @@ public struct DeviceFacts: Sendable, Equatable {
         usedBytes: Int64? = nil,
         powerOnHours: Int? = nil,
         lifetimeWrittenBytes: Int64? = nil,
-        mountPoints: [String] = []
+        mountPoints: [String] = [],
+        knownBridgeName: String? = nil,
+        workingSmartctlArgs: [String]? = nil
     ) {
         self.bus = bus
         self.connectionLabel = connectionLabel
@@ -43,6 +52,8 @@ public struct DeviceFacts: Sendable, Equatable {
         self.powerOnHours = powerOnHours
         self.lifetimeWrittenBytes = lifetimeWrittenBytes
         self.mountPoints = mountPoints
+        self.knownBridgeName = knownBridgeName
+        self.workingSmartctlArgs = workingSmartctlArgs
     }
 
     /// "1.0 TB" / "500.3 GB" etc — base-10 (SSD convention).
@@ -73,7 +84,7 @@ public struct DeviceFacts: Sendable, Equatable {
         lifetimeWrittenBytes.map { Self.humanBytes($0) }
     }
 
-    static func humanBytes(_ bytes: Int64) -> String {
+    public static func humanBytes(_ bytes: Int64) -> String {
         let f = ByteCountFormatter()
         f.allowedUnits = [.useGB, .useTB]
         f.countStyle = .decimal

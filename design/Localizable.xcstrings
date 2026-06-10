@@ -621,6 +621,316 @@
           }
         }
       }
+    },
+    "NVMeter — Details": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "NVMeter — 详细信息"
+          }
+        }
+      }
+    },
+    "Click for all SMART attributes": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "点击查看全部 SMART 属性"
+          }
+        }
+      }
+    },
+    "Pre-fail indicators": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "故障预警指标"
+          }
+        }
+      }
+    },
+    "Movement here predicts failure — back up immediately if any of these degrade.": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "这些指标变化预示故障——任何一项恶化都应立即备份。"
+          }
+        }
+      }
+    },
+    "Life-span counters": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "寿命计数器"
+          }
+        }
+      }
+    },
+    "These grow with normal use; they describe age, not failure.": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "这些数值随正常使用增长,反映的是使用年龄而非故障。"
+          }
+        }
+      }
+    },
+    "No SMART-capable drive selected.": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "未选择可读取 SMART 的硬盘。"
+          }
+        }
+      }
+    },
+    "Available spare": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "可用备用块"
+          }
+        }
+      }
+    },
+    "threshold %lld%%": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "阈值 %lld%%"
+          }
+        }
+      }
+    },
+    "Media & data integrity errors": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "介质与数据完整性错误"
+          }
+        }
+      }
+    },
+    "Error information log entries": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "错误信息日志条数"
+          }
+        }
+      }
+    },
+    "Composite temperature": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "综合温度"
+          }
+        }
+      }
+    },
+    "Temperature sensor %lld": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "温度传感器 %lld"
+          }
+        }
+      }
+    },
+    "Percentage used (NAND wear)": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "已用寿命(NAND 磨损)"
+          }
+        }
+      }
+    },
+    "Data units read": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "数据读取单元"
+          }
+        }
+      }
+    },
+    "Data units written": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "数据写入单元"
+          }
+        }
+      }
+    },
+    "Host read commands": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "主机读取命令数"
+          }
+        }
+      }
+    },
+    "Host write commands": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "主机写入命令数"
+          }
+        }
+      }
+    },
+    "Controller busy time": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "控制器忙碌时间"
+          }
+        }
+      }
+    },
+    "%lld minutes": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%lld 分钟"
+          }
+        }
+      }
+    },
+    "Power cycles": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "通电次数"
+          }
+        }
+      }
+    },
+    "Power-on hours": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "通电小时数"
+          }
+        }
+      }
+    },
+    "%lld hours": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%lld 小时"
+          }
+        }
+      }
+    },
+    "%lld days": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%lld 天"
+          }
+        }
+      }
+    },
+    "Unsafe shutdowns": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "非正常关机次数"
+          }
+        }
+      }
+    },
+    "Time above warning temperature": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "超过警告温度的累计时间"
+          }
+        }
+      }
+    },
+    "Time above critical temperature": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "超过危险温度的累计时间"
+          }
+        }
+      }
+    },
+    "Error log checked — no entries. This drive has never logged an NVMe error.": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "错误日志已检查——无记录。该硬盘从未记录过 NVMe 错误。"
+          }
+        }
+      }
+    },
+    "Error log contains %lld entries.": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "错误日志包含 %lld 条记录。"
+          }
+        }
+      }
+    },
+    "Already in the database: %@": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "已收录于数据库:%@"
+          }
+        }
+      }
+    },
+    "This enclosure's bridge chip is already catalogued in NVMeter-drivedb. macOS still blocks SMART pass-through for it.": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "该硬盘盒的桥接芯片已收录在 NVMeter-drivedb 中。macOS 仍然阻止其 SMART 透传。"
+          }
+        }
+      }
     }
   }
 }

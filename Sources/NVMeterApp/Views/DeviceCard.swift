@@ -11,6 +11,8 @@ struct DeviceSnapshot: Identifiable {
     let reasons: [String]
     let facts: DeviceFacts
     let isBlocked: Bool
+    /// Full smartctl payload for the detail view; nil for blocked devices.
+    let raw: SmartctlInfo?
 
     init(report: DeviceReport) {
         switch report {
@@ -24,6 +26,7 @@ struct DeviceSnapshot: Identifiable {
             self.reasons = assessment.reasons
             self.facts = facts
             self.isBlocked = false
+            self.raw = info
         case .blocked(let path, let facts):
             self.modelName = facts.modelHint ?? "External drive"
             self.devicePath = path
@@ -33,6 +36,7 @@ struct DeviceSnapshot: Identifiable {
             self.reasons = []
             self.facts = facts
             self.isBlocked = true
+            self.raw = nil
         }
     }
 }
@@ -243,23 +247,36 @@ struct DeviceCard: View {
                 }
             }
 
-            Button {
-                IssueReporter.report(for: snapshot)
-            } label: {
+            if let bridge = snapshot.facts.knownBridgeName {
+                // Already in the community database — no report needed.
                 HStack(spacing: 4) {
-                    Image(systemName: "paperplane.fill").imageScale(.small)
-                    Text(LR("Help map this enclosure"))
+                    Image(systemName: "checkmark.seal.fill").imageScale(.small)
+                    Text(String(localized: "Already in the database: \(bridge)", bundle: localizationBundle))
+                        .lineLimit(1)
+                        .truncationMode(.tail)
                 }
                 .font(.caption.weight(.medium))
-                .foregroundStyle(.orange)
-                .padding(.horizontal, 8)
-                .padding(.vertical, 3)
-                .background(
-                    Capsule().fill(Color.orange.opacity(0.18))
-                )
+                .foregroundStyle(.secondary)
+                .help(L("This enclosure's bridge chip is already catalogued in NVMeter-drivedb. macOS still blocks SMART pass-through for it."))
+            } else {
+                Button {
+                    IssueReporter.report(for: snapshot)
+                } label: {
+                    HStack(spacing: 4) {
+                        Image(systemName: "paperplane.fill").imageScale(.small)
+                        Text(LR("Help map this enclosure"))
+                    }
+                    .font(.caption.weight(.medium))
+                    .foregroundStyle(.orange)
+                    .padding(.horizontal, 8)
+                    .padding(.vertical, 3)
+                    .background(
+                        Capsule().fill(Color.orange.opacity(0.18))
+                    )
+                }
+                .buttonStyle(.plain)
+                .help(L("Opens a pre-filled GitHub Issue with your ioreg + smartctl probe results so we can add this enclosure to the community database."))
             }
-            .buttonStyle(.plain)
-            .help(L("Opens a pre-filled GitHub Issue with your ioreg + smartctl probe results so we can add this enclosure to the community database."))
         }
         .padding(8)
         .frame(maxWidth: .infinity, alignment: .leading)

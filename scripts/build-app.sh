@@ -68,6 +68,20 @@ done
 ls "$APP_DIR/Contents/Resources/" | grep -q "NVMeter_NVMeterApp.bundle" \
     || { echo "ERROR: resource bundle missing from app" >&2; exit 1; }
 
+# Embed a snapshot of the community bridge database. Runtime lookup order
+# is App Support override first, then this bundled copy (BridgeDatabase
+# .loadDefault). Build proceeds without it if the sibling repo is absent,
+# but warn loudly because blocked-device UX degrades.
+DRIVEDB_DIR="${DRIVEDB_DIR:-../NVMeter-drivedb/bridges}"
+if [[ -d "$DRIVEDB_DIR" ]]; then
+    mkdir -p "$APP_DIR/Contents/Resources/bridges"
+    rsync -a --include="*/" --include="*.yaml" --include="*.yml" --exclude="*" \
+          "$DRIVEDB_DIR/" "$APP_DIR/Contents/Resources/bridges/"
+    echo "       bridges: $(find "$APP_DIR/Contents/Resources/bridges" -name '*.y*ml' | wc -l | tr -d ' ') entries embedded"
+else
+    echo "WARNING: $DRIVEDB_DIR not found — app ships without bridge DB" >&2
+fi
+
 # Info.plist (substitute placeholders)
 sed -e "s/__SHORT_VERSION__/$VERSION/" \
     -e "s/__BUILD_NUMBER__/$BUILD_NUM/" \

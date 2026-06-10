@@ -155,11 +155,16 @@ public struct SmartctlInfo: Decodable, Sendable {
         public let percentage_used: Int?
         public let data_units_read: Int64?
         public let data_units_written: Int64?
+        public let host_reads: Int64?
+        public let host_writes: Int64?
+        public let controller_busy_time: Int64?
         public let power_cycles: Int?
         public let power_on_hours: Int?
         public let unsafe_shutdowns: Int?
         public let media_errors: Int?
+        public let num_err_log_entries: Int64?
         public let warning_temp_time: Int?
         public let critical_comp_time: Int?
+        public let temperature_sensors: [Int]?
     }
 }
