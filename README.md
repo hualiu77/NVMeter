@@ -1,5 +1,7 @@
 # NVMeter
 
+English | **[简体中文](README.zh-CN.md)**
+
 [![Download](https://img.shields.io/github/v/release/hualiu77/NVMeter?label=Download%20DMG&style=for-the-badge&color=2BB1B8&logo=apple)](https://github.com/hualiu77/NVMeter/releases/latest)
 &nbsp;
 [![CI](https://github.com/hualiu77/NVMeter/actions/workflows/ci.yml/badge.svg)](https://github.com/hualiu77/NVMeter/actions/workflows/ci.yml)
@@ -9,6 +11,8 @@
 
 A native macOS menu-bar SMART monitor for internal and external NVMe/SATA SSDs.
 Free and open source forever for personal use.
+
+Website: **https://hualiu77.github.io/NVMeter/**
 
 ## Install
 

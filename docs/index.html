@@ -1,0 +1,217 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>NVMeter — SSD health monitor for macOS, free &amp; open source</title>
+<meta name="description" content="Menu-bar SMART monitor for Apple Silicon Macs. Temperature, NAND wear, lifetime writes, trend charts, notifications. Free, open source, notarized.">
+<meta property="og:title" content="NVMeter — SSD health monitor for macOS">
+<meta property="og:description" content="Free, open-source SMART monitoring for internal and external NVMe SSDs. The drive-health screen other apps charge for.">
+<style>
+:root {
+  --brand: #2BB1B8;
+  --brand-dim: #1F8388;
+  --bg: #fafafa;
+  --fg: #1a2a2e;
+  --fg2: #5a6a6e;
+  --card: #ffffff;
+  --line: rgba(0,0,0,.08);
+  --good: #34c759; --warn: #ff9f0a; --crit: #ff3b30;
+}
+@media (prefers-color-scheme: dark) {
+  :root { --bg: #131c1e; --fg: #e8eef0; --fg2: #93a3a8; --card: #1c282b; --line: rgba(255,255,255,.09); }
+}
+* { box-sizing: border-box; margin: 0; }
+body {
+  font: 16px/1.6 -apple-system, BlinkMacSystemFont, "SF Pro Text", "PingFang SC", "Helvetica Neue", sans-serif;
+  background: var(--bg); color: var(--fg);
+  -webkit-font-smoothing: antialiased;
+}
+a { color: var(--brand-dim); }
+.wrap { max-width: 980px; margin: 0 auto; padding: 0 24px; }
+
+/* language toggle */
+.lang-toggle { position: fixed; top: 16px; right: 20px; z-index: 10; }
+.lang-toggle button {
+  font: 13px/1 inherit; padding: 6px 12px; border: 1px solid var(--line);
+  background: var(--card); color: var(--fg2); cursor: pointer;
+}
+.lang-toggle button:first-child { border-radius: 8px 0 0 8px; }
+.lang-toggle button:last-child  { border-radius: 0 8px 8px 0; }
+.lang-toggle button.active { background: var(--brand); color: #fff; border-color: var(--brand); }
+[lang="zh-Hans"] .en, :not([lang="zh-Hans"]) .zh { display: none; }
+
+/* hero */
+header { padding: 88px 0 56px; text-align: center; }
+.mark { width: 88px; height: 88px; margin: 0 auto 20px; }
+h1 { font-size: 44px; letter-spacing: -1px; }
+.tagline { font-size: 21px; color: var(--fg2); margin: 10px auto 30px; max-width: 560px; }
+.cta {
+  display: inline-block; background: var(--brand); color: #fff; text-decoration: none;
+  font-size: 18px; font-weight: 600; padding: 14px 34px; border-radius: 12px;
+  box-shadow: 0 4px 18px rgba(43,177,184,.35); transition: transform .15s ease;
+}
+.cta:hover { transform: translateY(-2px); }
+.meta { margin-top: 14px; font-size: 13px; color: var(--fg2); }
+.meta a { color: inherit; }
+
+/* mock card */
+.mock { max-width: 420px; margin: 56px auto 0; text-align: left;
+  background: var(--card); border: 1px solid var(--line); border-radius: 14px;
+  padding: 16px; box-shadow: 0 12px 40px rgba(0,0,0,.10); }
+.mock .row1 { display: flex; align-items: baseline; gap: 7px; font-weight: 600; font-size: 15px; }
+.dot { width: 8px; height: 8px; border-radius: 50%; background: var(--good); flex: none; align-self: center; }
+.mock .path { margin-left: auto; font: 12px ui-monospace, SF Mono, monospace; color: var(--fg2); }
+.mock .sub { font-size: 13px; color: var(--fg2); margin: 3px 0 10px; }
+.bar { height: 6px; border-radius: 3px; background: rgba(127,127,127,.15); overflow: hidden; }
+.bar i { display: block; height: 100%; width: 17%; background: var(--brand); border-radius: 3px; }
+.mock .usage { display: flex; justify-content: space-between; font-size: 12px; color: var(--fg2); margin: 5px 0 13px; }
+.tiles { display: flex; gap: 22px; align-items: baseline; }
+.tile b { font-size: 21px; font-variant-numeric: tabular-nums; }
+.tile small { font-size: 10px; text-transform: uppercase; letter-spacing: .4px; color: var(--fg2); display: block; }
+.pill { margin-left: auto; font-size: 12px; font-weight: 600; color: var(--good);
+  background: rgba(52,199,89,.14); padding: 4px 10px; border-radius: 99px; }
+.chip { display: inline-block; margin-top: 13px; font-size: 12px; color: var(--fg2);
+  background: rgba(127,127,127,.09); padding: 3px 10px; border-radius: 99px; }
+
+/* sections */
+section { padding: 56px 0; border-top: 1px solid var(--line); }
+h2 { font-size: 28px; letter-spacing: -.5px; margin-bottom: 28px; text-align: center; }
+.grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 18px; }
+.feat { background: var(--card); border: 1px solid var(--line); border-radius: 12px; padding: 20px; }
+.feat .ico { font-size: 26px; }
+.feat h3 { font-size: 16px; margin: 8px 0 4px; }
+.feat p { font-size: 14px; color: var(--fg2); }
+
+/* compare table */
+table { width: 100%; border-collapse: collapse; background: var(--card); border-radius: 12px; overflow: hidden; border: 1px solid var(--line); }
+th, td { padding: 12px 16px; font-size: 14px; text-align: left; border-bottom: 1px solid var(--line); }
+th { background: rgba(127,127,127,.06); }
+.nv { color: var(--brand-dim); font-weight: 600; }
+tr:last-child td { border-bottom: none; }
+
+/* honesty box */
+.honest { background: var(--card); border: 1px solid var(--line); border-left: 4px solid var(--warn);
+  border-radius: 12px; padding: 20px 24px; font-size: 15px; color: var(--fg2); }
+.honest strong { color: var(--fg); }
+
+footer { padding: 44px 0 60px; text-align: center; font-size: 13px; color: var(--fg2); border-top: 1px solid var(--line); }
+footer p { margin: 4px 0; }
+</style>
+</head>
+<body>
+
+<div class="lang-toggle">
+  <button id="btn-en" onclick="setLang('en')">EN</button>
+  <button id="btn-zh" onclick="setLang('zh-Hans')">中文</button>
+</div>
+
+<header class="wrap">
+  <svg class="mark" viewBox="0 0 64 64" xmlns="http://www.w3.org/2000/svg" aria-label="NVMeter">
+    <g fill="none" stroke="#2BB1B8" stroke-linecap="round" stroke-linejoin="round">
+      <path d="M 14 6 H 50 Q 58 6 58 14 V 26 L 53 26 V 32 L 58 32 V 50 Q 58 58 50 58 H 14 Q 6 58 6 50 V 14 Q 6 6 14 6 Z" stroke-width="3"/>
+      <path d="M 18 42 L 18 22 L 32 32 L 46 22 L 46 42" stroke-width="5"/>
+    </g>
+  </svg>
+  <h1>NVMeter</h1>
+  <p class="tagline en">The SSD health monitor macOS is missing.<br>Free &amp; open source, in your menu bar.</p>
+  <p class="tagline zh">macOS 缺失的那块 SSD 健康监控。<br>免费开源,常驻菜单栏。</p>
+  <a class="cta en" href="https://github.com/hualiu77/NVMeter/releases/latest">Download for Mac</a>
+  <a class="cta zh" href="https://github.com/hualiu77/NVMeter/releases/latest">下载 Mac 版</a>
+  <p class="meta en">macOS 14+ · Apple Silicon · Notarized by Apple · Auto-updates · <a href="https://github.com/hualiu77/NVMeter">Source on GitHub</a></p>
+  <p class="meta zh">macOS 14+ · Apple 芯片 · Apple 公证 · 自动更新 · <a href="https://github.com/hualiu77/NVMeter">GitHub 源码</a></p>
+
+  <div class="mock" aria-hidden="true">
+    <div class="row1"><span class="dot"></span> CT1000P3PSSD8 <span class="path">/dev/disk6</span></div>
+    <div class="sub">Crucial / Micron · 1 TB</div>
+    <div class="bar"><i></i></div>
+    <div class="usage"><span class="en">170.3 GB used of 1 TB</span><span class="zh">已用 170.3 GB / 1 TB</span><span>17%</span></div>
+    <div class="tiles">
+      <span class="tile"><b>36°</b><small class="en">Temp</small><small class="zh">温度</small></span>
+      <span class="tile"><b>0%</b><small class="en">Wear</small><small class="zh">磨损</small></span>
+      <span class="tile"><b>5</b><small class="en">Days</small><small class="zh">通电天数</small></span>
+      <span class="tile"><b>98</b><small class="en">GB written</small><small class="zh">已写入 GB</small></span>
+      <span class="pill"><span class="en">✓ Good</span><span class="zh">✓ 良好</span></span>
+    </div>
+    <span class="chip">⚡ Thunderbolt · WERO TBT5 1M2-DOCK</span>
+  </div>
+</header>
+
+<section class="wrap">
+  <h2 class="en">Everything the $25 apps do</h2>
+  <h2 class="zh">收费 $25 的功能,这里免费</h2>
+  <div class="grid">
+    <div class="feat"><div class="ico">🌡</div>
+      <h3 class="en">Live menu-bar temperature</h3><h3 class="zh">菜单栏实时温度</h3>
+      <p class="en">Hottest drive at a glance, color-coded green / yellow / red against your thresholds.</p>
+      <p class="zh">最热硬盘一目了然,按你的阈值显示绿/黄/红。</p></div>
+    <div class="feat"><div class="ico">📋</div>
+      <h3 class="en">Full SMART detail</h3><h3 class="zh">完整 SMART 属性</h3>
+      <p class="en">Every NVMe health-log field — wear, spare, media errors, unsafe shutdowns — grouped into pre-fail vs life-span. No fabricated columns.</p>
+      <p class="zh">NVMe 健康日志的每个字段——磨损、备用块、介质错误、非正常关机——按故障预警/寿命计数分组,不造假数据。</p></div>
+    <div class="feat"><div class="ico">📈</div>
+      <h3 class="en">Trend charts</h3><h3 class="zh">趋势图表</h3>
+      <p class="en">Temperature, wear, and lifetime writes over 24 h / 7 d / 30 d, stored locally in SQLite.</p>
+      <p class="zh">温度、磨损、累计写入的 24 小时 / 7 天 / 30 天曲线,本地 SQLite 存储。</p></div>
+    <div class="feat"><div class="ico">🔔</div>
+      <h3 class="en">Threshold notifications</h3><h3 class="zh">阈值通知</h3>
+      <p class="en">Native macOS alerts when a drive crosses your warning or critical temperature.</p>
+      <p class="zh">硬盘越过警告或危险温度时发送原生 macOS 通知。</p></div>
+    <div class="feat"><div class="ico">🔌</div>
+      <h3 class="en">External drives included</h3><h3 class="zh">外置硬盘也支持</h3>
+      <p class="en">Thunderbolt enclosures read natively. USB bridges auto-retry against a community quirks database — and you can grow it with one click.</p>
+      <p class="zh">雷电硬盘盒原生读取;USB 桥接按社区数据库自动重试参数,一键就能帮数据库添砖加瓦。</p></div>
+    <div class="feat"><div class="ico">🔒</div>
+      <h3 class="en">Private by design</h3><h3 class="zh">隐私优先</h3>
+      <p class="en">No telemetry, no account, no cloud. AGPL-3.0 — read every line.</p>
+      <p class="zh">无遥测、无账号、无云端。AGPL-3.0 开源,每一行代码可查。</p></div>
+  </div>
+</section>
+
+<section class="wrap">
+  <h2 class="en">NVMeter vs. paid alternatives</h2>
+  <h2 class="zh">对比收费软件</h2>
+  <table>
+    <tr><th></th><th class="nv">NVMeter</th><th class="en">Typical paid app</th><th class="zh">典型收费软件</th></tr>
+    <tr><td class="en">Price</td><td class="zh">价格</td><td class="nv en">Free forever</td><td class="nv zh">永久免费</td><td>$20–25</td></tr>
+    <tr><td class="en">Source code</td><td class="zh">源代码</td><td class="nv en">Open (AGPL-3.0)</td><td class="nv zh">开源 (AGPL-3.0)</td><td class="en">Closed</td><td class="zh">闭源</td></tr>
+    <tr><td class="en">Full NVMe SMART table</td><td class="zh">完整 NVMe SMART 表</td><td class="nv">✓</td><td>✓</td></tr>
+    <tr><td class="en">Trend history</td><td class="zh">历史趋势</td><td class="nv">✓</td><td>✓</td></tr>
+    <tr><td>简体中文</td><td class="nv">✓</td><td class="en">Rarely</td><td class="zh">少见</td></tr>
+    <tr><td class="en">Enclosure quirks database</td><td class="zh">硬盘盒兼容数据库</td><td class="nv en">Community-owned (CC0)</td><td class="nv zh">社区共有 (CC0)</td><td class="en">Proprietary</td><td class="zh">私有</td></tr>
+    <tr><td class="en">Auto-update</td><td class="zh">自动更新</td><td class="nv">✓ Sparkle</td><td>✓</td></tr>
+  </table>
+</section>
+
+<section class="wrap">
+  <h2 class="en">Honest about the limits</h2>
+  <h2 class="zh">坦白说清局限</h2>
+  <div class="honest">
+    <p class="en"><strong>Many USB-SATA enclosures and external HDDs can't expose SMART on macOS at all</strong> — Apple's user-space SCSI stack blocks the pass-through, and no app can fix that without a kernel extension (which on Apple Silicon means disabling security features). NVMeter tells you this plainly on the device card instead of pretending, still shows capacity and connection info, and reads Thunderbolt enclosures perfectly — they bypass the problem entirely.</p>
+    <p class="zh"><strong>很多 USB-SATA 硬盘盒和外置机械盘在 macOS 上根本无法读取 SMART</strong>——Apple 的用户态 SCSI 栈阻止了透传,任何应用都无法在不装内核扩展(Apple 芯片上意味着关闭安全特性)的情况下解决。NVMeter 在设备卡片上直接说明,不装样子;容量与连接信息照常显示。雷电硬盘盒完全不受影响,读取完美。</p>
+  </div>
+</section>
+
+<footer class="wrap">
+  <p class="en">AGPL-3.0-or-later · Built on <a href="https://www.smartmontools.org/">smartmontools</a> (GPL-2.0) · <a href="https://github.com/hualiu77/NVMeter-drivedb">Community bridge database</a> (CC0)</p>
+  <p class="zh">AGPL-3.0-or-later · 基于 <a href="https://www.smartmontools.org/">smartmontools</a> (GPL-2.0) · <a href="https://github.com/hualiu77/NVMeter-drivedb">社区桥接数据库</a> (CC0)</p>
+  <p class="en">NVMeter is not a substitute for backups. © 2026 Hua Liu</p>
+  <p class="zh">NVMeter 不能替代备份。© 2026 Hua Liu</p>
+</footer>
+
+<script>
+function setLang(l) {
+  document.documentElement.setAttribute('lang', l);
+  document.getElementById('btn-en').classList.toggle('active', l === 'en');
+  document.getElementById('btn-zh').classList.toggle('active', l === 'zh-Hans');
+  try { localStorage.setItem('nvmeter-lang', l); } catch (e) {}
+}
+(function () {
+  let saved = null;
+  try { saved = localStorage.getItem('nvmeter-lang'); } catch (e) {}
+  const auto = (navigator.language || '').toLowerCase().startsWith('zh') ? 'zh-Hans' : 'en';
+  setLang(saved || auto);
+})();
+</script>
+</body>
+</html>
