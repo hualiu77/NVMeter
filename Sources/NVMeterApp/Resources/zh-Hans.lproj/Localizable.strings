@@ -60,3 +60,5 @@
 "Wear (NAND % used)" = "磨损（NAND 使用百分比）";
 "When off, only the NVMeter icon is shown." = "关闭后菜单栏只显示 NVMeter 图标。";
 "Written" = "已写入";
+"OK" = "好";
+"The full report didn't fit in a URL, so NVMeter copied it to the clipboard. Click OK to open the GitHub issue page, then paste (⌘V) into the description and submit." = "完整报告超出了 URL 长度限制,NVMeter 已将其复制到剪贴板。点击「好」打开 GitHub Issue 页面,然后在描述框按 ⌘V 粘贴并提交。";

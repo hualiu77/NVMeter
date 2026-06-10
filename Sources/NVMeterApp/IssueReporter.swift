@@ -151,24 +151,26 @@ enum IssueReporter {
             return
         }
 
-        // Body too big to fit in the URL — copy to clipboard, open an
-        // empty issue page, and notify the user to paste.
+        // Body too big to fit in the URL — copy to clipboard FIRST, then
+        // explain what's about to happen, and only open the browser after
+        // the user acknowledges. (Opening the browser before the modal
+        // made the instructions read like an afterthought behind Safari.)
         let pb = NSPasteboard.general
         pb.clearContents()
         pb.setString(body, forType: .string)
+
+        let alert = NSAlert()
+        alert.messageText = String(localized: "Report copied to clipboard", bundle: localizationBundle)
+        alert.informativeText = String(localized: "The full report didn't fit in a URL, so NVMeter copied it to the clipboard. Click OK to open the GitHub issue page, then paste (⌘V) into the description and submit.", bundle: localizationBundle)
+        alert.alertStyle = .informational
+        alert.addButton(withTitle: String(localized: "OK", bundle: localizationBundle))
+        alert.runModal()
 
         let shortURL = newIssueURL(
             title: title,
             body: "_NVMeter's diagnostic report was too large for a URL; it's already on your clipboard. **Press ⌘V here.**_"
         )
         NSWorkspace.shared.open(shortURL)
-
-        let alert = NSAlert()
-        alert.messageText = "Report copied to clipboard"
-        alert.informativeText = "The full report didn't fit in a URL, so NVMeter copied it instead. Paste (⌘V) into the GitHub issue that just opened, then submit."
-        alert.alertStyle = .informational
-        alert.addButton(withTitle: "OK")
-        alert.runModal()
     }
 
     private static func newIssueURL(title: String, body: String) -> URL {

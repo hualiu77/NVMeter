@@ -1,66 +1,626 @@
 {
-  "sourceLanguage" : "en",
-  "version" : "1.0",
-  "strings" : {
-    "About" : { "localizations" : { "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "关于" } } } },
-    "AGPL-3.0-or-later · uses smartmontools (GPL-2.0)" : { "localizations" : { "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "AGPL-3.0-or-later · 内置 smartmontools (GPL-2.0)" } } } },
-    "Already reported" : { "localizations" : { "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "已经报告过" } } } },
-    "Bridge database" : { "localizations" : { "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "桥接数据库" } } } },
-    "C" : { "localizations" : { "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "C" } } } },
-    "Cancel" : { "localizations" : { "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "取消" } } } },
-    "Could not read SMART data" : { "localizations" : { "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "无法读取 SMART 数据" } } } },
-    "Critical" : { "localizations" : { "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "危险" } } } },
-    "Defaults: green below warning, yellow between warning and critical, red at or above critical. Spec values for NVMe throttling vary by drive; these thresholds are conservative and match what most users want to see at a glance." : { "localizations" : { "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "默认：低于警告值为绿色，在警告与危险值之间为黄色，达到或超过危险值为红色。NVMe 各型号的实际限温不同；这两个阈值偏保守，符合大多数用户的预期。" } } } },
-    "Displays the hottest drive's temperature in the menu bar." : { "localizations" : { "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "在菜单栏显示温度最高那块盘的温度。" } } } },
-    "Drive" : { "localizations" : { "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "硬盘" } } } },
-    "First time you enable this, macOS will ask for permission. You can revisit it under System Settings → Notifications → NVMeter." : { "localizations" : { "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "首次启用时 macOS 会请求授权。后续可在「系统设置 → 通知 → NVMeter」中调整。" } } } },
-    "General" : { "localizations" : { "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "通用" } } } },
-    "GitHub" : { "localizations" : { "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "GitHub" } } } },
-    "Good" : { "localizations" : { "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "良好" } } } },
-    "Help" : { "localizations" : { "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "帮助" } } } },
-    "Help map this enclosure" : { "localizations" : { "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "帮我们识别这个硬盘盒" } } } },
-    "History" : { "localizations" : { "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "历史" } } } },
-    "Hover any metric tile to see what it means · See Settings → Help for the full reference" : { "localizations" : { "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "将鼠标悬停在数字上查看说明 · 完整参考见「设置 → 帮助」" } } } },
-    "Lifetime writes" : { "localizations" : { "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "累计写入" } } } },
-    "Long-term trend charts" : { "localizations" : { "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "长期趋势图表" } } } },
-    "Make sure smartmontools is installed:\n  brew install smartmontools" : { "localizations" : { "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "请先安装 smartmontools：\n  brew install smartmontools" } } } },
-    "Menu bar" : { "localizations" : { "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "菜单栏" } } } },
-    "Most USB-SATA & USB-NVMe bridges can't expose SMART on macOS. Capacity and connection still shown." : { "localizations" : { "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "macOS 下大多数 USB-SATA / USB-NVMe 硬盘盒无法读取 SMART。容量与连接方式仍可显示。" } } } },
-    "No data for this metric." : { "localizations" : { "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "暂无该指标的数据。" } } } },
-    "No drives to chart yet." : { "localizations" : { "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "暂无可绘图的硬盘。" } } } },
-    "No samples for this range yet — NVMeter polls every 5 minutes." : { "localizations" : { "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "该时间范围内暂无采样数据 —— NVMeter 每 5 分钟采集一次。" } } } },
-    "Notifications" : { "localizations" : { "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "通知" } } } },
-    "Notify when a drive crosses a threshold" : { "localizations" : { "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "温度跨阈值时发送通知" } } } },
-    "NVMeter" : { "localizations" : { "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "NVMeter" } } } },
-    "NVMeter — History" : { "localizations" : { "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "NVMeter — 历史趋势" } } } },
-    "Open-source SMART monitor for macOS" : { "localizations" : { "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "macOS 上的开源 SMART 监控工具" } } } },
-    "Opens a pre-filled GitHub Issue with your ioreg + smartctl probe results so we can add this enclosure to the community database." : { "localizations" : { "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "打开浏览器，预填好 ioreg 与 smartctl 诊断结果，自动提交到 GitHub，帮社区数据库加上这个硬盘盒。" } } } },
-    "Posts a system notification when a drive enters the warning or critical band. Debounced to once per device per 5 minutes." : { "localizations" : { "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "当某块硬盘进入警告或危险温度时发送系统通知。同一设备 5 分钟内只发一次。" } } } },
-    "Power-on" : { "localizations" : { "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "通电" } } } },
-    "Quit NVMeter" : { "localizations" : { "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "退出 NVMeter" } } } },
-    "Range" : { "localizations" : { "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "时间范围" } } } },
-    "Reading SMART data…" : { "localizations" : { "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "正在读取 SMART 数据…" } } } },
-    "Refresh" : { "localizations" : { "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "刷新" } } } },
-    "Report a bug" : { "localizations" : { "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "报告问题" } } } },
-    "Report copied to clipboard" : { "localizations" : { "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "报告已复制到剪贴板" } } } },
-    "Settings" : { "localizations" : { "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "设置" } } } },
-    "Show temperature next to icon" : { "localizations" : { "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "在图标旁显示温度" } } } },
-    "SMART pass-through blocked by macOS" : { "localizations" : { "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "macOS 阻止了该硬盘盒的 SMART 透传" } } } },
-    "Submit anyway" : { "localizations" : { "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "仍要提交" } } } },
-    "Temp" : { "localizations" : { "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "温度" } } } },
-    "Temperature" : { "localizations" : { "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "温度" } } } },
-    "Temperature thresholds" : { "localizations" : { "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "温度阈值" } } } },
-    "The full report didn't fit in a URL, so NVMeter copied it instead. Paste (⌘V) into the GitHub issue that just opened, then submit." : { "localizations" : { "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "完整报告超出了 URL 长度限制，NVMeter 已将其复制到剪贴板。在刚打开的 GitHub Issue 页面按 ⌘V 粘贴后提交即可。" } } } },
-    "Thresholds" : { "localizations" : { "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "阈值" } } } },
-    "Unknown" : { "localizations" : { "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "未知" } } } },
-    "Warning" : { "localizations" : { "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "警告" } } } },
-    "Wear" : { "localizations" : { "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "磨损" } } } },
-    "Wear (NAND % used)" : { "localizations" : { "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "磨损（NAND 使用百分比）" } } } },
-    "When off, only the NVMeter icon is shown." : { "localizations" : { "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "关闭后菜单栏只显示 NVMeter 图标。" } } } },
-    "Written" : { "localizations" : { "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "已写入" } } } },
-    "%lld samples" : { "localizations" : { "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "%lld 个采样点" } } } },
-    "%@ is hot" : { "localizations" : { "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "%@ 温度过高" } } } },
-    "%@ is warming up" : { "localizations" : { "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "%@ 温度上升" } } } },
-    "Drive temperature is %lld °C." : { "localizations" : { "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "硬盘温度 %lld °C。" } } } }
+  "sourceLanguage": "en",
+  "version": "1.0",
+  "strings": {
+    "About": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "关于"
+          }
+        }
+      }
+    },
+    "AGPL-3.0-or-later · uses smartmontools (GPL-2.0)": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "AGPL-3.0-or-later · 内置 smartmontools (GPL-2.0)"
+          }
+        }
+      }
+    },
+    "Already reported": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "已经报告过"
+          }
+        }
+      }
+    },
+    "Bridge database": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "桥接数据库"
+          }
+        }
+      }
+    },
+    "C": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "C"
+          }
+        }
+      }
+    },
+    "Cancel": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "取消"
+          }
+        }
+      }
+    },
+    "Could not read SMART data": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "无法读取 SMART 数据"
+          }
+        }
+      }
+    },
+    "Critical": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "危险"
+          }
+        }
+      }
+    },
+    "Defaults: green below warning, yellow between warning and critical, red at or above critical. Spec values for NVMe throttling vary by drive; these thresholds are conservative and match what most users want to see at a glance.": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "默认：低于警告值为绿色，在警告与危险值之间为黄色，达到或超过危险值为红色。NVMe 各型号的实际限温不同；这两个阈值偏保守，符合大多数用户的预期。"
+          }
+        }
+      }
+    },
+    "Displays the hottest drive's temperature in the menu bar.": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "在菜单栏显示温度最高那块盘的温度。"
+          }
+        }
+      }
+    },
+    "Drive": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "硬盘"
+          }
+        }
+      }
+    },
+    "First time you enable this, macOS will ask for permission. You can revisit it under System Settings → Notifications → NVMeter.": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "首次启用时 macOS 会请求授权。后续可在「系统设置 → 通知 → NVMeter」中调整。"
+          }
+        }
+      }
+    },
+    "General": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "通用"
+          }
+        }
+      }
+    },
+    "GitHub": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "GitHub"
+          }
+        }
+      }
+    },
+    "Good": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "良好"
+          }
+        }
+      }
+    },
+    "Help": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "帮助"
+          }
+        }
+      }
+    },
+    "Help map this enclosure": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "帮我们识别这个硬盘盒"
+          }
+        }
+      }
+    },
+    "History": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "历史"
+          }
+        }
+      }
+    },
+    "Hover any metric tile to see what it means · See Settings → Help for the full reference": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "将鼠标悬停在数字上查看说明 · 完整参考见「设置 → 帮助」"
+          }
+        }
+      }
+    },
+    "Lifetime writes": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "累计写入"
+          }
+        }
+      }
+    },
+    "Long-term trend charts": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "长期趋势图表"
+          }
+        }
+      }
+    },
+    "Make sure smartmontools is installed:\n  brew install smartmontools": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "请先安装 smartmontools：\n  brew install smartmontools"
+          }
+        }
+      }
+    },
+    "Menu bar": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "菜单栏"
+          }
+        }
+      }
+    },
+    "Most USB-SATA & USB-NVMe bridges can't expose SMART on macOS. Capacity and connection still shown.": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "macOS 下大多数 USB-SATA / USB-NVMe 硬盘盒无法读取 SMART。容量与连接方式仍可显示。"
+          }
+        }
+      }
+    },
+    "No data for this metric.": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "暂无该指标的数据。"
+          }
+        }
+      }
+    },
+    "No drives to chart yet.": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "暂无可绘图的硬盘。"
+          }
+        }
+      }
+    },
+    "No samples for this range yet — NVMeter polls every 5 minutes.": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "该时间范围内暂无采样数据 —— NVMeter 每 5 分钟采集一次。"
+          }
+        }
+      }
+    },
+    "Notifications": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "通知"
+          }
+        }
+      }
+    },
+    "Notify when a drive crosses a threshold": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "温度跨阈值时发送通知"
+          }
+        }
+      }
+    },
+    "NVMeter": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "NVMeter"
+          }
+        }
+      }
+    },
+    "NVMeter — History": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "NVMeter — 历史趋势"
+          }
+        }
+      }
+    },
+    "Open-source SMART monitor for macOS": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "macOS 上的开源 SMART 监控工具"
+          }
+        }
+      }
+    },
+    "Opens a pre-filled GitHub Issue with your ioreg + smartctl probe results so we can add this enclosure to the community database.": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "打开浏览器，预填好 ioreg 与 smartctl 诊断结果，自动提交到 GitHub，帮社区数据库加上这个硬盘盒。"
+          }
+        }
+      }
+    },
+    "Posts a system notification when a drive enters the warning or critical band. Debounced to once per device per 5 minutes.": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "当某块硬盘进入警告或危险温度时发送系统通知。同一设备 5 分钟内只发一次。"
+          }
+        }
+      }
+    },
+    "Power-on": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "通电"
+          }
+        }
+      }
+    },
+    "Quit NVMeter": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "退出 NVMeter"
+          }
+        }
+      }
+    },
+    "Range": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "时间范围"
+          }
+        }
+      }
+    },
+    "Reading SMART data…": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "正在读取 SMART 数据…"
+          }
+        }
+      }
+    },
+    "Refresh": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "刷新"
+          }
+        }
+      }
+    },
+    "Report a bug": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "报告问题"
+          }
+        }
+      }
+    },
+    "Report copied to clipboard": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "报告已复制到剪贴板"
+          }
+        }
+      }
+    },
+    "Settings": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "设置"
+          }
+        }
+      }
+    },
+    "Show temperature next to icon": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "在图标旁显示温度"
+          }
+        }
+      }
+    },
+    "SMART pass-through blocked by macOS": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "macOS 阻止了该硬盘盒的 SMART 透传"
+          }
+        }
+      }
+    },
+    "Submit anyway": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "仍要提交"
+          }
+        }
+      }
+    },
+    "Temp": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "温度"
+          }
+        }
+      }
+    },
+    "Temperature": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "温度"
+          }
+        }
+      }
+    },
+    "Temperature thresholds": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "温度阈值"
+          }
+        }
+      }
+    },
+    "The full report didn't fit in a URL, so NVMeter copied it instead. Paste (⌘V) into the GitHub issue that just opened, then submit.": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "完整报告超出了 URL 长度限制，NVMeter 已将其复制到剪贴板。在刚打开的 GitHub Issue 页面按 ⌘V 粘贴后提交即可。"
+          }
+        }
+      }
+    },
+    "Thresholds": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "阈值"
+          }
+        }
+      }
+    },
+    "Unknown": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "未知"
+          }
+        }
+      }
+    },
+    "Warning": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "警告"
+          }
+        }
+      }
+    },
+    "Wear": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "磨损"
+          }
+        }
+      }
+    },
+    "Wear (NAND % used)": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "磨损（NAND 使用百分比）"
+          }
+        }
+      }
+    },
+    "When off, only the NVMeter icon is shown.": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "关闭后菜单栏只显示 NVMeter 图标。"
+          }
+        }
+      }
+    },
+    "Written": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "已写入"
+          }
+        }
+      }
+    },
+    "%lld samples": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%lld 个采样点"
+          }
+        }
+      }
+    },
+    "%@ is hot": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%@ 温度过高"
+          }
+        }
+      }
+    },
+    "%@ is warming up": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%@ 温度上升"
+          }
+        }
+      }
+    },
+    "Drive temperature is %lld °C.": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "硬盘温度 %lld °C。"
+          }
+        }
+      }
+    },
+    "OK": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "好"
+          }
+        }
+      }
+    },
+    "The full report didn't fit in a URL, so NVMeter copied it to the clipboard. Click OK to open the GitHub issue page, then paste (⌘V) into the description and submit.": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "完整报告超出了 URL 长度限制,NVMeter 已将其复制到剪贴板。点击「好」打开 GitHub Issue 页面,然后在描述框按 ⌘V 粘贴并提交。"
+          }
+        }
+      }
+    }
   }
 }

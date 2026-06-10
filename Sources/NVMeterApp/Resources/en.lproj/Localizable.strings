@@ -60,3 +60,5 @@
 "Wear (NAND % used)" = "Wear (NAND % used)";
 "When off, only the NVMeter icon is shown." = "When off, only the NVMeter icon is shown.";
 "Written" = "Written";
+"OK" = "OK";
+"The full report didn't fit in a URL, so NVMeter copied it to the clipboard. Click OK to open the GitHub issue page, then paste (⌘V) into the description and submit." = "The full report didn't fit in a URL, so NVMeter copied it to the clipboard. Click OK to open the GitHub issue page, then paste (⌘V) into the description and submit.";
