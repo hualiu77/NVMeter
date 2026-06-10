@@ -9,6 +9,11 @@
         <string>en</string>
         <string>zh-Hans</string>
     </array>
+    <!-- Our strings live in a nested SwiftPM resource bundle, not in
+         .lproj folders at the app's top level. Without this flag macOS
+         pins nested-bundle lookups to the development region (en). -->
+    <key>CFBundleAllowMixedLocalizations</key>
+    <true/>
     <key>CFBundleDisplayName</key>
     <string>NVMeter</string>
     <key>CFBundleExecutable</key>

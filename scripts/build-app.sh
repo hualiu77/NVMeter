@@ -22,7 +22,10 @@ APP_NAME="NVMeter"
 BUNDLE_ID="app.nvmeter.NVMeter"
 SMARTCTL_SRC="/opt/homebrew/bin/smartctl"
 
-BUILD_DIR="build"
+# ".noindex" suffix keeps Spotlight from indexing the dev build artifact,
+# which otherwise shows up in Launchpad/Spotlight as a second NVMeter.app
+# next to the real /Applications copy.
+BUILD_DIR="build.noindex"
 APP_DIR="$BUILD_DIR/$APP_NAME.app"
 
 echo "──────────────────────────────────────────────────────────"
@@ -55,6 +58,15 @@ mkdir -p "$APP_DIR/Contents/MacOS" "$APP_DIR/Contents/Resources"
 cp "$BIN"           "$APP_DIR/Contents/MacOS/NVMeterApp"
 cp "$SMARTCTL_REAL" "$APP_DIR/Contents/MacOS/smartctl"
 chmod +x "$APP_DIR/Contents/MacOS/NVMeterApp" "$APP_DIR/Contents/MacOS/smartctl"
+
+# SwiftPM resource bundles (localizations live here). Without this copy
+# the app falls back to the dev machine's absolute .build path — works
+# on the dev Mac, crashes with fatalError everywhere else.
+for bundle in .build/release/*.bundle; do
+    [[ -d "$bundle" ]] && cp -R "$bundle" "$APP_DIR/Contents/Resources/"
+done
+ls "$APP_DIR/Contents/Resources/" | grep -q "NVMeter_NVMeterApp.bundle" \
+    || { echo "ERROR: resource bundle missing from app" >&2; exit 1; }
 
 # Info.plist (substitute placeholders)
 sed -e "s/__SHORT_VERSION__/$VERSION/" \

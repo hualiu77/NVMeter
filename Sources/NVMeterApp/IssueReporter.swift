@@ -61,14 +61,14 @@ enum IssueReporter {
     private static func confirmDuplicate(modelName: String, previous: ReportRecord) -> Bool {
         let daysAgo = Int(Date().timeIntervalSince(previous.lastReportedAt) / 86400)
         let alert = NSAlert()
-        alert.messageText = String(localized: "Already reported", bundle: .module)
+        alert.messageText = String(localized: "Already reported", bundle: localizationBundle)
         alert.informativeText = String(localized:
             "You've already submitted \(previous.count) report(s) for **\(modelName)** — the most recent was \(daysAgo) day(s) ago. Are you sure you want to file another?",
-            bundle: .module
+            bundle: localizationBundle
         )
         alert.alertStyle = .informational
-        alert.addButton(withTitle: String(localized: "Submit anyway", bundle: .module))
-        alert.addButton(withTitle: String(localized: "Cancel", bundle: .module))
+        alert.addButton(withTitle: String(localized: "Submit anyway", bundle: localizationBundle))
+        alert.addButton(withTitle: String(localized: "Cancel", bundle: localizationBundle))
         return alert.runModal() == .alertFirstButtonReturn
     }
 

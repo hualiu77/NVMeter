@@ -4,8 +4,8 @@
 set -euo pipefail
 
 SVG="design/logo/appicon.svg"
-OUT_DIR="build/AppIcon.iconset"
-ICNS="build/AppIcon.icns"
+OUT_DIR="build.noindex/AppIcon.iconset"
+ICNS="build.noindex/AppIcon.icns"
 
 if ! command -v magick >/dev/null 2>&1; then
     echo "ERROR: ImageMagick not installed. brew install imagemagick" >&2

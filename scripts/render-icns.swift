@@ -1,5 +1,5 @@
 #!/usr/bin/env swift
-// Render design/logo/appicon.svg into build/AppIcon.iconset and compile
+// Render design/logo/appicon.svg into build.noindex/AppIcon.iconset and compile
 // to AppIcon.icns. Uses AppKit's native SVG renderer because ImageMagick's
 // librsvg path produces garbage (all-black with alpha) for this artwork.
 //
@@ -9,8 +9,8 @@ import Foundation
 import AppKit
 
 let svgPath = "design/logo/appicon.svg"
-let outDir  = "build/AppIcon.iconset"
-let icnsOut = "build/AppIcon.icns"
+let outDir  = "build.noindex/AppIcon.iconset"
+let icnsOut = "build.noindex/AppIcon.icns"
 
 let sizes: [(side: Int, name: String)] = [
     (16,   "icon_16x16"),

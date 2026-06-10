@@ -71,12 +71,12 @@ final class Notifier {
     private func fire(snapshot: DeviceSnapshot, level: NotifiedLevel) async {
         let content = UNMutableNotificationContent()
         if level == .critical {
-            content.title = "🔴 " + String(localized: "\(snapshot.modelName) is hot", bundle: .module)
+            content.title = "🔴 " + String(localized: "\(snapshot.modelName) is hot", bundle: localizationBundle)
         } else {
-            content.title = "🟡 " + String(localized: "\(snapshot.modelName) is warming up", bundle: .module)
+            content.title = "🟡 " + String(localized: "\(snapshot.modelName) is warming up", bundle: localizationBundle)
         }
         if let temp = snapshot.temperatureC {
-            content.body = String(localized: "Drive temperature is \(temp) °C.", bundle: .module)
+            content.body = String(localized: "Drive temperature is \(temp) °C.", bundle: localizationBundle)
         }
         content.sound = level == .critical ? .defaultCritical : .default
         content.threadIdentifier = "nvmeter.device.\(snapshot.devicePath)"

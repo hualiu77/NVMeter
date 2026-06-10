@@ -57,7 +57,7 @@ struct HistoryView: View {
             if isLoading {
                 ProgressView().controlSize(.small)
             }
-            Text(String(localized: "\(filteredSamples.count) samples", bundle: .module))
+            Text(String(localized: "\(filteredSamples.count) samples", bundle: localizationBundle))
                 .font(.caption)
                 .foregroundStyle(.secondary)
                 .monospacedDigit()
