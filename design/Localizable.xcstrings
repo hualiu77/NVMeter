@@ -931,6 +931,16 @@
           }
         }
       }
+    },
+    "Memory cards don't support SMART — capacity shown above.": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "存储卡本身不支持 SMART——上方仍显示容量信息。"
+          }
+        }
+      }
     }
   }
 }

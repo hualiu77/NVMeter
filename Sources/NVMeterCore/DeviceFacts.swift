@@ -26,7 +26,11 @@ public struct DeviceFacts: Sendable, Equatable {
     public var knownBridgeName: String?
     /// The smartctl `-d` args that actually worked for this device, when
     /// the default open failed and a bridge-DB retry succeeded.
-    public var workingSmartctlArgs: [String]?        // e.g. ["/Volumes/1TNVME"]
+    public var workingSmartctlArgs: [String]?
+    /// True for SD/CF card readers and other removable media. These have
+    /// no SMART by design — the UI should say so neutrally instead of
+    /// blaming macOS or soliciting a bridge report.
+    public var isRemovableMedia: Bool        // e.g. ["/Volumes/1TNVME"]
 
     public init(
         bus: Bus = .unknown,
@@ -40,7 +44,8 @@ public struct DeviceFacts: Sendable, Equatable {
         lifetimeWrittenBytes: Int64? = nil,
         mountPoints: [String] = [],
         knownBridgeName: String? = nil,
-        workingSmartctlArgs: [String]? = nil
+        workingSmartctlArgs: [String]? = nil,
+        isRemovableMedia: Bool = false
     ) {
         self.bus = bus
         self.connectionLabel = connectionLabel
@@ -54,6 +59,7 @@ public struct DeviceFacts: Sendable, Equatable {
         self.mountPoints = mountPoints
         self.knownBridgeName = knownBridgeName
         self.workingSmartctlArgs = workingSmartctlArgs
+        self.isRemovableMedia = isRemovableMedia
     }
 
     /// "1.0 TB" / "500.3 GB" etc — base-10 (SSD convention).

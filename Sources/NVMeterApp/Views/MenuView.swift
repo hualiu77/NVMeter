@@ -59,6 +59,7 @@ struct MenuView: View {
                             DeviceCard(snapshot: device)
                         }
                         .buttonStyle(.plain)
+                        .hoverLift()
                         .help(L("Click for all SMART attributes"))
                     }
                 }

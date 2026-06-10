@@ -42,6 +42,7 @@ public actor SystemProbe {
         if let du = diskutilInfo(devicePath: devicePath) {
             facts.capacityBytes = du.size
             facts.modelHint = du.mediaName
+            facts.isRemovableMedia = du.isRemovable
             if facts.brand == nil, let media = du.mediaName {
                 facts.brand = inferBrand(fromModel: media)
             }
@@ -89,6 +90,7 @@ public actor SystemProbe {
         var busProtocol: String?
         var isInternal: Bool
         var mediaName: String?
+        var isRemovable: Bool
     }
 
     private func diskutilInfo(devicePath: String) -> DiskutilInfo? {
@@ -98,7 +100,9 @@ public actor SystemProbe {
             size: size,
             busProtocol: plist["BusProtocol"] as? String,
             isInternal: (plist["Internal"] as? Bool) ?? false,
-            mediaName: plist["MediaName"] as? String
+            mediaName: plist["MediaName"] as? String,
+            // Card readers report Removable; SSD/HDD enclosures report Fixed.
+            isRemovable: (plist["RemovableMedia"] as? Bool) ?? false
         )
     }
 

@@ -50,6 +50,7 @@ struct DeviceCard: View {
             subtitle
             if snapshot.facts.usageFraction != nil { capacityBar }
             if !snapshot.isBlocked { metrics }
+            else if snapshot.facts.isRemovableMedia { removableNotice }
             else { blockedNotice }
             connectionChip
             if !snapshot.reasons.isEmpty { reasonsBlock }
@@ -68,7 +69,7 @@ struct DeviceCard: View {
     private var header: some View {
         HStack(alignment: .firstTextBaseline, spacing: Theme.Spacing.xs) {
             Circle()
-                .fill(snapshot.isBlocked ? Color.orange : Theme.color(for: snapshot.level))
+                .fill(headerDotColor)
                 .frame(width: 8, height: 8)
                 .offset(y: -1)
             Text(snapshot.modelName)
@@ -80,6 +81,12 @@ struct DeviceCard: View {
                 .font(.caption.monospaced())
                 .foregroundStyle(.secondary)
         }
+    }
+
+    private var headerDotColor: Color {
+        if snapshot.facts.isRemovableMedia { return .secondary }
+        if snapshot.isBlocked { return .orange }
+        return Theme.color(for: snapshot.level)
     }
 
     private var subtitle: some View {
@@ -227,6 +234,27 @@ struct DeviceCard: View {
         .foregroundStyle(Theme.color(for: snapshot.level))
         .background(
             Capsule().fill(Theme.color(for: snapshot.level).opacity(0.15))
+        )
+    }
+
+    /// SD/CF cards and other removable media: no SMART by design. Neutral
+    /// gray note, no macOS-blame, no report CTA — but the capacity bar
+    /// above stays, which is the part photographers actually care about.
+    private var removableNotice: some View {
+        HStack(spacing: 6) {
+            Image(systemName: "sdcard")
+                .foregroundStyle(.secondary)
+                .imageScale(.small)
+            Text(LR("Memory cards don't support SMART — capacity shown above."))
+                .font(.caption2)
+                .foregroundStyle(.secondary)
+                .fixedSize(horizontal: false, vertical: true)
+        }
+        .padding(8)
+        .frame(maxWidth: .infinity, alignment: .leading)
+        .background(
+            RoundedRectangle(cornerRadius: 6)
+                .fill(Color.primary.opacity(0.04))
         )
     }
 

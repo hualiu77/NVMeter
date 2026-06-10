@@ -93,3 +93,4 @@
 "Error log contains %lld entries." = "Error log contains %lld entries.";
 "Already in the database: %@" = "Already in the database: %@";
 "This enclosure's bridge chip is already catalogued in NVMeter-drivedb. macOS still blocks SMART pass-through for it." = "This enclosure's bridge chip is already catalogued in NVMeter-drivedb. macOS still blocks SMART pass-through for it.";
+"Memory cards don't support SMART — capacity shown above." = "Memory cards don't support SMART — capacity shown above.";

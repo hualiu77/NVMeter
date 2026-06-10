@@ -93,3 +93,4 @@
 "Error log contains %lld entries." = "错误日志包含 %lld 条记录。";
 "Already in the database: %@" = "已收录于数据库:%@";
 "This enclosure's bridge chip is already catalogued in NVMeter-drivedb. macOS still blocks SMART pass-through for it." = "该硬盘盒的桥接芯片已收录在 NVMeter-drivedb 中。macOS 仍然阻止其 SMART 透传。";
+"Memory cards don't support SMART — capacity shown above." = "存储卡本身不支持 SMART——上方仍显示容量信息。";
