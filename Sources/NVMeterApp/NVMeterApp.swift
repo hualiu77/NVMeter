@@ -32,6 +32,11 @@ struct NVMeterApp: App {
             SpeedTestView(model: model)
         }
         .defaultSize(width: 780, height: 920)
+
+        Window(LR("NVMeter — Self-Test"), id: "selftest") {
+            SelfTestView(model: model)
+        }
+        .defaultSize(width: 560, height: 620)
     }
 }
 
@@ -58,6 +63,11 @@ final class AppModel: ObservableObject {
 
     var hottestLevel: HealthLevel? {
         devices.map(\.level).max()
+    }
+
+    /// Highest NAND wear (`percentage_used`) across all SMART-capable drives.
+    var highestWear: Int? {
+        devices.compactMap(\.percentageUsed).max()
     }
 
     // MARK: - Lifecycle

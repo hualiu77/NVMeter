@@ -64,25 +64,49 @@ struct MenuView: View {
                     }
                 }
                 speedTestEntryCard
+                selfTestEntryCard
             }
             .padding(Theme.Spacing.l)
         }
     }
 
     private var speedTestEntryCard: some View {
+        entryCard(
+            icon: "speedometer",
+            title: LR("Disk speed test"),
+            subtitle: LR("Benchmark read/write with a temperature overlay"),
+            windowID: "speedtest"
+        )
+    }
+
+    private var selfTestEntryCard: some View {
+        entryCard(
+            icon: "stethoscope",
+            title: LR("Drive self-test"),
+            subtitle: LR("Run the drive's built-in extended health check"),
+            windowID: "selftest"
+        )
+    }
+
+    private func entryCard(
+        icon: String,
+        title: LocalizedStringResource,
+        subtitle: LocalizedStringResource,
+        windowID: String
+    ) -> some View {
         Button {
-            bringWindowToFront { openWindow(id: "speedtest") }
+            bringWindowToFront { openWindow(id: windowID) }
         } label: {
             HStack(spacing: Theme.Spacing.m) {
-                Image(systemName: "speedometer")
+                Image(systemName: icon)
                     .font(.title2)
                     .foregroundStyle(Theme.Brand.primary)
                     .frame(width: 30)
                 VStack(alignment: .leading, spacing: 2) {
-                    Text(LR("Disk speed test"))
+                    Text(title)
                         .font(.subheadline.weight(.semibold))
                         .foregroundStyle(.primary)
-                    Text(LR("Benchmark read/write with a temperature overlay"))
+                    Text(subtitle)
                         .font(.caption2)
                         .foregroundStyle(.secondary)
                 }

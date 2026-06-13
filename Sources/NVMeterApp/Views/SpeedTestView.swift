@@ -347,35 +347,55 @@ struct SpeedTestView: View {
 
     @ViewBuilder
     private func slowdownAnalysis(_ run: SpeedTestRun) -> some View {
-        // Look at the sequential write samples — the longest sustained load.
-        let seqWrite = run.samples.filter { $0.profileID.hasPrefix("seq1m") && !$0.isRead && $0.mbPerSec > 0 }
-        if seqWrite.count >= 4 {
-            let peak = seqWrite.map(\.mbPerSec).max() ?? 0
-            let tail = seqWrite.suffix(max(1, seqWrite.count / 4))
-            let tailAvg = tail.map(\.mbPerSec).reduce(0, +) / Double(tail.count)
-            let drop = peak > 0 ? (peak - tailAvg) / peak : 0
-            let maxTemp = run.samples.compactMap(\.temperatureC).max()
-
-            if drop > 0.20 {
-                let reason: LocalizedStringResource = {
-                    if let mt = maxTemp, mt >= 70 {
-                        return LR("The drive reached \(mt)°C — thermal throttling is the likely cause.")
-                    }
-                    return LR("Temperature stayed moderate, so this is most likely the SLC write cache filling up.")
-                }()
-                HStack(alignment: .top, spacing: 6) {
-                    Image(systemName: "exclamationmark.triangle.fill").foregroundStyle(.orange).imageScale(.small)
-                    VStack(alignment: .leading, spacing: 2) {
-                        Text(String(localized: "Sustained write speed dropped \(Int(drop * 100))% from its peak.", bundle: localizationBundle))
-                            .font(.caption.weight(.medium))
-                        Text(reason).font(.caption2).foregroundStyle(.secondary)
-                            .fixedSize(horizontal: false, vertical: true)
-                    }
-                }
-                .padding(8)
-                .frame(maxWidth: .infinity, alignment: .leading)
-                .background(RoundedRectangle(cornerRadius: 6).fill(Color.orange.opacity(0.08)))
+        if let v = SlowdownAnalyzer.analyzeSequentialWrite(run.samples) {
+            let dropPct = Int(v.dropFraction * 100)
+            switch v.cause {
+            case .steady:
+                verdictRow(
+                    icon: "checkmark.seal.fill", tint: .green,
+                    headline: LR("Sustained write held steady — no SLC-cache cliff or thermal throttling."),
+                    detail: LR("Speed stayed within \(dropPct)% of its peak for the whole write. This drive can sustain large transfers at full pace.")
+                )
+            case .thermal:
+                verdictRow(
+                    icon: "thermometer.high", tint: .orange,
+                    headline: LR("Sustained write dropped \(dropPct)% — thermal throttling."),
+                    detail: thermalDetail(v)
+                )
+            case .slcCache:
+                verdictRow(
+                    icon: "externaldrive.badge.exclamationmark", tint: .orange,
+                    headline: LR("Sustained write dropped \(dropPct)% — the SLC write cache filled up."),
+                    detail: LR("Temperature stayed moderate (peak \(v.maxTempC ?? 0)°C), so heat isn't the cause. The fast pSLC buffer ran out and writes fell back to slower native NAND at ~\(Int(v.sustainedMBps)) MB/s. Normal for the drive — just expect this on transfers larger than the cache.")
+                )
+            case .inconclusive:
+                verdictRow(
+                    icon: "questionmark.circle", tint: .secondary,
+                    headline: LR("Sustained write dropped \(dropPct)% from its peak."),
+                    detail: LR("No temperature track for this drive (its enclosure doesn't expose SMART), so NVMeter can't tell thermal throttling from an SLC-cache cliff.")
+                )
             }
         }
+    }
+
+    private func thermalDetail(_ v: SlowdownVerdict) -> LocalizedStringResource {
+        if let rise = v.tempRiseC, let mt = v.maxTempC {
+            return LR("The drive warmed \(rise)°C during the write, peaking at \(mt)°C, and speed fell to ~\(Int(v.sustainedMBps)) MB/s as it throttled. Better cooling (a heatsink or a ventilated enclosure) would help sustain it.")
+        }
+        return LR("The drive reached \(v.maxTempC ?? 0)°C and throttled to ~\(Int(v.sustainedMBps)) MB/s. Better cooling would help sustain it.")
+    }
+
+    private func verdictRow(icon: String, tint: Color, headline: LocalizedStringResource, detail: LocalizedStringResource) -> some View {
+        HStack(alignment: .top, spacing: 6) {
+            Image(systemName: icon).foregroundStyle(tint).imageScale(.small)
+            VStack(alignment: .leading, spacing: 2) {
+                Text(headline).font(.caption.weight(.medium))
+                Text(detail).font(.caption2).foregroundStyle(.secondary)
+                    .fixedSize(horizontal: false, vertical: true)
+            }
+        }
+        .padding(8)
+        .frame(maxWidth: .infinity, alignment: .leading)
+        .background(RoundedRectangle(cornerRadius: 6).fill(tint == .green ? Color.green.opacity(0.08) : Color.primary.opacity(0.05)))
     }
 }

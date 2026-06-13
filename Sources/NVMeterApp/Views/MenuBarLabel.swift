@@ -1,4 +1,5 @@
 import SwiftUI
+import NVMeterCore
 
 /// Menu-bar status item.
 ///
@@ -11,27 +12,60 @@ import SwiftUI
 /// So the dot we render is `🟢 / 🟡 / 🔴` rather than a SwiftUI Circle.
 struct MenuBarLabel: View {
     @ObservedObject var model: AppModel
-    @AppStorage(SettingsKeys.showTempInMenuBar) private var showTemp = true
+    @AppStorage(SettingsKeys.showTempInMenuBar) private var showMetric = true
+    @AppStorage(SettingsKeys.menuBarMetric)     private var metricRaw = MenuBarMetric.temperature.rawValue
     @AppStorage(SettingsKeys.warningTempC)      private var warningTemp = 60
     @AppStorage(SettingsKeys.criticalTempC)     private var criticalTemp = 70
+
+    private var metric: MenuBarMetric { MenuBarMetric(rawValue: metricRaw) ?? .temperature }
 
     var body: some View {
         HStack(spacing: 3) {
             BentoMark(density: .compact, color: .primary)
                 .frame(width: 16, height: 16)
 
-            if showTemp, let temp = model.hottestTemp {
-                Text(menuText(for: temp))
+            if showMetric, let text = metricText() {
+                Text(text)
                     .font(.system(size: 13, weight: .medium).monospacedDigit())
             }
         }
     }
 
-    private func menuText(for temp: Int) -> String {
-        let dot: String
-        if temp >= criticalTemp { dot = "🔴" }
-        else if temp >= warningTemp { dot = "🟡" }
-        else { dot = "🟢" }
-        return "\(dot) \(temp)°"
+    /// Nil when the chosen metric has no data yet (e.g. wear before the
+    /// first scan), in which case we show the bare icon.
+    private func metricText() -> String? {
+        switch metric {
+        case .temperature:
+            guard let temp = model.hottestTemp else { return nil }
+            return "\(tempDot(temp)) \(temp)°"
+        case .wear:
+            guard let wear = model.highestWear else { return nil }
+            return "\(wearDot(wear)) \(wear)%"
+        case .health:
+            guard let level = model.hottestLevel else { return nil }
+            return healthDot(level)
+        }
+    }
+
+    private func tempDot(_ temp: Int) -> String {
+        if temp >= criticalTemp { return "🔴" }
+        if temp >= warningTemp  { return "🟡" }
+        return "🟢"
+    }
+
+    /// Wear bands mirror the health scorer: ≥90% critical, ≥70% warning.
+    private func wearDot(_ wear: Int) -> String {
+        if wear >= 90 { return "🔴" }
+        if wear >= 70 { return "🟡" }
+        return "🟢"
+    }
+
+    private func healthDot(_ level: HealthLevel) -> String {
+        switch level {
+        case .good:     "🟢"
+        case .warning:  "🟡"
+        case .critical: "🔴"
+        case .unknown:  "⚪️"
+        }
     }
 }

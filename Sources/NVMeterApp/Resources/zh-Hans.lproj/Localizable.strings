@@ -123,3 +123,52 @@
 "Theoretical link maximum (dashed line). Real speed is lower — the interface, enclosure, cable, and drive itself all limit it." = "理论链路上限(虚线)。实际速度更低——接口、硬盘盒、缆线和硬盘本身都会限制速度。";
 "Include random 4K test" = "包含随机 4K 测试";
 "Slow and not very meaningful on mechanical hard drives." = "对机械硬盘耗时较长且意义不大。";
+
+/* --- v0.4: 自检 + 可配置菜单栏指标 --- */
+"Health" = "健康";
+"Show a metric next to the icon" = "在图标旁显示一项指标";
+"Displays a live drive metric in the menu bar." = "在菜单栏实时显示一项硬盘指标。";
+"Show" = "显示";
+"Temperature shows the hottest drive; Wear shows the most-worn drive; Health shows a colored dot for the worst drive. When off, only the NVMeter icon is shown." = "「温度」显示最热的盘；「磨损」显示磨损最高的盘；「健康」用彩色圆点显示状态最差的盘。关闭后只显示 NVMeter 图标。";
+"NVMeter — Self-Test" = "NVMeter — 硬盘自检";
+"Drive self-test" = "硬盘自检";
+"Run the drive's built-in extended health check" = "运行硬盘内置的扩展健康自检";
+"Stop test" = "停止自检";
+"Start extended test" = "开始扩展自检";
+"Extended self-test running" = "扩展自检进行中";
+"Estimated ~%lld min total" = "预计共约 %lld 分钟";
+"The test runs on the drive itself — you can keep using your Mac, sleep it, or even quit NVMeter. Re-open this window to check progress." = "自检在硬盘内部运行——你可以继续使用 Mac、让它睡眠，甚至退出 NVMeter。重新打开此窗口即可查看进度。";
+"What the extended test does" = "扩展自检做什么";
+"The drive scans its entire media surface and read/verifies it, then reports pass or fail. It's the most thorough check short of a full surface scan, and it's read-only — your data is not touched. Expect minutes on a healthy NVMe SSD, longer on large or mechanical drives." = "硬盘会扫描并读取校验全部存储介质，然后报告通过或失败。这是除整盘表面扫描外最彻底的检查，且为只读——不会改动你的数据。健康的 NVMe SSD 通常几分钟完成，大容量或机械硬盘则更久。";
+"This drive estimates about %lld minutes for the extended test." = "这块盘预计扩展自检约需 %lld 分钟。";
+"Past results" = "历史结果";
+"at %lld power-on hours" = "在通电 %lld 小时时";
+"Passed" = "通过";
+"Failed" = "失败";
+"Aborted" = "中止";
+"%@ passed its self-test" = "%@ 自检通过";
+"%@ FAILED its self-test" = "%@ 自检失败";
+"%@ self-test ended" = "%@ 自检结束";
+"Starting extended self-test…" = "正在启动扩展自检…";
+"Self-test aborted." = "自检已中止。";
+"Completed" = "已完成";
+"smartctl not found. Install it with: brew install smartmontools" = "未找到 smartctl。请安装：brew install smartmontools";
+"smartctl could not start the self-test on this drive." = "smartctl 无法在这块盘上启动自检。";
+"Could not read the self-test status." = "无法读取自检状态。";
+"This drive doesn't support self-tests" = "这块盘不支持自检";
+"Apple's internal SSD (Apple Fabric NVMe) doesn't implement the device self-test command, so there's nothing to run here. Attach an NVMe drive through a Thunderbolt or USB enclosure to use this feature. Live SMART monitoring still works on every drive." = "Apple 内置 SSD（Apple Fabric NVMe）未实现设备自检命令，因此这里无法运行自检。通过雷雳或 USB 硬盘盒接入 NVMe 硬盘即可使用此功能。实时 SMART 监控对所有硬盘仍然有效。";
+
+/* --- v0.4: 掉速归因 + 磨损趋势预测 --- */
+"Sustained write held steady — no SLC-cache cliff or thermal throttling." = "持续写入保持稳定——没有 SLC 缓存掉速，也没有热降频。";
+"Speed stayed within %lld%% of its peak for the whole write. This drive can sustain large transfers at full pace." = "整个写入过程速度始终在峰值的 %lld%% 以内。这块盘能以满速持续传输大文件。";
+"Sustained write dropped %lld%% — thermal throttling." = "持续写入下降 %lld%%——热降频所致。";
+"Sustained write dropped %lld%% — the SLC write cache filled up." = "持续写入下降 %lld%%——SLC 写入缓存被写满。";
+"Temperature stayed moderate (peak %lld°C), so heat isn't the cause. The fast pSLC buffer ran out and writes fell back to slower native NAND at ~%lld MB/s. Normal for the drive — just expect this on transfers larger than the cache." = "温度保持平稳（峰值 %lld°C），所以不是发热问题。高速 pSLC 缓存耗尽，写入回落到较慢的原生 NAND，约 %lld MB/s。这是该盘的正常表现——传输量超过缓存容量时就会出现。";
+"Sustained write dropped %lld%% from its peak." = "持续写入较峰值下降 %lld%%。";
+"No temperature track for this drive (its enclosure doesn't expose SMART), so NVMeter can't tell thermal throttling from an SLC-cache cliff." = "这块盘没有温度数据（其硬盘盒不暴露 SMART），因此 NVMeter 无法区分是热降频还是 SLC 缓存掉速。";
+"The drive warmed %lld°C during the write, peaking at %lld°C, and speed fell to ~%lld MB/s as it throttled. Better cooling (a heatsink or a ventilated enclosure) would help sustain it." = "写入过程中温度升高了 %lld°C，峰值 %lld°C，降频后速度回落到约 %lld MB/s。改善散热（加装散热片或换通风更好的硬盘盒）有助于维持速度。";
+"The drive reached %lld°C and throttled to ~%lld MB/s. Better cooling would help sustain it." = "硬盘温度达到 %lld°C 并降频到约 %lld MB/s。改善散热有助于维持速度。";
+"At the current rate, wear reaches %lld%% around %@." = "按当前速度，磨损将在 %2$@ 前后达到 %1$lld%%。";
+"Now at %lld%%, climbing about %@%% per year over the last %lld days. Most drives keep working past %lld%% — it's the manufacturer's rated endurance, not a cliff." = "当前 %1$lld%%，过去 %3$lld 天里约以每年 %2$@%% 的速度上升。大多数硬盘超过 %4$lld%% 仍可正常工作——这是厂商标称的耐久值，并非寿命终点。";
+"Wear is flat — no measurable NAND endurance used over the recorded history." = "磨损保持平稳——在已记录的历史中没有可测量的 NAND 耐久消耗。";
+"Holding at %lld%% across %lld days. Light enough use that there's nothing to project — or an Apple SSD, which reports wear only in coarse steps (watch lifetime writes instead)." = "在 %2$lld 天内稳定保持 %1$lld%%。使用强度很低，无从预测——也可能是 Apple SSD，它只以粗粒度报告磨损（请改看累计写入量）。";

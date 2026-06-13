@@ -4,14 +4,35 @@ import Combine
 
 enum SettingsKeys {
     static let showTempInMenuBar = "showTempInMenuBar"
+    static let menuBarMetric      = "menuBarMetric"
     static let warningTempC      = "warningTempC"
     static let criticalTempC     = "criticalTempC"
     static let notificationsEnabled = "notificationsEnabled"
 }
 
+/// What the menu-bar status item shows next to the NVMeter mark.
+/// Temperature is the default; users with a high-wear drive often care
+/// more about wear or the at-a-glance health dot.
+enum MenuBarMetric: String, CaseIterable, Identifiable {
+    case temperature
+    case wear
+    case health
+
+    var id: String { rawValue }
+
+    var label: String {
+        switch self {
+        case .temperature: L("Temperature")
+        case .wear:        L("Wear")
+        case .health:      L("Health")
+        }
+    }
+}
+
 struct SettingsView: View {
     @ObservedObject var updater: UpdaterManager
     @AppStorage(SettingsKeys.showTempInMenuBar) private var showTemp = true
+    @AppStorage(SettingsKeys.menuBarMetric)     private var menuBarMetric = MenuBarMetric.temperature.rawValue
     @AppStorage(SettingsKeys.warningTempC)      private var warningTemp = 60
     @AppStorage(SettingsKeys.criticalTempC)     private var criticalTemp = 70
     @AppStorage(SettingsKeys.notificationsEnabled) private var notifyEnabled = true
@@ -34,12 +55,19 @@ struct SettingsView: View {
     private var generalTab: some View {
         Form {
             Section {
-                Toggle(LR("Show temperature next to icon"), isOn: $showTemp)
-                    .help(L("Displays the hottest drive's temperature in the menu bar."))
+                Toggle(LR("Show a metric next to the icon"), isOn: $showTemp)
+                    .help(L("Displays a live drive metric in the menu bar."))
+                Picker(LR("Show"), selection: $menuBarMetric) {
+                    ForEach(MenuBarMetric.allCases) { metric in
+                        Text(metric.label).tag(metric.rawValue)
+                    }
+                }
+                .pickerStyle(.segmented)
+                .disabled(!showTemp)
             } header: {
                 Text(LR("Menu bar"))
             } footer: {
-                Text(LR("When off, only the NVMeter icon is shown."))
+                Text(LR("Temperature shows the hottest drive; Wear shows the most-worn drive; Health shows a colored dot for the worst drive. When off, only the NVMeter icon is shown."))
                     .font(.caption)
                     .foregroundStyle(.secondary)
             }

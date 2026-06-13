@@ -118,6 +118,7 @@ struct HistoryView: View {
                         values: filteredSamples.compactMap { s in s.percentageUsed.map { (s.timestamp, Double($0)) } },
                         accent: .orange
                     )
+                    wearProjectionNote
                     chartSection(
                         title: L("Lifetime writes"),
                         unit: "TB",
@@ -128,6 +129,47 @@ struct HistoryView: View {
                 .padding(Theme.Spacing.l)
             }
         }
+    }
+
+    // MARK: - Wear projection (linear extrapolation of locally-stored history)
+
+    /// Uses the FULL retained history (not the visible range) so the line is
+    /// fit over as much data as we have.
+    @ViewBuilder
+    private var wearProjectionNote: some View {
+        if let p = WearTrendAnalyzer.analyze(samples: samples) {
+            switch p.status {
+            case .projected(let date, let perYear):
+                projectionRow(
+                    icon: "calendar.badge.clock", tint: .orange,
+                    headline: String(localized: "At the current rate, wear reaches \(p.target)% around \(date.formatted(.dateTime.year().month())).", bundle: localizationBundle),
+                    detail: String(localized: "Now at \(p.currentPercent)%, climbing about \(String(format: "%.1f", perYear))% per year over the last \(Int(p.spanDays)) days. Most drives keep working past \(p.target)% — it's the manufacturer's rated endurance, not a cliff.", bundle: localizationBundle)
+                )
+            case .flat:
+                projectionRow(
+                    icon: "checkmark.seal.fill", tint: .green,
+                    headline: L("Wear is flat — no measurable NAND endurance used over the recorded history."),
+                    detail: String(localized: "Holding at \(p.currentPercent)% across \(Int(p.spanDays)) days. Light enough use that there's nothing to project — or an Apple SSD, which reports wear only in coarse steps (watch lifetime writes instead).", bundle: localizationBundle)
+                )
+            case .insufficientData:
+                EmptyView()    // stay quiet until there's enough history
+            }
+        }
+    }
+
+    private func projectionRow(icon: String, tint: Color, headline: String, detail: String) -> some View {
+        HStack(alignment: .top, spacing: 6) {
+            Image(systemName: icon).foregroundStyle(tint).imageScale(.small)
+            VStack(alignment: .leading, spacing: 2) {
+                Text(headline).font(.caption.weight(.medium))
+                Text(detail).font(.caption2).foregroundStyle(.secondary)
+                    .fixedSize(horizontal: false, vertical: true)
+            }
+            Spacer()
+        }
+        .padding(10)
+        .frame(maxWidth: .infinity, alignment: .leading)
+        .background(RoundedRectangle(cornerRadius: Theme.Layout.cardRadius).fill(tint == .green ? Color.green.opacity(0.07) : Color.orange.opacity(0.08)))
     }
 
     private func empty(_ message: String) -> some View {
