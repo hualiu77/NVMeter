@@ -33,6 +33,7 @@ SwiftUI menu-bar app on top of `smartctl` that:
 - Reads full SMART/NVMe health for internal SSDs **and** external USB / Thunderbolt enclosures.
 - Records a local history (SQLite) so you can spot trends.
 - Warns you when a drive crosses temperature or wear thresholds — **no cloud, no telemetry**.
+- Benchmarks read/write speed with a **temperature overlay** — the one thing pure speed tools can't do — so it can explain SLC-cache vs thermal slowdowns.
 
 ## Project values
 
@@ -42,7 +43,7 @@ SwiftUI menu-bar app on top of `smartctl` that:
 
 ## Status
 
-Current release: **[v0.1.0](https://github.com/hualiu77/NVMeter/releases/tag/v0.1.0)** — first signed & notarized public build.
+Current release: **[v0.3.0](https://github.com/hualiu77/NVMeter/releases/latest)** — disk speed test with temperature overlay.
 
 | Layer | State |
 |---|---|
@@ -51,12 +52,13 @@ Current release: **[v0.1.0](https://github.com/hualiu77/NVMeter/releases/tag/v0.
 | SQLite history store (GRDB) | ✅ |
 | Menu-bar SwiftUI shell with brand mark | ✅ |
 | Per-drive capacity bar, brand, connection, dock-name detection | ✅ |
+| Full SMART detail view (pre-fail / life-span groups) | ✅ |
 | 24h / 7d / 30d trend charts (Swift Charts) | ✅ |
 | Threshold-based system notifications | ✅ |
+| **Disk speed test** (CrystalDiskMark-style) with temperature overlay + link-ceiling comparison | ✅ |
+| Bridge-DB loader + runtime `-d` auto-retry | ✅ |
+| Sparkle auto-update | ✅ |
 | Signed (Developer ID) + Apple-notarized `.app` + `.dmg` | ✅ |
-| Bridge-DB loader (YAML) | ✅ |
-| Bridge-DB **consumed at runtime** for `-d` auto-retry | ⏳ (next release) |
-| Sparkle auto-update | ⏳ (next release) |
 | Long self-test runner UI | ⏳ |
 | Pro modules (multi-machine, ML predict, cloud sync) | reserved |
 
