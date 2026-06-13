@@ -56,10 +56,13 @@ Current release: **[v0.3.0](https://github.com/hualiu77/NVMeter/releases/latest)
 | 24h / 7d / 30d trend charts (Swift Charts) | ✅ |
 | Threshold-based system notifications | ✅ |
 | **Disk speed test** (CrystalDiskMark-style) with temperature overlay + link-ceiling comparison | ✅ |
+| Speed-drop attribution (thermal-throttle vs SLC-cache, read off the temperature track) | ✅ |
+| Wear-trend projection (local linear extrapolation of stored history → "reaches N% around …") | ✅ |
+| Configurable menu-bar metric (temperature / wear / health dot) | ✅ |
 | Bridge-DB loader + runtime `-d` auto-retry | ✅ |
 | Sparkle auto-update | ✅ |
 | Signed (Developer ID) + Apple-notarized `.app` + `.dmg` | ✅ |
-| Long self-test runner UI | ⏳ |
+| **Extended (long) self-test runner** with live progress, result history + completion notification | ✅ |
 | Pro modules (multi-machine, ML predict, cloud sync) | reserved |
 
 ## Known limitations

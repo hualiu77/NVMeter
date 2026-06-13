@@ -48,6 +48,33 @@ final class Notifier {
         }
     }
 
+    /// Posts a notification when an extended self-test finishes. Not
+    /// debounced — a self-test completion is a discrete, user-initiated
+    /// event, so it always deserves to surface.
+    func selfTestFinished(deviceName: String, passed: Bool?, resultLabel: String) async {
+        await ensurePermission()
+        let content = UNMutableNotificationContent()
+        switch passed {
+        case .some(true):
+            content.title = "✅ " + String(localized: "\(deviceName) passed its self-test", bundle: localizationBundle)
+        case .some(false):
+            content.title = "🔴 " + String(localized: "\(deviceName) FAILED its self-test", bundle: localizationBundle)
+            content.sound = .defaultCritical
+        case .none:
+            content.title = "⚠️ " + String(localized: "\(deviceName) self-test ended", bundle: localizationBundle)
+        }
+        content.body = resultLabel
+        if content.sound == nil { content.sound = .default }
+        content.threadIdentifier = "nvmeter.selftest.\(deviceName)"
+
+        let request = UNNotificationRequest(
+            identifier: "nvmeter.selftest.\(deviceName).\(Date().timeIntervalSince1970)",
+            content: content,
+            trigger: nil
+        )
+        try? await UNUserNotificationCenter.current().add(request)
+    }
+
     // MARK: - Internals
 
     private func classify(temp: Int, settings: NotificationSettings) -> NotifiedLevel {

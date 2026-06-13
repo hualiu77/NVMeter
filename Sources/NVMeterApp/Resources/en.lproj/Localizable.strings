@@ -123,3 +123,52 @@
 "Theoretical link maximum (dashed line). Real speed is lower — the interface, enclosure, cable, and drive itself all limit it." = "Theoretical link maximum (dashed line). Real speed is lower — the interface, enclosure, cable, and drive itself all limit it.";
 "Include random 4K test" = "Include random 4K test";
 "Slow and not very meaningful on mechanical hard drives." = "Slow and not very meaningful on mechanical hard drives.";
+
+/* --- v0.4: self-test + configurable menu-bar metric --- */
+"Health" = "Health";
+"Show a metric next to the icon" = "Show a metric next to the icon";
+"Displays a live drive metric in the menu bar." = "Displays a live drive metric in the menu bar.";
+"Show" = "Show";
+"Temperature shows the hottest drive; Wear shows the most-worn drive; Health shows a colored dot for the worst drive. When off, only the NVMeter icon is shown." = "Temperature shows the hottest drive; Wear shows the most-worn drive; Health shows a colored dot for the worst drive. When off, only the NVMeter icon is shown.";
+"NVMeter — Self-Test" = "NVMeter — Self-Test";
+"Drive self-test" = "Drive self-test";
+"Run the drive's built-in extended health check" = "Run the drive's built-in extended health check";
+"Stop test" = "Stop test";
+"Start extended test" = "Start extended test";
+"Extended self-test running" = "Extended self-test running";
+"Estimated ~%lld min total" = "Estimated ~%lld min total";
+"The test runs on the drive itself — you can keep using your Mac, sleep it, or even quit NVMeter. Re-open this window to check progress." = "The test runs on the drive itself — you can keep using your Mac, sleep it, or even quit NVMeter. Re-open this window to check progress.";
+"What the extended test does" = "What the extended test does";
+"The drive scans its entire media surface and read/verifies it, then reports pass or fail. It's the most thorough check short of a full surface scan, and it's read-only — your data is not touched. Expect minutes on a healthy NVMe SSD, longer on large or mechanical drives." = "The drive scans its entire media surface and read/verifies it, then reports pass or fail. It's the most thorough check short of a full surface scan, and it's read-only — your data is not touched. Expect minutes on a healthy NVMe SSD, longer on large or mechanical drives.";
+"This drive estimates about %lld minutes for the extended test." = "This drive estimates about %lld minutes for the extended test.";
+"Past results" = "Past results";
+"at %lld power-on hours" = "at %lld power-on hours";
+"Passed" = "Passed";
+"Failed" = "Failed";
+"Aborted" = "Aborted";
+"%@ passed its self-test" = "%@ passed its self-test";
+"%@ FAILED its self-test" = "%@ FAILED its self-test";
+"%@ self-test ended" = "%@ self-test ended";
+"Starting extended self-test…" = "Starting extended self-test…";
+"Self-test aborted." = "Self-test aborted.";
+"Completed" = "Completed";
+"smartctl not found. Install it with: brew install smartmontools" = "smartctl not found. Install it with: brew install smartmontools";
+"smartctl could not start the self-test on this drive." = "smartctl could not start the self-test on this drive.";
+"Could not read the self-test status." = "Could not read the self-test status.";
+"This drive doesn't support self-tests" = "This drive doesn't support self-tests";
+"Apple's internal SSD (Apple Fabric NVMe) doesn't implement the device self-test command, so there's nothing to run here. Attach an NVMe drive through a Thunderbolt or USB enclosure to use this feature. Live SMART monitoring still works on every drive." = "Apple's internal SSD (Apple Fabric NVMe) doesn't implement the device self-test command, so there's nothing to run here. Attach an NVMe drive through a Thunderbolt or USB enclosure to use this feature. Live SMART monitoring still works on every drive.";
+
+/* --- v0.4: slowdown attribution + wear projection --- */
+"Sustained write held steady — no SLC-cache cliff or thermal throttling." = "Sustained write held steady — no SLC-cache cliff or thermal throttling.";
+"Speed stayed within %lld%% of its peak for the whole write. This drive can sustain large transfers at full pace." = "Speed stayed within %lld%% of its peak for the whole write. This drive can sustain large transfers at full pace.";
+"Sustained write dropped %lld%% — thermal throttling." = "Sustained write dropped %lld%% — thermal throttling.";
+"Sustained write dropped %lld%% — the SLC write cache filled up." = "Sustained write dropped %lld%% — the SLC write cache filled up.";
+"Temperature stayed moderate (peak %lld°C), so heat isn't the cause. The fast pSLC buffer ran out and writes fell back to slower native NAND at ~%lld MB/s. Normal for the drive — just expect this on transfers larger than the cache." = "Temperature stayed moderate (peak %lld°C), so heat isn't the cause. The fast pSLC buffer ran out and writes fell back to slower native NAND at ~%lld MB/s. Normal for the drive — just expect this on transfers larger than the cache.";
+"Sustained write dropped %lld%% from its peak." = "Sustained write dropped %lld%% from its peak.";
+"No temperature track for this drive (its enclosure doesn't expose SMART), so NVMeter can't tell thermal throttling from an SLC-cache cliff." = "No temperature track for this drive (its enclosure doesn't expose SMART), so NVMeter can't tell thermal throttling from an SLC-cache cliff.";
+"The drive warmed %lld°C during the write, peaking at %lld°C, and speed fell to ~%lld MB/s as it throttled. Better cooling (a heatsink or a ventilated enclosure) would help sustain it." = "The drive warmed %lld°C during the write, peaking at %lld°C, and speed fell to ~%lld MB/s as it throttled. Better cooling (a heatsink or a ventilated enclosure) would help sustain it.";
+"The drive reached %lld°C and throttled to ~%lld MB/s. Better cooling would help sustain it." = "The drive reached %lld°C and throttled to ~%lld MB/s. Better cooling would help sustain it.";
+"At the current rate, wear reaches %lld%% around %@." = "At the current rate, wear reaches %lld%% around %@.";
+"Now at %lld%%, climbing about %@%% per year over the last %lld days. Most drives keep working past %lld%% — it's the manufacturer's rated endurance, not a cliff." = "Now at %lld%%, climbing about %@%% per year over the last %lld days. Most drives keep working past %lld%% — it's the manufacturer's rated endurance, not a cliff.";
+"Wear is flat — no measurable NAND endurance used over the recorded history." = "Wear is flat — no measurable NAND endurance used over the recorded history.";
+"Holding at %lld%% across %lld days. Light enough use that there's nothing to project — or an Apple SSD, which reports wear only in coarse steps (watch lifetime writes instead)." = "Holding at %lld%% across %lld days. Light enough use that there's nothing to project — or an Apple SSD, which reports wear only in coarse steps (watch lifetime writes instead).";

@@ -11,6 +11,9 @@ struct DeviceSnapshot: Identifiable {
     let reasons: [String]
     let facts: DeviceFacts
     let isBlocked: Bool
+    /// Whether the drive exposes a SMART/NVMe self-test interface. False for
+    /// Apple Fabric internal SSDs, which don't implement device self-test.
+    let supportsSelfTest: Bool
     /// Full smartctl payload for the detail view; nil for blocked devices.
     let raw: SmartctlInfo?
 
@@ -26,6 +29,7 @@ struct DeviceSnapshot: Identifiable {
             self.reasons = assessment.reasons
             self.facts = facts
             self.isBlocked = false
+            self.supportsSelfTest = info.supportsSelfTest
             self.raw = info
         case .blocked(let path, let facts):
             self.modelName = facts.modelHint ?? "External drive"
@@ -36,6 +40,7 @@ struct DeviceSnapshot: Identifiable {
             self.reasons = []
             self.facts = facts
             self.isBlocked = true
+            self.supportsSelfTest = false
             self.raw = nil
         }
     }

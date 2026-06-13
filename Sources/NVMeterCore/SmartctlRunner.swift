@@ -82,6 +82,19 @@ public struct SmartctlRunner {
         return try decode(SmartctlInfo.self, from: data)
     }
 
+    /// Kick off a SMART/NVMe **extended** ("long") device self-test. This is
+    /// a foreground command that returns once the drive has accepted the
+    /// request — the test then runs on the drive itself, surviving sleep and
+    /// app restarts. Poll `info(device:)` and read `selfTest` for progress.
+    public func startExtendedSelfTest(device: String, extraArgs: [String] = []) throws {
+        _ = try run(extraArgs + ["-t", "long", device])
+    }
+
+    /// Abort an in-progress self-test (`smartctl -X`).
+    public func abortSelfTest(device: String, extraArgs: [String] = []) throws {
+        _ = try run(extraArgs + ["-X", device])
+    }
+
     @discardableResult
     public func run(_ arguments: [String]) throws -> Data {
         let process = Process()
@@ -132,6 +145,65 @@ public struct SmartctlInfo: Decodable, Sendable {
     public let smart_status: SmartStatus?
     public let power_on_time: PowerOn?
     public let power_cycle_count: Int?
+    // Self-test status + log. ATA and NVMe report these in different
+    // subtrees; both are optional and `selfTest` (see SelfTest.swift)
+    // normalizes whichever is present.
+    public let ata_smart_data: ATASmartData?
+    public let ata_smart_self_test_log: ATASelfTestLog?
+    public let nvme_self_test_log: NVMeSelfTestLog?
+
+    /// A `{ value, string }` pair — smartctl's standard shape for an
+    /// enumerated field with a human label.
+    public struct ValueString: Decodable, Sendable {
+        public let value: Int?
+        public let string: String?
+    }
+
+    public struct ATASmartData: Decodable, Sendable {
+        public let self_test: SelfTest?
+        public struct SelfTest: Decodable, Sendable {
+            public let status: Status?
+            public let polling_minutes: PollingMinutes?
+            public struct Status: Decodable, Sendable {
+                public let value: Int?
+                public let string: String?
+                public let remaining_percent: Int?
+                public let passed: Bool?
+            }
+            public struct PollingMinutes: Decodable, Sendable {
+                public let short: Int?
+                public let extended: Int?
+            }
+        }
+    }
+
+    public struct ATASelfTestLog: Decodable, Sendable {
+        public let standard: Standard?
+        public struct Standard: Decodable, Sendable {
+            public let table: [Entry]?
+            public struct Entry: Decodable, Sendable {
+                public let type: ValueString?
+                public let status: Status?
+                public let lifetime_hours: Int?
+                public struct Status: Decodable, Sendable {
+                    public let value: Int?
+                    public let string: String?
+                    public let passed: Bool?
+                }
+            }
+        }
+    }
+
+    public struct NVMeSelfTestLog: Decodable, Sendable {
+        public let current_self_test_operation: ValueString?
+        public let current_self_test_completion_percent: Int?
+        public let table: [Entry]?
+        public struct Entry: Decodable, Sendable {
+            public let self_test_code: ValueString?
+            public let self_test_result: ValueString?
+            public let power_on_hours: Int?
+        }
+    }
 
     public struct PCIVendorInfo: Decodable, Sendable {
         public let id: Int?
