@@ -111,10 +111,18 @@ struct MenuView: View {
             Button {
                 bringWindowToFront { openWindow(id: "history") }
             } label: {
-                Label(LR("History"), systemImage: "chart.line.uptrend.xyaxis")
+                Image(systemName: "chart.line.uptrend.xyaxis")
             }
             .buttonStyle(.borderless)
             .help(L("Long-term trend charts"))
+
+            Button {
+                bringWindowToFront { openWindow(id: "speedtest") }
+            } label: {
+                Image(systemName: "speedometer")
+            }
+            .buttonStyle(.borderless)
+            .help(L("Disk speed test"))
 
             Spacer()
 

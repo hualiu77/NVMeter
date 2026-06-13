@@ -991,6 +991,196 @@
           }
         }
       }
+    },
+    "NVMeter — Speed Test": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "NVMeter — 磁盘测速"
+          }
+        }
+      }
+    },
+    "Disk speed test": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "磁盘测速"
+          }
+        }
+      }
+    },
+    "Test size": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "测试大小"
+          }
+        }
+      }
+    },
+    "Stop": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "停止"
+          }
+        }
+      }
+    },
+    "Run test": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "开始测速"
+          }
+        }
+      }
+    },
+    "This test writes about %@ to the drive. Larger sizes reveal SLC-cache and thermal slowdowns but add more wear.": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "本次测速将向硬盘写入约 %@。数据量越大,越能暴露 SLC 缓存耗尽和过热降速,但也会增加写入磨损。"
+          }
+        }
+      }
+    },
+    "Pick a drive and size, then Run test.": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "选择硬盘和测试大小,然后点击开始测速。"
+          }
+        }
+      }
+    },
+    "Read": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "读取"
+          }
+        }
+      }
+    },
+    "Write": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "写入"
+          }
+        }
+      }
+    },
+    "Speed & temperature": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "速度与温度"
+          }
+        }
+      }
+    },
+    "Speed": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "速度"
+          }
+        }
+      }
+    },
+    "Results": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "结果"
+          }
+        }
+      }
+    },
+    "Previous runs": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "历史记录"
+          }
+        }
+      }
+    },
+    "Read %lld · Write %lld MB/s": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "读 %lld · 写 %lld MB/s"
+          }
+        }
+      }
+    },
+    "Sustained write speed dropped %lld%% from its peak.": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "持续写入速度从峰值下降了 %lld%%。"
+          }
+        }
+      }
+    },
+    "The drive reached %lld°C — thermal throttling is the likely cause.": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "硬盘温度达到 %lld°C——很可能是过热降频导致。"
+          }
+        }
+      }
+    },
+    "Temperature stayed moderate, so this is most likely the SLC write cache filling up.": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "温度保持平稳,因此很可能是 SLC 写入缓存被填满导致。"
+          }
+        }
+      }
+    },
+    "This drive has no writable volume to test on.": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "该硬盘没有可写入的卷,无法测速。"
+          }
+        }
+      }
+    },
+    "Not enough free space on this drive for the selected test size.": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "该硬盘剩余空间不足以进行所选大小的测速。"
+          }
+        }
+      }
     }
   }
 }

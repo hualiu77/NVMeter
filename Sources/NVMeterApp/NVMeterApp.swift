@@ -27,6 +27,11 @@ struct NVMeterApp: App {
             DetailView(model: model)
         }
         .defaultSize(width: 620, height: 640)
+
+        Window(LR("NVMeter — Speed Test"), id: "speedtest") {
+            SpeedTestView(model: model)
+        }
+        .defaultSize(width: 600, height: 640)
     }
 }
 
