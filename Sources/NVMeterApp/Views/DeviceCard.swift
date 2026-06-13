@@ -310,6 +310,16 @@ struct DeviceCard: View {
                 .buttonStyle(.plain)
                 .help(L("Opens a pre-filled GitHub Issue with your ioreg + smartctl probe results so we can add this enclosure to the community database."))
             }
+
+            // Concrete next step — NVMeter already tried every `-d` variant
+            // automatically, so the drive is genuinely blocked at the macOS
+            // SCSI layer. Point at the path that does work.
+            HStack(alignment: .top, spacing: 4) {
+                Image(systemName: "lightbulb").imageScale(.small).foregroundStyle(.secondary)
+                Text(LR("Tried every translation mode automatically. For SMART on this drive, connect it through a Thunderbolt enclosure — PCIe pass-through isn't blocked."))
+                    .font(.caption2).foregroundStyle(.secondary)
+                    .fixedSize(horizontal: false, vertical: true)
+            }
         }
         .padding(8)
         .frame(maxWidth: .infinity, alignment: .leading)

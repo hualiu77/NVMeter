@@ -25,11 +25,21 @@ final class SelfTestModel: ObservableObject {
     /// an explicit "running" state.
     private var baselineEntry: SelfTestLogEntry?
     private var sawRunning = false
+    /// Consecutive polls where the drive reported idle and an unchanged log
+    /// *before* we ever saw it running. Used to detect a self-test that
+    /// never actually started (controller/USB-bridge accepted the command
+    /// but doesn't run or report it) instead of polling forever.
+    private var idleGracePolls = 0
 
     /// How often to ask the drive for progress. Extended tests run for
     /// minutes-to-hours, so a slow cadence is plenty and keeps smartctl
     /// subprocess spawns rare.
     private let pollInterval: UInt64 = 12
+    /// If, within this many polls (~1 min at 12 s), the drive never reports
+    /// a running self-test and logs no new result, conclude it isn't
+    /// actually running one. A real NVMe/SATA test flips to "in progress"
+    /// on the very next poll, so this only trips on no-op bridges.
+    private let maxIdleGracePolls = 5
 
     init() {
         runner = try? SmartctlRunner()
@@ -93,6 +103,7 @@ final class SelfTestModel: ObservableObject {
 
         error = nil
         sawRunning = false
+        idleGracePolls = 0
         baselineEntry = currentNewestEntry()
         startedAt = Date()
         isRunning = true
@@ -139,22 +150,46 @@ final class SelfTestModel: ObservableObject {
             let st = info.selfTest
             let newest = info.selfTestLog.first
 
+            let logChanged = newest != nil && newest != baselineEntry
+
             await MainActor.run { [weak self] in
                 guard let self, self.isRunning else { return }
                 self.status = st
-                if st.state == .running { self.sawRunning = true }
+                if st.state == .running {
+                    self.sawRunning = true
+                    self.idleGracePolls = 0
+                } else if !self.sawRunning && !logChanged {
+                    self.idleGracePolls += 1
+                }
             }
 
             // Completion signals, in priority order:
-            //   1) we saw it running and it's now idle, or
-            //   2) a brand-new log entry appeared since we started.
+            //   1) a brand-new log entry appeared since we started, or
+            //   2) we saw it running and it's now idle.
+            let finishedByLog = logChanged
             let finishedByState = (st.state == .idle && sawRunning)
-            let finishedByLog = newest != nil && newest != baselineEntry
-            if finishedByState || finishedByLog {
+            if finishedByLog || finishedByState {
                 await finalize(newest: newest, path: path)
                 break
             }
+
+            // Never observed a running state and nothing was logged within
+            // the grace window → this drive/bridge isn't actually running a
+            // self-test. Stop instead of polling forever.
+            if !sawRunning && idleGracePolls >= maxIdleGracePolls {
+                await finalizeNotRunning()
+                break
+            }
         }
+    }
+
+    /// The drive accepted the command but never reported progress or a
+    /// result — common for NVMe drives behind USB bridges that don't pass
+    /// the device-self-test commands through. Stop honestly.
+    private func finalizeNotRunning() {
+        isRunning = false
+        status = SelfTestStatus(state: .idle)
+        error = L("NVMeter couldn't confirm a self-test on this drive — it reported no progress and logged no result. This usually means the USB enclosure's bridge chip doesn't pass NVMe self-test commands through. A Thunderbolt enclosure (direct PCIe) is the reliable path; the drive may also self-test fine on Linux/Windows.")
     }
 
     func abort() {
@@ -204,6 +239,8 @@ final class SelfTestModel: ObservableObject {
         case .binaryNotFound: return L("smartctl not found. Install it with: brew install smartmontools")
         case .executionFailed(_, let msg): return msg.isEmpty ? L("smartctl could not start the self-test on this drive.") : msg
         case .decodeFailed: return L("Could not read the self-test status.")
+        case .selfTestUnsupported:
+            return L("This drive's controller rejected the self-test command — it advertises the capability but doesn't actually implement it (a known quirk of some budget NVMe SSDs). Nothing NVMeter can do; this is firmware-side. Live SMART monitoring still works normally.")
         }
     }
 }

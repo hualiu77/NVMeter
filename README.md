@@ -60,6 +60,8 @@ Current release: **[v0.3.0](https://github.com/hualiu77/NVMeter/releases/latest)
 | Wear-trend projection (local linear extrapolation of stored history → "reaches N% around …") | ✅ |
 | Configurable menu-bar metric (temperature / wear / health dot) | ✅ |
 | Bridge-DB loader + runtime `-d` auto-retry | ✅ |
+| **USB-SATA `-d` probe ladder** — auto-tries every translation mode to unlock cooperative bridges, no kext | ✅ |
+| Contribution flywheel — probe-unlocked enclosures offer a one-click drivedb PR with the working flags | ✅ |
 | Sparkle auto-update | ✅ |
 | Signed (Developer ID) + Apple-notarized `.app` + `.dmg` | ✅ |
 | **Extended (long) self-test runner** with live progress, result history + completion notification | ✅ |

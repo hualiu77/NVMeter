@@ -35,6 +35,11 @@ public actor MonitoringService {
     /// Remembered per-device working args so retries cost one process
     /// spawn instead of a probe loop on every tick.
     private var workingArgsByDevice: [String: [String]] = [:]
+    /// Device paths whose full `-d` probe ladder came up empty, so we don't
+    /// re-spawn a dozen subprocesses every poll for a truly-blocked drive.
+    /// Pruned each tick to currently-attached devices, so re-plugging gets
+    /// a fresh probe.
+    private var probeLadderFailed: Set<String> = []
 
     public init(
         runner: SmartctlRunner,
@@ -64,6 +69,7 @@ public actor MonitoringService {
             var info = try? runner.info(device: d.name)
             var matchedEntry: BridgeEntry?
             var workingArgs: [String]?
+            var discoveredByProbe = false
 
             // Default open failed → try the community bridge database.
             if info == nil {
@@ -74,7 +80,23 @@ public actor MonitoringService {
                 workingArgs = cached
             }
 
+            // Still blocked and not catalogued → walk the `-d` ladder once.
+            // This unlocks cooperative bridges macOS doesn't auto-translate,
+            // without any kext. Negative results are cached for the device's
+            // lifetime so we don't re-probe every poll.
+            if info == nil, matchedEntry == nil, !probeLadderFailed.contains(d.name) {
+                if let hit = SmartctlProbe.firstWorking(probe: { try? runner.info(device: d.name, extraArgs: $0) }) {
+                    info = hit.info
+                    workingArgs = hit.args
+                    workingArgsByDevice[d.name] = hit.args
+                    discoveredByProbe = true
+                } else {
+                    probeLadderFailed.insert(d.name)
+                }
+            }
+
             var facts = await probe.probe(devicePath: d.name, info: info)
+            facts.argsDiscoveredByProbe = discoveredByProbe
             // Even when retry fails, knowing the bridge is in the DB is
             // valuable UI state ("already catalogued, macOS-blocked").
             if matchedEntry == nil, info == nil,
@@ -111,6 +133,10 @@ public actor MonitoringService {
             }
         }
         try? store.prune()
+        // Forget probe failures for devices no longer attached, so a
+        // re-plugged (possibly different) enclosure at the same path is
+        // probed fresh rather than assumed blocked.
+        probeLadderFailed.formIntersection(Set(scanned.map(\.name)))
         return results
     }
 

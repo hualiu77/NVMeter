@@ -5,6 +5,10 @@ public struct SmartctlRunner {
         case binaryNotFound
         case executionFailed(Int32, String)
         case decodeFailed(Swift.Error)
+        /// The drive's controller rejected the self-test command — typically
+        /// a drive that advertises the Self_Test capability bit but doesn't
+        /// implement NVMe admin opcode 0x14. Carries smartctl's message.
+        case selfTestUnsupported(String)
     }
 
     public let binaryPath: String
@@ -86,8 +90,36 @@ public struct SmartctlRunner {
     /// a foreground command that returns once the drive has accepted the
     /// request — the test then runs on the drive itself, surviving sleep and
     /// app restarts. Poll `info(device:)` and read `selfTest` for progress.
+    ///
+    /// Throws `.selfTestUnsupported` when the controller rejects the command.
+    /// `run()` can't catch this on its own: smartctl prints the rejection to
+    /// stdout (so the data is non-empty) yet sets a non-zero exit bitmask, so
+    /// we inspect the status + message here.
     public func startExtendedSelfTest(device: String, extraArgs: [String] = []) throws {
-        _ = try run(extraArgs + ["-t", "long", device])
+        let (status, output) = try runRaw(extraArgs + ["-t", "long", device])
+        let lower = output.lowercased()
+        // Exit bit 2 (0x04) = "a SMART/ATA command to the disk failed".
+        if (status & 0b100) != 0 || lower.contains("not supported") || lower.contains("invalid") {
+            throw Error.selfTestUnsupported(output.trimmingCharacters(in: .whitespacesAndNewlines))
+        }
+    }
+
+    /// Run smartctl and return its raw exit status plus combined
+    /// stdout+stderr. Unlike `run`, never throws on a non-zero status — the
+    /// caller interprets smartctl's exit bitmask itself.
+    public func runRaw(_ arguments: [String]) throws -> (status: Int32, output: String) {
+        let process = Process()
+        process.executableURL = URL(fileURLWithPath: binaryPath)
+        process.arguments = arguments
+        let stdout = Pipe()
+        let stderr = Pipe()
+        process.standardOutput = stdout
+        process.standardError = stderr
+        try process.run()
+        process.waitUntilExit()
+        let out = String(data: stdout.fileHandleForReading.readDataToEndOfFile(), encoding: .utf8) ?? ""
+        let err = String(data: stderr.fileHandleForReading.readDataToEndOfFile(), encoding: .utf8) ?? ""
+        return (process.terminationStatus, out + err)
     }
 
     /// Abort an in-progress self-test (`smartctl -X`).

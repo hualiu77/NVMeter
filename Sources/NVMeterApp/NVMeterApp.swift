@@ -65,6 +65,17 @@ final class AppModel: ObservableObject {
         devices.map(\.level).max()
     }
 
+    /// Worst health level among drives NVMeter can actually assess. Blocked /
+    /// unreadable drives report `.unknown`, which sorts *above* `.good`; left
+    /// in, a single unreadable USB enclosure would drag the menu-bar health
+    /// dot to white while every real drive is healthy. So we rank only the
+    /// assessable drives, and fall back to `.unknown` only when nothing is
+    /// readable at all.
+    var assessedHealthLevel: HealthLevel? {
+        let known = devices.map(\.level).filter { $0 != .unknown }
+        return known.max() ?? (devices.isEmpty ? nil : .unknown)
+    }
+
     /// Highest NAND wear (`percentage_used`) across all SMART-capable drives.
     var highestWear: Int? {
         devices.compactMap(\.percentageUsed).max()

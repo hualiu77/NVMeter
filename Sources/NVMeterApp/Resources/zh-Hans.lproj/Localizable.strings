@@ -172,3 +172,11 @@
 "Now at %lld%%, climbing about %@%% per year over the last %lld days. Most drives keep working past %lld%% — it's the manufacturer's rated endurance, not a cliff." = "当前 %1$lld%%，过去 %3$lld 天里约以每年 %2$@%% 的速度上升。大多数硬盘超过 %4$lld%% 仍可正常工作——这是厂商标称的耐久值，并非寿命终点。";
 "Wear is flat — no measurable NAND endurance used over the recorded history." = "磨损保持平稳——在已记录的历史中没有可测量的 NAND 耐久消耗。";
 "Holding at %lld%% across %lld days. Light enough use that there's nothing to project — or an Apple SSD, which reports wear only in coarse steps (watch lifetime writes instead)." = "在 %2$lld 天内稳定保持 %1$lld%%。使用强度很低，无从预测——也可能是 Apple SSD，它只以粗粒度报告磨损（请改看累计写入量）。";
+
+/* --- v0.4: USB-SATA 探测阶梯 + 贡献飞轮 --- */
+"NVMeter unlocked this enclosure's SMART by probing — it's not in the community database yet." = "NVMeter 通过探测解锁了这个硬盘盒的 SMART——它还不在社区数据库里。";
+"Contribute it to the database" = "贡献到数据库";
+"Opens a pre-filled GitHub issue with the working -d flags and your enclosure's USB identity so we can add it to NVMeter-drivedb." = "打开预填好的 GitHub issue，附上可用的 -d 参数和硬盘盒的 USB 标识，以便加入 NVMeter-drivedb。";
+"Tried every translation mode automatically. For SMART on this drive, connect it through a Thunderbolt enclosure — PCIe pass-through isn't blocked." = "已自动尝试所有翻译模式。要读取这块盘的 SMART，请改用雷雳硬盘盒——PCIe 直通不受限制。";
+"NVMeter couldn't confirm a self-test on this drive — it reported no progress and logged no result. This usually means the USB enclosure's bridge chip doesn't pass NVMe self-test commands through. A Thunderbolt enclosure (direct PCIe) is the reliable path; the drive may also self-test fine on Linux/Windows." = "NVMeter 无法确认这块盘的自检——它没有报告任何进度，也没有记录结果。这通常意味着 USB 硬盘盒的桥接芯片不透传 NVMe 自检命令。雷雳硬盘盒（PCIe 直通）是可靠途径；这块盘在 Linux/Windows 上也可能正常自检。";
+"This drive's controller rejected the self-test command — it advertises the capability but doesn't actually implement it (a known quirk of some budget NVMe SSDs). Nothing NVMeter can do; this is firmware-side. Live SMART monitoring still works normally." = "这块盘的控制器拒绝了自检命令——它声明支持该能力，但实际并未实现（部分入门级 NVMe SSD 的已知固件毛病）。这是固件层面的问题，NVMeter 无能为力；实时 SMART 监控仍然正常工作。";

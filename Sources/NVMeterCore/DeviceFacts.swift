@@ -27,6 +27,11 @@ public struct DeviceFacts: Sendable, Equatable {
     /// The smartctl `-d` args that actually worked for this device, when
     /// the default open failed and a bridge-DB retry succeeded.
     public var workingSmartctlArgs: [String]?
+    /// True when `workingSmartctlArgs` were found by NVMeter's own `-d`
+    /// probing ladder rather than looked up in the community database —
+    /// i.e. this enclosure isn't catalogued yet and is a contribution
+    /// candidate.
+    public var argsDiscoveredByProbe: Bool
     /// True for SD/CF card readers and other removable media. These have
     /// no SMART by design — the UI should say so neutrally instead of
     /// blaming macOS or soliciting a bridge report.
@@ -48,6 +53,7 @@ public struct DeviceFacts: Sendable, Equatable {
         mountPoints: [String] = [],
         knownBridgeName: String? = nil,
         workingSmartctlArgs: [String]? = nil,
+        argsDiscoveredByProbe: Bool = false,
         isRemovableMedia: Bool = false,
         isSolidState: Bool? = nil
     ) {
@@ -63,6 +69,7 @@ public struct DeviceFacts: Sendable, Equatable {
         self.mountPoints = mountPoints
         self.knownBridgeName = knownBridgeName
         self.workingSmartctlArgs = workingSmartctlArgs
+        self.argsDiscoveredByProbe = argsDiscoveredByProbe
         self.isRemovableMedia = isRemovableMedia
         self.isSolidState = isSolidState
     }

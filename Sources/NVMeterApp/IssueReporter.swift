@@ -58,6 +58,67 @@ enum IssueReporter {
         }
     }
 
+    /// The *positive* counterpart to `report`: NVMeter's `-d` probe ladder
+    /// unlocked SMART on an enclosure that isn't in the community database
+    /// yet. One click files a pre-filled "please catalogue this" issue with
+    /// the working flags + USB identity, growing drivedb's coverage.
+    static func contribute(for snapshot: DeviceSnapshot, workingArgs: [String]) {
+        let modelName  = snapshot.modelName
+        let devicePath = snapshot.devicePath
+        let connection = snapshot.facts.connectionLabel
+        let capacity   = snapshot.facts.capacityBytes
+        let mountPoints = snapshot.facts.mountPoints
+        let version    = nvmeterVersion()
+        let argsString = workingArgs.joined(separator: " ")
+
+        Task.detached {
+            let title = "Bridge works with `\(argsString)`: \(modelName) (\(connection))"
+            let env    = environmentBlock(version: version)
+            let device = deviceBlock(model: modelName, devicePath: devicePath,
+                                     connection: connection, capacity: capacity,
+                                     mountPoints: mountPoints)
+            let ioregBlock = ioregForBSD(devicePath)
+            let body = """
+            ## Working bridge — please add to the database
+
+            NVMeter's `-d` probe ladder successfully read SMART from this
+            enclosure on macOS using:
+
+            ```
+            smartctl \(argsString) -a <device>
+            ```
+
+            This enclosure is **not in NVMeter-drivedb yet** — adding it lets
+            other users get SMART on the first try instead of relying on the
+            probe.
+
+            **Fill in if you know:**
+            - Enclosure brand + model:
+            - Drive inside:
+
+            ## Environment
+
+            \(env)
+
+            ## Device
+
+            \(device)
+
+            ## ioreg (USB-side ancestry — gives the USB vendor:product ID for the entry)
+
+            ```
+            \(ioregBlock)
+            ```
+
+            ---
+
+            _Submitted from NVMeter \(version) — the enclosure was unlocked by
+            the built-in `-d` probe ladder._
+            """
+            await MainActor.run { openOrCopy(title: title, body: body) }
+        }
+    }
+
     private static func confirmDuplicate(modelName: String, previous: ReportRecord) -> Bool {
         let daysAgo = Int(Date().timeIntervalSince(previous.lastReportedAt) / 86400)
         let alert = NSAlert()
