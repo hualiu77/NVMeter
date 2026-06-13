@@ -65,18 +65,30 @@ final class SpeedTestModel: ObservableObject {
         guard !isRunning else { return }
         self.device = device
         theoretical = nil
-        // Clear the previous drive's results so a failed/aborted run can
-        // never leave another drive's numbers on screen.
-        completed = []
-        lastRun = nil
-        liveSamples = []
         error = nil
         fraction = 0
         liveMBps = 0
         currentProfileLabel = nil
-        // Random 4K is on for SSDs (and unknown media), off for HDDs.
-        includeRandom = device.facts.isSolidState != false
+        includeRandom = false   // opt-in; many users only want sequential
         loadHistory(for: device.devicePath)
+
+        // Restore THIS drive's most recent run so switching drives shows
+        // each one's own last result (and never another drive's).
+        if let last = history.first {
+            completed = last.results
+            liveSamples = last.samples
+            lastRun = SpeedTestRun(
+                results: last.results,
+                samples: last.samples,
+                bytesWritten: last.bytesWritten,
+                startedAt: last.startedAt,
+                durationSeconds: last.durationSeconds
+            )
+        } else {
+            completed = []
+            liveSamples = []
+            lastRun = nil
+        }
 
         // Probe the link ceiling off the main thread (system_profiler/ioreg).
         let model = device.modelName

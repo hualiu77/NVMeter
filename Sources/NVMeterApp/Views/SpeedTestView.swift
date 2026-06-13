@@ -240,10 +240,13 @@ struct SpeedTestView: View {
 
     @ViewBuilder
     private var historySection: some View {
-        if !speed.history.isEmpty {
+        // The most recent run is already shown at the top (restored on
+        // select or just finished), so the history list starts from the
+        // second-most-recent to avoid duplicating it.
+        if speed.history.count > 1 {
             VStack(alignment: .leading, spacing: Theme.Spacing.m) {
                 Text(LR("Previous runs")).font(.headline)
-                ForEach(speed.history.prefix(6), id: \.startedAt) { record in
+                ForEach(speed.history.dropFirst().prefix(6), id: \.startedAt) { record in
                     historyCard(record)
                 }
             }
