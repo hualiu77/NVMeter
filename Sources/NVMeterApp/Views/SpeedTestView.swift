@@ -11,8 +11,10 @@ struct SpeedTestView: View {
             toolbar
             Divider()
             ScrollView {
-                VStack(spacing: Theme.Spacing.l) {
-                    writeCostNotice
+                VStack(spacing: Theme.Spacing.m) {
+                    if !speed.isRunning {
+                        writeCostNotice
+                    }
                     if speed.isRunning {
                         liveGauge
                     }
@@ -122,27 +124,26 @@ struct SpeedTestView: View {
     // MARK: - Live gauge
 
     private var liveGauge: some View {
-        VStack(spacing: Theme.Spacing.s) {
-            HStack {
-                Text(speed.currentProfileLabel ?? "—").font(.headline)
+        VStack(spacing: 6) {
+            HStack(alignment: .firstTextBaseline, spacing: Theme.Spacing.s) {
+                Text(speed.currentProfileLabel ?? "—").font(.subheadline.weight(.semibold))
                 Text(speed.currentIsRead ? LR("Read") : LR("Write"))
-                    .font(.caption.weight(.semibold))
+                    .font(.caption2.weight(.semibold))
                     .foregroundStyle(speed.currentIsRead ? Theme.Brand.primary : .orange)
                 Spacer()
+                Text(String(format: "%.0f", speed.liveMBps))
+                    .font(.system(size: 30, weight: .bold).monospacedDigit())
+                    .foregroundStyle(Theme.Brand.primary)
+                Text("MB/s").font(.caption).foregroundStyle(.secondary)
                 if let t = speed.liveTemp {
-                    Label("\(t)°C", systemImage: "thermometer").font(.callout).foregroundStyle(.red)
+                    Label("\(t)°", systemImage: "thermometer")
+                        .font(.caption).foregroundStyle(.red).labelStyle(.titleAndIcon)
                 }
             }
-            HStack(alignment: .firstTextBaseline, spacing: 6) {
-                Text(String(format: "%.0f", speed.liveMBps))
-                    .font(.system(size: 56, weight: .bold).monospacedDigit())
-                    .foregroundStyle(Theme.Brand.primary)
-                Text("MB/s").font(.title3).foregroundStyle(.secondary)
-            }
-            ProgressView(value: speed.fraction)
-                .tint(Theme.Brand.primary)
+            ProgressView(value: speed.fraction).tint(Theme.Brand.primary)
         }
-        .padding(Theme.Spacing.l)
+        .padding(.horizontal, Theme.Spacing.m)
+        .padding(.vertical, Theme.Spacing.s)
         .frame(maxWidth: .infinity)
         .background(.thinMaterial, in: RoundedRectangle(cornerRadius: Theme.Layout.cardRadius))
     }
@@ -160,7 +161,7 @@ struct SpeedTestView: View {
                 }
                 .font(.caption2).foregroundStyle(.secondary)
             }
-            speedTempChart(speed.liveSamples, height: 200)
+            speedTempChart(speed.liveSamples, height: 150)
         }
         .padding(Theme.Spacing.m)
         .background(.thinMaterial, in: RoundedRectangle(cornerRadius: Theme.Layout.cardRadius))

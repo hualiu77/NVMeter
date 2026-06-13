@@ -62,6 +62,15 @@ final class SpeedTestModel: ObservableObject {
         guard !isRunning else { return }
         self.device = device
         theoretical = nil
+        // Clear the previous drive's results so a failed/aborted run can
+        // never leave another drive's numbers on screen.
+        completed = []
+        lastRun = nil
+        liveSamples = []
+        error = nil
+        fraction = 0
+        liveMBps = 0
+        currentProfileLabel = nil
         loadHistory(for: device.devicePath)
 
         // Probe the link ceiling off the main thread (system_profiler/ioreg).
@@ -206,8 +215,13 @@ final class SpeedTestModel: ObservableObject {
     }
 
     private func freeBytes(at url: URL) -> Int64? {
-        guard let values = try? url.resourceValues(forKeys: [.volumeAvailableCapacityForImportantUsageKey]),
-              let free = values.volumeAvailableCapacityForImportantUsage else { return nil }
+        // attributesOfFileSystem wraps statvfs and works on every filesystem
+        // (APFS, HFS+, exFAT, …). The earlier
+        // volumeAvailableCapacityForImportantUsageKey is an APFS-only feature
+        // that returns a bogus tiny value on exFAT volumes, which made a
+        // 12 TB external drive with 8 TB free falsely report "not enough space".
+        guard let attrs = try? FileManager.default.attributesOfFileSystem(forPath: url.path),
+              let free = (attrs[.systemFreeSize] as? NSNumber)?.int64Value else { return nil }
         return free
     }
 }
