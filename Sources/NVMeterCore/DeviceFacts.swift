@@ -31,6 +31,9 @@ public struct DeviceFacts: Sendable, Equatable {
     /// no SMART by design — the UI should say so neutrally instead of
     /// blaming macOS or soliciting a bridge report.
     public var isRemovableMedia: Bool        // e.g. ["/Volumes/1TNVME"]
+    /// True = SSD, false = spinning HDD, nil = unknown. Drives the default
+    /// for the random-4K test (pointless and slow on mechanical drives).
+    public var isSolidState: Bool?
 
     public init(
         bus: Bus = .unknown,
@@ -45,7 +48,8 @@ public struct DeviceFacts: Sendable, Equatable {
         mountPoints: [String] = [],
         knownBridgeName: String? = nil,
         workingSmartctlArgs: [String]? = nil,
-        isRemovableMedia: Bool = false
+        isRemovableMedia: Bool = false,
+        isSolidState: Bool? = nil
     ) {
         self.bus = bus
         self.connectionLabel = connectionLabel
@@ -60,6 +64,7 @@ public struct DeviceFacts: Sendable, Equatable {
         self.knownBridgeName = knownBridgeName
         self.workingSmartctlArgs = workingSmartctlArgs
         self.isRemovableMedia = isRemovableMedia
+        self.isSolidState = isSolidState
     }
 
     /// "1.0 TB" / "500.3 GB" etc — base-10 (SSD convention).

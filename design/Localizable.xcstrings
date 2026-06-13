@@ -1211,6 +1211,26 @@
           }
         }
       }
+    },
+    "Include random 4K test": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "包含随机 4K 测试"
+          }
+        }
+      }
+    },
+    "Slow and not very meaningful on mechanical hard drives.": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "对机械硬盘耗时较长且意义不大。"
+          }
+        }
+      }
     }
   }
 }

@@ -121,3 +121,5 @@
 "Benchmark read/write with a temperature overlay" = "测读写速度,叠加温度曲线";
 "Link ceiling ~%lld MB/s · %@" = "链路理论上限 ~%lld MB/s · %@";
 "Theoretical link maximum (dashed line). Real speed is lower — the interface, enclosure, cable, and drive itself all limit it." = "理论链路上限(虚线)。实际速度更低——接口、硬盘盒、缆线和硬盘本身都会限制速度。";
+"Include random 4K test" = "包含随机 4K 测试";
+"Slow and not very meaningful on mechanical hard drives." = "对机械硬盘耗时较长且意义不大。";

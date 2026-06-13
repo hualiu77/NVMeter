@@ -31,10 +31,31 @@ public struct SpeedTestProfile: Sendable, Identifiable, Equatable {
                 SpeedTestProfile(id: id + "-read",  label: label, pattern: pattern, blockSize: block, queueDepth: qd, isRead: true),
             ]
         }
+        return sequentialSuite() + randomSuite()
+    }
+
+    /// Sequential read/write only — the meaningful test for spinning HDDs
+    /// (random 4K is glacial and pointless on mechanical media).
+    public static func sequentialSuite() -> [SpeedTestProfile] {
+        func pair(id: String, label: String, pattern: Pattern, block: Int, qd: Int) -> [SpeedTestProfile] {
+            [
+                SpeedTestProfile(id: id + "-write", label: label, pattern: pattern, blockSize: block, queueDepth: qd, isRead: false),
+                SpeedTestProfile(id: id + "-read",  label: label, pattern: pattern, blockSize: block, queueDepth: qd, isRead: true),
+            ]
+        }
         return pair(id: "seq1m-q8t1", label: "SEQ1M Q8T1", pattern: .sequential, block: 1 << 20, qd: 8)
              + pair(id: "seq1m-q1t1", label: "SEQ1M Q1T1", pattern: .sequential, block: 1 << 20, qd: 1)
-             + pair(id: "rnd4k-q32",  label: "RND4K Q32T1", pattern: .random,    block: 4 << 10, qd: 32)
-             + pair(id: "rnd4k-q1",   label: "RND4K Q1T1",  pattern: .random,    block: 4 << 10, qd: 1)
+    }
+
+    public static func randomSuite() -> [SpeedTestProfile] {
+        func pair(id: String, label: String, pattern: Pattern, block: Int, qd: Int) -> [SpeedTestProfile] {
+            [
+                SpeedTestProfile(id: id + "-write", label: label, pattern: pattern, blockSize: block, queueDepth: qd, isRead: false),
+                SpeedTestProfile(id: id + "-read",  label: label, pattern: pattern, blockSize: block, queueDepth: qd, isRead: true),
+            ]
+        }
+        return pair(id: "rnd4k-q32", label: "RND4K Q32T1", pattern: .random, block: 4 << 10, qd: 32)
+             + pair(id: "rnd4k-q1",  label: "RND4K Q1T1",  pattern: .random, block: 4 << 10, qd: 1)
     }
 }
 

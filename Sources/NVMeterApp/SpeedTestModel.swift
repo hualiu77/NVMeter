@@ -30,6 +30,9 @@ final class SpeedTestModel: ObservableObject {
         var label: String { "\(rawValue) GiB" }
     }
     @Published var selectedSize: Size = .g1
+    /// Whether to run the random-4K profiles. Defaulted per drive in
+    /// `select` — off for spinning HDDs (slow + meaningless there).
+    @Published var includeRandom = true
 
     /// Device the window is currently pointed at.
     @Published var device: DeviceSnapshot?
@@ -71,6 +74,8 @@ final class SpeedTestModel: ObservableObject {
         fraction = 0
         liveMBps = 0
         currentProfileLabel = nil
+        // Random 4K is on for SSDs (and unknown media), off for HDDs.
+        includeRandom = device.facts.isSolidState != false
         loadHistory(for: device.devicePath)
 
         // Probe the link ceiling off the main thread (system_profiler/ioreg).
@@ -88,10 +93,10 @@ final class SpeedTestModel: ObservableObject {
 
     // MARK: - Run lifecycle
 
-    /// Estimated bytes that will be written to NAND this run (writes only).
+    /// Estimated bytes written this run (write profiles only): 2 sequential
+    /// writes, plus 2 random writes when random is enabled.
     var estimatedWriteBytes: Int64 {
-        // 4 of the 8 default profiles are writes.
-        4 * selectedSize.bytes
+        Int64(includeRandom ? 4 : 2) * selectedSize.bytes
     }
 
     var canRun: Bool {
@@ -157,6 +162,10 @@ final class SpeedTestModel: ObservableObject {
             Task { @MainActor in self?.completed.append(result) }
         }
 
+        let profiles = includeRandom
+            ? SpeedTestProfile.defaultSuite()
+            : SpeedTestProfile.sequentialSuite()
+
         let deviceName = device.modelName
         runTask = Task { [weak self] in
             guard let self else { return }
@@ -164,6 +173,7 @@ final class SpeedTestModel: ObservableObject {
                 let run = try await self.tester.run(
                     directory: dir,
                     totalBytesPerProfile: totalBytes,
+                    profiles: profiles,
                     temperatureSampler: sampler,
                     onProgress: onProgress,
                     onProfileComplete: onComplete

@@ -43,6 +43,7 @@ public actor SystemProbe {
             facts.capacityBytes = du.size
             facts.modelHint = du.mediaName
             facts.isRemovableMedia = du.isRemovable
+            facts.isSolidState = du.isSolidState
             if facts.brand == nil, let media = du.mediaName {
                 facts.brand = inferBrand(fromModel: media)
             }
@@ -91,6 +92,7 @@ public actor SystemProbe {
         var isInternal: Bool
         var mediaName: String?
         var isRemovable: Bool
+        var isSolidState: Bool?
     }
 
     private func diskutilInfo(devicePath: String) -> DiskutilInfo? {
@@ -102,7 +104,8 @@ public actor SystemProbe {
             isInternal: (plist["Internal"] as? Bool) ?? false,
             mediaName: plist["MediaName"] as? String,
             // Card readers report Removable; SSD/HDD enclosures report Fixed.
-            isRemovable: (plist["RemovableMedia"] as? Bool) ?? false
+            isRemovable: (plist["RemovableMedia"] as? Bool) ?? false,
+            isSolidState: plist["SolidState"] as? Bool
         )
     }
 

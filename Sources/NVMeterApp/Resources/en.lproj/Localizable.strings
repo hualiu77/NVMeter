@@ -121,3 +121,5 @@
 "Benchmark read/write with a temperature overlay" = "Benchmark read/write with a temperature overlay";
 "Link ceiling ~%lld MB/s · %@" = "Link ceiling ~%lld MB/s · %@";
 "Theoretical link maximum (dashed line). Real speed is lower — the interface, enclosure, cable, and drive itself all limit it." = "Theoretical link maximum (dashed line). Real speed is lower — the interface, enclosure, cable, and drive itself all limit it.";
+"Include random 4K test" = "Include random 4K test";
+"Slow and not very meaningful on mechanical hard drives." = "Slow and not very meaningful on mechanical hard drives.";

@@ -14,6 +14,7 @@ struct SpeedTestView: View {
                 VStack(spacing: Theme.Spacing.m) {
                     if !speed.isRunning {
                         writeCostNotice
+                        randomOptionRow
                     }
                     if speed.isRunning {
                         liveGauge
@@ -108,6 +109,21 @@ struct SpeedTestView: View {
                 .foregroundStyle(.secondary)
                 .fixedSize(horizontal: false, vertical: true)
         }
+        .padding(8)
+        .frame(maxWidth: .infinity, alignment: .leading)
+        .background(RoundedRectangle(cornerRadius: 6).fill(Color.primary.opacity(0.04)))
+    }
+
+    private var randomOptionRow: some View {
+        Toggle(isOn: $speed.includeRandom) {
+            VStack(alignment: .leading, spacing: 1) {
+                Text(LR("Include random 4K test"))
+                    .font(.caption.weight(.medium))
+                Text(LR("Slow and not very meaningful on mechanical hard drives."))
+                    .font(.caption2).foregroundStyle(.secondary)
+            }
+        }
+        .toggleStyle(.checkbox)
         .padding(8)
         .frame(maxWidth: .infinity, alignment: .leading)
         .background(RoundedRectangle(cornerRadius: 6).fill(Color.primary.opacity(0.04)))
@@ -307,10 +323,13 @@ struct SpeedTestView: View {
                     Capsule().fill(color.opacity(0.12))
                     Capsule().fill(color).frame(width: max(3, geo.size.width * (value / maxValue)))
                     if let ref = refLine, ref > 0, ref <= maxValue {
-                        Rectangle()
-                            .fill(Color.secondary)
-                            .frame(width: 2, height: 22)
-                            .offset(x: geo.size.width * (ref / maxValue) - 1)
+                        let x = geo.size.width * (ref / maxValue)
+                        Path { p in
+                            p.move(to: CGPoint(x: x, y: -3))
+                            p.addLine(to: CGPoint(x: x, y: 21))
+                        }
+                        .stroke(Color.primary.opacity(0.85),
+                                style: StrokeStyle(lineWidth: 2.5, lineCap: .round, dash: [4, 3]))
                     }
                 }
             }
