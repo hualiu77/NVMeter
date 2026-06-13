@@ -106,7 +106,40 @@ struct DetailView: View {
             }
             .font(.caption)
             .foregroundStyle(.secondary)
+
+            if snap.facts.argsDiscoveredByProbe, let args = snap.facts.workingSmartctlArgs {
+                contributeBanner(snap: snap, args: args)
+            }
         }
+    }
+
+    /// Shown when NVMeter's probe ladder (not the database) unlocked this
+    /// enclosure — invites the user to catalogue it so others get SMART on
+    /// the first try.
+    private func contributeBanner(snap: DeviceSnapshot, args: [String]) -> some View {
+        HStack(alignment: .top, spacing: 6) {
+            Image(systemName: "lock.open.fill").foregroundStyle(.green).imageScale(.small)
+            VStack(alignment: .leading, spacing: 2) {
+                Text(LR("NVMeter unlocked this enclosure's SMART by probing — it's not in the community database yet."))
+                    .font(.caption2)
+                Button {
+                    IssueReporter.contribute(for: snap, workingArgs: args)
+                } label: {
+                    HStack(spacing: 4) {
+                        Image(systemName: "paperplane.fill").imageScale(.small)
+                        Text(LR("Contribute it to the database"))
+                    }
+                    .font(.caption.weight(.medium))
+                    .foregroundStyle(.green)
+                }
+                .buttonStyle(.plain)
+                .help(L("Opens a pre-filled GitHub issue with the working -d flags and your enclosure's USB identity so we can add it to NVMeter-drivedb."))
+            }
+        }
+        .padding(8)
+        .frame(maxWidth: .infinity, alignment: .leading)
+        .background(RoundedRectangle(cornerRadius: 6).fill(Color.green.opacity(0.08)))
+        .padding(.top, 4)
     }
 
     // MARK: - Rows

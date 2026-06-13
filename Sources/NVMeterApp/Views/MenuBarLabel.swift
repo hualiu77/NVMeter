@@ -42,7 +42,7 @@ struct MenuBarLabel: View {
             guard let wear = model.highestWear else { return nil }
             return "\(wearDot(wear)) \(wear)%"
         case .health:
-            guard let level = model.hottestLevel else { return nil }
+            guard let level = model.assessedHealthLevel else { return nil }
             return healthDot(level)
         }
     }
