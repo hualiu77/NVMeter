@@ -118,3 +118,6 @@
 "Temperature stayed moderate, so this is most likely the SLC write cache filling up." = "温度保持平稳,因此很可能是 SLC 写入缓存被填满导致。";
 "This drive has no writable volume to test on." = "该硬盘没有可写入的卷,无法测速。";
 "Not enough free space on this drive for the selected test size." = "该硬盘剩余空间不足以进行所选大小的测速。";
+"Benchmark read/write with a temperature overlay" = "测读写速度,叠加温度曲线";
+"Link ceiling ~%lld MB/s · %@" = "链路理论上限 ~%lld MB/s · %@";
+"Theoretical link maximum (dashed line). Real speed is lower — the interface, enclosure, cable, and drive itself all limit it." = "理论链路上限(虚线)。实际速度更低——接口、硬盘盒、缆线和硬盘本身都会限制速度。";

@@ -118,3 +118,6 @@
 "Temperature stayed moderate, so this is most likely the SLC write cache filling up." = "Temperature stayed moderate, so this is most likely the SLC write cache filling up.";
 "This drive has no writable volume to test on." = "This drive has no writable volume to test on.";
 "Not enough free space on this drive for the selected test size." = "Not enough free space on this drive for the selected test size.";
+"Benchmark read/write with a temperature overlay" = "Benchmark read/write with a temperature overlay";
+"Link ceiling ~%lld MB/s · %@" = "Link ceiling ~%lld MB/s · %@";
+"Theoretical link maximum (dashed line). Real speed is lower — the interface, enclosure, cable, and drive itself all limit it." = "Theoretical link maximum (dashed line). Real speed is lower — the interface, enclosure, cable, and drive itself all limit it.";

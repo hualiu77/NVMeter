@@ -33,6 +33,8 @@ final class SpeedTestModel: ObservableObject {
 
     /// Device the window is currently pointed at.
     @Published var device: DeviceSnapshot?
+    /// Theoretical link ceiling for the selected drive, probed on select.
+    @Published var theoretical: LinkSpeed?
 
     private let tester = SpeedTester()
     private let store: SpeedTestStore?
@@ -59,7 +61,16 @@ final class SpeedTestModel: ObservableObject {
     func select(_ device: DeviceSnapshot) {
         guard !isRunning else { return }
         self.device = device
+        theoretical = nil
         loadHistory(for: device.devicePath)
+
+        // Probe the link ceiling off the main thread (system_profiler/ioreg).
+        let model = device.modelName
+        let bus = device.facts.bus
+        Task.detached { [weak self] in
+            let ls = LinkSpeedProbe.probe(modelName: model, bus: bus)
+            await MainActor.run { self?.theoretical = ls }
+        }
     }
 
     func loadHistory(for devicePath: String) {
@@ -131,6 +142,12 @@ final class SpeedTestModel: ObservableObject {
             }
         }
 
+        // Each profile lands as soon as it finishes, so the bar chart fills
+        // in incrementally instead of all-at-once at the end.
+        let onComplete: @Sendable (ProfileResult) -> Void = { [weak self] result in
+            Task { @MainActor in self?.completed.append(result) }
+        }
+
         let deviceName = device.modelName
         runTask = Task { [weak self] in
             guard let self else { return }
@@ -139,7 +156,8 @@ final class SpeedTestModel: ObservableObject {
                     directory: dir,
                     totalBytesPerProfile: totalBytes,
                     temperatureSampler: sampler,
-                    onProgress: onProgress
+                    onProgress: onProgress,
+                    onProfileComplete: onComplete
                 )
                 await MainActor.run {
                     self.lastRun = run

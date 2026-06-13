@@ -19,10 +19,15 @@ struct SpeedTestView: View {
                     if !speed.liveSamples.isEmpty {
                         overlayChartCard
                     }
+                    // Bars fill in as each profile finishes — no waiting
+                    // for the whole suite.
+                    if !speed.completed.isEmpty {
+                        resultsCard(speed.completed)
+                    }
                     if let run = speed.lastRun, !speed.isRunning {
-                        resultsCard(run.results)
                         slowdownAnalysis(run)
-                    } else if !speed.isRunning && speed.liveSamples.isEmpty {
+                    }
+                    if !speed.isRunning && speed.completed.isEmpty && speed.liveSamples.isEmpty {
                         idleHint
                     }
                     if let err = speed.error {
@@ -249,20 +254,26 @@ struct SpeedTestView: View {
     // MARK: - Results bars (CrystalDiskMark style)
 
     private func resultsCard(_ results: [ProfileResult]) -> some View {
-        let maxVal = max(1, results.map(\.mbPerSec).max() ?? 1)
-        // Preserve suite order; group read+write under each label.
+        let theo = speed.theoretical?.maxMBps
+        // Bars are normalized against the link ceiling when we know it, so a
+        // half-full sequential bar visibly means "~50% of what the link can do".
+        let maxVal = max(1, max(results.map(\.mbPerSec).max() ?? 1, theo ?? 0))
         var order: [String] = []
         for r in results where !order.contains(r.label) { order.append(r.label) }
 
         return VStack(alignment: .leading, spacing: Theme.Spacing.m) {
             Text(LR("Results")).font(.headline)
+            if let t = speed.theoretical { theoreticalNotice(t) }
             ForEach(order, id: \.self) { label in
                 let read = results.first { $0.label == label && $0.isRead }
                 let write = results.first { $0.label == label && !$0.isRead }
+                // Only the sequential rows get the link-ceiling reference line;
+                // random 4K is never expected near the sequential ceiling.
+                let refLine = label.hasPrefix("SEQ") ? theo : nil
                 VStack(alignment: .leading, spacing: 6) {
                     Text(label).font(.subheadline.weight(.semibold))
-                    if let r = read { bar(LR("Read"), r.mbPerSec, maxVal, Theme.Brand.primary) }
-                    if let w = write { bar(LR("Write"), w.mbPerSec, maxVal, .orange) }
+                    if let r = read { bar(LR("Read"), r.mbPerSec, maxVal, Theme.Brand.primary, refLine) }
+                    if let w = write { bar(LR("Write"), w.mbPerSec, maxVal, .orange, refLine) }
                 }
             }
         }
@@ -271,13 +282,35 @@ struct SpeedTestView: View {
         .background(.thinMaterial, in: RoundedRectangle(cornerRadius: Theme.Layout.cardRadius))
     }
 
-    private func bar(_ tag: LocalizedStringResource, _ value: Double, _ maxValue: Double, _ color: Color) -> some View {
+    private func theoreticalNotice(_ t: LinkSpeed) -> some View {
+        VStack(alignment: .leading, spacing: 2) {
+            HStack(spacing: 5) {
+                Image(systemName: "bolt.horizontal.fill").imageScale(.small).foregroundStyle(.secondary)
+                Text(String(localized: "Link ceiling ~\(Int(t.maxMBps)) MB/s · \(t.label)", bundle: localizationBundle))
+                    .font(.caption.weight(.medium))
+            }
+            Text(LR("Theoretical link maximum (dashed line). Real speed is lower — the interface, enclosure, cable, and drive itself all limit it."))
+                .font(.caption2).foregroundStyle(.secondary)
+                .fixedSize(horizontal: false, vertical: true)
+        }
+        .padding(8)
+        .frame(maxWidth: .infinity, alignment: .leading)
+        .background(RoundedRectangle(cornerRadius: 6).fill(Color.primary.opacity(0.04)))
+    }
+
+    private func bar(_ tag: LocalizedStringResource, _ value: Double, _ maxValue: Double, _ color: Color, _ refLine: Double? = nil) -> some View {
         HStack(spacing: Theme.Spacing.s) {
             Text(tag).font(.caption).foregroundStyle(.secondary).frame(width: 38, alignment: .leading)
             GeometryReader { geo in
                 ZStack(alignment: .leading) {
                     Capsule().fill(color.opacity(0.12))
                     Capsule().fill(color).frame(width: max(3, geo.size.width * (value / maxValue)))
+                    if let ref = refLine, ref > 0, ref <= maxValue {
+                        Rectangle()
+                            .fill(Color.secondary)
+                            .frame(width: 2, height: 22)
+                            .offset(x: geo.size.width * (ref / maxValue) - 1)
+                    }
                 }
             }
             .frame(height: 18)

@@ -115,7 +115,8 @@ public actor SpeedTester {
         totalBytesPerProfile: Int64,
         profiles: [SpeedTestProfile] = SpeedTestProfile.defaultSuite(),
         temperatureSampler: @escaping @Sendable () async -> Int?,
-        onProgress: @escaping @Sendable (_ profile: SpeedTestProfile, _ fraction: Double, _ instantMBps: Double, _ temp: Int?) -> Void
+        onProgress: @escaping @Sendable (_ profile: SpeedTestProfile, _ fraction: Double, _ instantMBps: Double, _ temp: Int?) -> Void,
+        onProfileComplete: @escaping @Sendable (_ result: ProfileResult) -> Void = { _ in }
     ) async throws -> SpeedTestRun {
         guard FileManager.default.isWritableFile(atPath: directory.path) else {
             throw SpeedTestError.directoryNotWritable(directory.path)
@@ -140,6 +141,7 @@ public actor SpeedTester {
                 onProgress: onProgress
             )
             results.append(result)
+            onProfileComplete(result)
             if !profile.isRead { bytesWritten += totalBytesPerProfile }
         }
 

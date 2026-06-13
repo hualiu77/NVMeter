@@ -1181,6 +1181,36 @@
           }
         }
       }
+    },
+    "Benchmark read/write with a temperature overlay": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "测读写速度,叠加温度曲线"
+          }
+        }
+      }
+    },
+    "Link ceiling ~%lld MB/s · %@": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "链路理论上限 ~%lld MB/s · %@"
+          }
+        }
+      }
+    },
+    "Theoretical link maximum (dashed line). Real speed is lower — the interface, enclosure, cable, and drive itself all limit it.": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "理论链路上限(虚线)。实际速度更低——接口、硬盘盒、缆线和硬盘本身都会限制速度。"
+          }
+        }
+      }
     }
   }
 }

@@ -63,9 +63,42 @@ struct MenuView: View {
                         .help(L("Click for all SMART attributes"))
                     }
                 }
+                speedTestEntryCard
             }
             .padding(Theme.Spacing.l)
         }
+    }
+
+    private var speedTestEntryCard: some View {
+        Button {
+            bringWindowToFront { openWindow(id: "speedtest") }
+        } label: {
+            HStack(spacing: Theme.Spacing.m) {
+                Image(systemName: "speedometer")
+                    .font(.title2)
+                    .foregroundStyle(Theme.Brand.primary)
+                    .frame(width: 30)
+                VStack(alignment: .leading, spacing: 2) {
+                    Text(LR("Disk speed test"))
+                        .font(.subheadline.weight(.semibold))
+                        .foregroundStyle(.primary)
+                    Text(LR("Benchmark read/write with a temperature overlay"))
+                        .font(.caption2)
+                        .foregroundStyle(.secondary)
+                }
+                Spacer()
+                Image(systemName: "chevron.right").font(.caption).foregroundStyle(.tertiary)
+            }
+            .padding(Theme.Layout.cardPadding)
+            .frame(maxWidth: .infinity, alignment: .leading)
+            .background(.thinMaterial, in: RoundedRectangle(cornerRadius: Theme.Layout.cardRadius))
+            .overlay(
+                RoundedRectangle(cornerRadius: Theme.Layout.cardRadius)
+                    .stroke(Color.primary.opacity(0.06), lineWidth: 0.5)
+            )
+        }
+        .buttonStyle(.plain)
+        .hoverLift()
     }
 
     private var loadingState: some View {
@@ -115,14 +148,6 @@ struct MenuView: View {
             }
             .buttonStyle(.borderless)
             .help(L("Long-term trend charts"))
-
-            Button {
-                bringWindowToFront { openWindow(id: "speedtest") }
-            } label: {
-                Image(systemName: "speedometer")
-            }
-            .buttonStyle(.borderless)
-            .help(L("Disk speed test"))
 
             Spacer()
 
