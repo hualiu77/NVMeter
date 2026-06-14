@@ -180,3 +180,27 @@
 "Tried every translation mode automatically. For SMART on this drive, connect it through a Thunderbolt enclosure — PCIe pass-through isn't blocked." = "Tried every translation mode automatically. For SMART on this drive, connect it through a Thunderbolt enclosure — PCIe pass-through isn't blocked.";
 "NVMeter couldn't confirm a self-test on this drive — it reported no progress and logged no result. This usually means the USB enclosure's bridge chip doesn't pass NVMe self-test commands through. A Thunderbolt enclosure (direct PCIe) is the reliable path; the drive may also self-test fine on Linux/Windows." = "NVMeter couldn't confirm a self-test on this drive — it reported no progress and logged no result. This usually means the USB enclosure's bridge chip doesn't pass NVMe self-test commands through. A Thunderbolt enclosure (direct PCIe) is the reliable path; the drive may also self-test fine on Linux/Windows.";
 "This drive's controller rejected the self-test command — it advertises the capability but doesn't actually implement it (a known quirk of some budget NVMe SSDs). Nothing NVMeter can do; this is firmware-side. Live SMART monitoring still works normally." = "This drive's controller rejected the self-test command — it advertises the capability but doesn't actually implement it (a known quirk of some budget NVMe SSDs). Nothing NVMeter can do; this is firmware-side. Live SMART monitoring still works normally.";
+
+/* --- v0.4: endurance & warranty --- */
+"Endurance & warranty" = "Endurance & warranty";
+"Check warranty" = "Check warranty";
+"%lld TBW rated" = "%lld TBW rated";
+"%lld-year limited warranty" = "%lld-year limited warranty";
+"Used %lld%% of rated endurance" = "Used %lld%% of rated endurance";
+"Plug in some usage history and NVMeter will show how much of that endurance you've used." = "Plug in some usage history and NVMeter will show how much of that endurance you've used.";
+"This model isn't in NVMeter's endurance table yet. Use “Check warranty” to verify coverage with the manufacturer directly." = "This model isn't in NVMeter's endurance table yet. Use “Check warranty” to verify coverage with the manufacturer directly.";
+"Warranty length is the manufacturer's rated term; remaining coverage also depends on your purchase date. NVMeter never sends your serial anywhere." = "Warranty length is the manufacturer's rated term; remaining coverage also depends on your purchase date. NVMeter never sends your serial anywhere.";
+"Opens the manufacturer's official warranty page and copies this drive's serial number to your clipboard to paste in. NVMeter itself sends nothing — the request comes from your browser." = "Opens the manufacturer's official warranty page and copies this drive's serial number to your clipboard to paste in. NVMeter itself sends nothing — the request comes from your browser.";
+"Warranty info" = "Warranty info";
+"Opens the manufacturer's serial-number warranty checker and copies this drive's serial to your clipboard to paste in. NVMeter itself sends nothing — the request comes from your browser." = "Opens the manufacturer's serial-number warranty checker and copies this drive's serial to your clipboard to paste in. NVMeter itself sends nothing — the request comes from your browser.";
+"This brand has no online serial-number lookup — opens its warranty-policy page instead. Coverage is the rated term above, counted from your purchase date; keep your receipt. NVMeter sends nothing." = "This brand has no online serial-number lookup — opens its warranty-policy page instead. Coverage is the rated term above, counted from your purchase date; keep your receipt. NVMeter sends nothing.";
+"Opens Apple's coverage checker and copies your Mac's serial number to the clipboard — Apple covers the built-in SSD under the whole machine, not by drive serial. NVMeter sends nothing." = "Opens Apple's coverage checker and copies your Mac's serial number to the clipboard — Apple covers the built-in SSD under the whole machine, not by drive serial. NVMeter sends nothing.";
+
+/* --- v0.4: local warranty countdown --- */
+"Set purchase date for warranty countdown" = "Set purchase date for warranty countdown";
+"Purchase date" = "Purchase date";
+"Save" = "Save";
+"Warranty until %@ · %@" = "Warranty until %@ · %@";
+"Warranty expired %@" = "Warranty expired %@";
+"Change purchase date" = "Change purchase date";
+"Clear purchase date" = "Clear purchase date";

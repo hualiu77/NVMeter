@@ -47,8 +47,10 @@ final class AppModel: ObservableObject {
     @Published var lastUpdated: Date?
     @Published var isRefreshing: Bool = false
     /// Set by a card click just before opening the detail window so the
-    /// window opens focused on that drive. Consumed once by DetailView.
-    var detailRequestPath: String?
+    /// window opens focused on that drive. Published so DetailView re-selects
+    /// even when the window is already open (or was reopened) — onAppear
+    /// alone fires only once for a persistent Window scene.
+    @Published var detailRequestPath: String?
 
     private var loopTask: Task<Void, Never>?
     private var service: MonitoringService?

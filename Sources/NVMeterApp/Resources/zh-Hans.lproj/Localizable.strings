@@ -180,3 +180,27 @@
 "Tried every translation mode automatically. For SMART on this drive, connect it through a Thunderbolt enclosure — PCIe pass-through isn't blocked." = "已自动尝试所有翻译模式。要读取这块盘的 SMART，请改用雷雳硬盘盒——PCIe 直通不受限制。";
 "NVMeter couldn't confirm a self-test on this drive — it reported no progress and logged no result. This usually means the USB enclosure's bridge chip doesn't pass NVMe self-test commands through. A Thunderbolt enclosure (direct PCIe) is the reliable path; the drive may also self-test fine on Linux/Windows." = "NVMeter 无法确认这块盘的自检——它没有报告任何进度，也没有记录结果。这通常意味着 USB 硬盘盒的桥接芯片不透传 NVMe 自检命令。雷雳硬盘盒（PCIe 直通）是可靠途径；这块盘在 Linux/Windows 上也可能正常自检。";
 "This drive's controller rejected the self-test command — it advertises the capability but doesn't actually implement it (a known quirk of some budget NVMe SSDs). Nothing NVMeter can do; this is firmware-side. Live SMART monitoring still works normally." = "这块盘的控制器拒绝了自检命令——它声明支持该能力，但实际并未实现（部分入门级 NVMe SSD 的已知固件毛病）。这是固件层面的问题，NVMeter 无能为力；实时 SMART 监控仍然正常工作。";
+
+/* --- v0.4: 耐久与质保 --- */
+"Endurance & warranty" = "耐久与质保";
+"Check warranty" = "查询质保";
+"%lld TBW rated" = "额定 %lld TBW";
+"%lld-year limited warranty" = "%lld 年有限质保";
+"Used %lld%% of rated endurance" = "已用额定耐久的 %lld%%";
+"Plug in some usage history and NVMeter will show how much of that endurance you've used." = "积累一些使用历史后，NVMeter 会显示你已用掉多少额定耐久。";
+"This model isn't in NVMeter's endurance table yet. Use “Check warranty” to verify coverage with the manufacturer directly." = "该型号尚未收录在 NVMeter 的耐久数据表中。可用「查询质保」直接向厂商核实保修情况。";
+"Warranty length is the manufacturer's rated term; remaining coverage also depends on your purchase date. NVMeter never sends your serial anywhere." = "质保年限是厂商标称的期限；实际剩余保修还取决于你的购买日期。NVMeter 不会把你的序列号发往任何地方。";
+"Opens the manufacturer's official warranty page and copies this drive's serial number to your clipboard to paste in. NVMeter itself sends nothing — the request comes from your browser." = "打开厂商官方质保页面，并把这块盘的序列号复制到剪贴板供你粘贴。NVMeter 本身不发送任何内容——请求由你的浏览器发起。";
+"Warranty info" = "质保说明";
+"Opens the manufacturer's serial-number warranty checker and copies this drive's serial to your clipboard to paste in. NVMeter itself sends nothing — the request comes from your browser." = "打开厂商的序列号质保查询页，并把这块盘的序列号复制到剪贴板供你粘贴。NVMeter 本身不发送任何内容——请求由你的浏览器发起。";
+"This brand has no online serial-number lookup — opens its warranty-policy page instead. Coverage is the rated term above, counted from your purchase date; keep your receipt. NVMeter sends nothing." = "该品牌没有在线序列号查询——改为打开其质保政策页。保修期为上方标称年限，自购买日起算，请保留购买凭证。NVMeter 不发送任何内容。";
+"Opens Apple's coverage checker and copies your Mac's serial number to the clipboard — Apple covers the built-in SSD under the whole machine, not by drive serial. NVMeter sends nothing." = "打开 Apple 的保修状态查询页，并把你 Mac 的整机序列号复制到剪贴板——Apple 按整机保修内置 SSD，而非按硬盘序列号。NVMeter 不发送任何内容。";
+
+/* --- v0.4: 本地质保倒计时 --- */
+"Set purchase date for warranty countdown" = "填写购买日期以计算质保倒计时";
+"Purchase date" = "购买日期";
+"Save" = "保存";
+"Warranty until %@ · %@" = "保修至 %@ · %@";
+"Warranty expired %@" = "保修已于 %@ 到期";
+"Change purchase date" = "修改购买日期";
+"Clear purchase date" = "清除购买日期";
