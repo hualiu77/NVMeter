@@ -1,4 +1,6 @@
 import SwiftUI
+import AppKit
+import IOKit
 import NVMeterCore
 
 /// DriveDx-style full SMART attribute table, minus the theater:
@@ -6,7 +8,11 @@ import NVMeterCore
 /// threshold — raw value + human conversion + honest status instead.
 struct DetailView: View {
     @ObservedObject var model: AppModel
+    @Environment(\.openURL) private var openURL
     @State private var selectedPath: String = ""
+
+    /// Loaded once: the manufacturer endurance/warranty spec table.
+    private static let specDB = SSDSpecDatabase.loadDefault()
 
     var body: some View {
         VStack(spacing: 0) {
@@ -15,7 +21,8 @@ struct DetailView: View {
             content
         }
         .frame(minWidth: 560, minHeight: 480)
-        .onAppear { selectInitial() }
+        .onAppear { applyRequestedOrFirst() }
+        .onChange(of: model.detailRequestPath) { _, _ in applyRequested() }
     }
 
     // MARK: - Device selection
@@ -28,11 +35,25 @@ struct DetailView: View {
         selectableDevices.first { $0.devicePath == selectedPath } ?? selectableDevices.first
     }
 
-    private func selectInitial() {
+    /// On open: honor the drive the user clicked; otherwise keep the current
+    /// selection, falling back to the first drive.
+    private func applyRequestedOrFirst() {
+        if applyRequested() { return }
         if selectedPath.isEmpty {
-            selectedPath = model.detailRequestPath ?? selectableDevices.first?.devicePath ?? ""
-            model.detailRequestPath = nil
+            selectedPath = selectableDevices.first?.devicePath ?? ""
         }
+    }
+
+    /// Select the drive named in `detailRequestPath` if it's a valid, present
+    /// device. Returns whether it applied. This fires on every card click via
+    /// `onChange`, so clicking a different card re-points an already-open
+    /// window at the right drive.
+    @discardableResult
+    private func applyRequested() -> Bool {
+        guard let p = model.detailRequestPath,
+              selectableDevices.contains(where: { $0.devicePath == p }) else { return false }
+        selectedPath = p
+        return true
     }
 
     private var toolbar: some View {
@@ -65,6 +86,7 @@ struct DetailView: View {
             ScrollView {
                 VStack(alignment: .leading, spacing: Theme.Spacing.l) {
                     header(snap)
+                    enduranceWarrantyCard(snap)
                     section(title: L("Pre-fail indicators"),
                             caption: L("Movement here predicts failure — back up immediately if any of these degrade."),
                             rows: preFailRows(snap: snap, h: health))
@@ -140,6 +162,143 @@ struct DetailView: View {
         .frame(maxWidth: .infinity, alignment: .leading)
         .background(RoundedRectangle(cornerRadius: 6).fill(Color.green.opacity(0.08)))
         .padding(.top, 4)
+    }
+
+    // MARK: - Endurance & warranty
+
+    @ViewBuilder
+    private func enduranceWarrantyCard(_ snap: DeviceSnapshot) -> some View {
+        let spec = Self.specDB.lookup(model: snap.modelName)
+        VStack(alignment: .leading, spacing: Theme.Spacing.s) {
+            HStack(alignment: .firstTextBaseline) {
+                Text(LR("Endurance & warranty")).font(.headline)
+                Spacer()
+                warrantyButton(snap, brand: spec?.brand)
+            }
+
+            if let spec, let tbw = spec.tbw {
+                ratedLine(spec, tbw: tbw)
+                if let written = snap.facts.lifetimeWrittenBytes,
+                   let frac = spec.usedEnduranceFraction(lifetimeWrittenBytes: written) {
+                    enduranceBar(fraction: frac, written: written, tbw: tbw)
+                } else {
+                    Text(LR("Plug in some usage history and NVMeter will show how much of that endurance you've used."))
+                        .font(.caption2).foregroundStyle(.secondary)
+                }
+                // Local, offline warranty countdown once the user supplies a
+                // purchase date — the useful path for brands with no online
+                // serial checker.
+                if let years = spec.warranty_years, let serial = snap.raw?.serial_number, !serial.isEmpty {
+                    WarrantyCountdownRow(serial: serial, warrantyYears: years)
+                        .id(serial)
+                }
+            } else {
+                Text(LR("This model isn't in NVMeter's endurance table yet. Use “Check warranty” to verify coverage with the manufacturer directly."))
+                    .font(.caption2).foregroundStyle(.secondary)
+                    .fixedSize(horizontal: false, vertical: true)
+            }
+
+            Text(LR("Warranty length is the manufacturer's rated term; remaining coverage also depends on your purchase date. NVMeter never sends your serial anywhere."))
+                .font(.caption2).foregroundStyle(.tertiary)
+                .fixedSize(horizontal: false, vertical: true)
+        }
+        .padding(Theme.Spacing.m)
+        .frame(maxWidth: .infinity, alignment: .leading)
+        .background(.thinMaterial, in: RoundedRectangle(cornerRadius: Theme.Layout.cardRadius))
+    }
+
+    private func ratedLine(_ spec: SSDSpec, tbw: Int) -> some View {
+        HStack(spacing: 6) {
+            Image(systemName: "shield.lefthalf.filled").imageScale(.small).foregroundStyle(Theme.Brand.primary)
+            Text(spec.series.map { "\(spec.brand) \($0)" } ?? spec.brand)
+                .font(.callout.weight(.medium))
+            Text("·").foregroundStyle(.tertiary)
+            Text(String(localized: "\(tbw) TBW rated", bundle: localizationBundle))
+                .font(.callout.monospacedDigit())
+            if let y = spec.warranty_years {
+                Text("·").foregroundStyle(.tertiary)
+                Text(String(localized: "\(y)-year limited warranty", bundle: localizationBundle))
+                    .font(.callout)
+            }
+        }
+    }
+
+    private func enduranceBar(fraction: Double, written: Int64, tbw: Int) -> some View {
+        let pct = Int((fraction * 100).rounded())
+        let color: Color = fraction >= 1.0 ? .red : (fraction >= 0.7 ? .orange : .green)
+        return VStack(alignment: .leading, spacing: 4) {
+            GeometryReader { geo in
+                ZStack(alignment: .leading) {
+                    RoundedRectangle(cornerRadius: 3).fill(Color.primary.opacity(0.10))
+                    RoundedRectangle(cornerRadius: 3).fill(color)
+                        .frame(width: geo.size.width * min(1.0, fraction))
+                }
+            }
+            .frame(height: 6)
+            HStack {
+                Text(String(localized: "Used \(pct)% of rated endurance", bundle: localizationBundle))
+                    .foregroundStyle(color)
+                Spacer()
+                Text("\(DeviceFacts.humanBytes(written)) / \(tbw) TB")
+                    .foregroundStyle(.secondary).monospacedDigit()
+            }
+            .font(.caption2)
+        }
+    }
+
+    @ViewBuilder
+    private func warrantyButton(_ snap: DeviceSnapshot, brand: String?) -> some View {
+        let target = WarrantyLinks.target(brand: brand ?? snap.facts.brand, model: snap.modelName)
+        Button {
+            // Copy whichever serial the destination actually wants pasted —
+            // the drive's own, the Mac's (Apple), or nothing.
+            switch target.serial {
+            case .driveSerial:
+                copyToClipboard(snap.raw?.serial_number)
+            case .machineSerial:
+                copyToClipboard(Self.machineSerialNumber())
+            case .none:
+                break
+            }
+            openURL(target.url)
+        } label: {
+            if target.hasSerialLookup {
+                Label(LR("Check warranty"), systemImage: "checkmark.shield")
+            } else {
+                Label(LR("Warranty info"), systemImage: "info.circle")
+            }
+        }
+        .controlSize(.small)
+        .help(warrantyHelp(for: target.serial))
+    }
+
+    private func warrantyHelp(for source: WarrantyLinks.SerialSource) -> String {
+        switch source {
+        case .driveSerial:
+            return L("Opens the manufacturer's serial-number warranty checker and copies this drive's serial to your clipboard to paste in. NVMeter itself sends nothing — the request comes from your browser.")
+        case .machineSerial:
+            return L("Opens Apple's coverage checker and copies your Mac's serial number to the clipboard — Apple covers the built-in SSD under the whole machine, not by drive serial. NVMeter sends nothing.")
+        case .none:
+            return L("This brand has no online serial-number lookup — opens its warranty-policy page instead. Coverage is the rated term above, counted from your purchase date; keep your receipt. NVMeter sends nothing.")
+        }
+    }
+
+    private func copyToClipboard(_ value: String?) {
+        guard let value, !value.isEmpty else { return }
+        NSPasteboard.general.clearContents()
+        NSPasteboard.general.setString(value, forType: .string)
+    }
+
+    /// The host Mac's hardware serial (for Apple's coverage check), read
+    /// straight from IOKit — no shell-out.
+    private static func machineSerialNumber() -> String? {
+        let expert = IOServiceGetMatchingService(kIOMainPortDefault, IOServiceMatching("IOPlatformExpertDevice"))
+        guard expert != 0 else { return nil }
+        defer { IOObjectRelease(expert) }
+        guard let prop = IORegistryEntryCreateCFProperty(
+            expert, kIOPlatformSerialNumberKey as CFString, kCFAllocatorDefault, 0
+        ) else { return nil }
+        return prop.takeRetainedValue() as? String
     }
 
     // MARK: - Rows
