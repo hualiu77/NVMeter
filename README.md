@@ -46,9 +46,10 @@ SwiftUI menu-bar app on top of `smartctl` that:
 Current release: **[v0.3.0](https://github.com/hualiu77/NVMeter/releases/latest)** — disk speed test with temperature overlay.
 
 Next up — **v0.4.0 (in preparation):** extended self-test runner, speed-drop
-attribution (thermal vs SLC-cache), wear-trend projection, a configurable
-menu-bar metric, and an automatic USB-SATA `-d` probe ladder. See
-[CHANGELOG.md](CHANGELOG.md).
+attribution (thermal vs SLC-cache), wear-trend projection, endurance &
+warranty (rated TBW + used-endurance % + offline warranty countdown), a
+configurable menu-bar metric, and an automatic USB-SATA `-d` probe ladder.
+See [CHANGELOG.md](CHANGELOG.md).
 
 | Layer | State |
 |---|---|
@@ -63,6 +64,7 @@ menu-bar metric, and an automatic USB-SATA `-d` probe ladder. See
 | **Disk speed test** (CrystalDiskMark-style) with temperature overlay + link-ceiling comparison | ✅ |
 | Speed-drop attribution (thermal-throttle vs SLC-cache, read off the temperature track) | ✅ |
 | Wear-trend projection (local linear extrapolation of stored history → "reaches N% around …") | ✅ |
+| Endurance & warranty (per-model rated TBW + used-endurance %, official warranty links, offline purchase-date countdown) | ✅ |
 | Configurable menu-bar metric (temperature / wear / health dot) | ✅ |
 | Bridge-DB loader + runtime `-d` auto-retry | ✅ |
 | **USB-SATA `-d` probe ladder** — auto-tries every translation mode to unlock cooperative bridges, no kext | ✅ |

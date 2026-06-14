@@ -36,6 +36,15 @@ Health-check depth, speed-test insight, and broader external-drive coverage.
   isn't in the community database yet, the detail view offers a one-click
   GitHub issue pre-filled with the working `-d` flags and the enclosure's USB
   identity, so it can be catalogued for everyone.
+- **Endurance & warranty.** The detail view now shows a drive's rated TBW and
+  warranty length (from a built-in, community-extensible per-model spec table
+  seeded with mainstream consumer NVMe/SATA drives) and a "used endurance" bar
+  derived from lifetime host writes. A **Check warranty** action opens the
+  manufacturer's official page — Seagate/WD's serial checker (drive serial
+  copied to clipboard), Apple's coverage check (Mac serial), or the policy
+  page for brands without an online lookup. A **local, offline warranty
+  countdown** lets you enter a purchase date (stored by serial, never
+  uploaded) and shows when coverage runs out. No serial ever leaves the Mac.
 
 ### Changed
 
@@ -53,6 +62,8 @@ Health-check depth, speed-test insight, and broader external-drive coverage.
   `admin opcode 0x14 is not supported`, seen on some budget NVMe SSDs) and
   fails fast with a clear explanation. A grace window also stops cleanly if a
   drive accepts the command but never reports progress or a result.
+- The detail window now re-selects the drive you clicked, even when it was
+  already open, instead of showing the previously opened one.
 
 ### Notes
 
