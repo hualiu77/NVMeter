@@ -1,6 +1,23 @@
 import XCTest
 @testable import NVMeterCore
 
+private final class LockedCounter: @unchecked Sendable {
+    private let lock = NSLock()
+    private var storage = 0
+
+    func increment() {
+        lock.lock()
+        storage += 1
+        lock.unlock()
+    }
+
+    var value: Int {
+        lock.lock()
+        defer { lock.unlock() }
+        return storage
+    }
+}
+
 final class SpeedTesterTests: XCTestCase {
 
     func testRunProducesResultsAndCleansUp() async throws {
@@ -8,12 +25,12 @@ final class SpeedTesterTests: XCTestCase {
         let perProfile: Int64 = 2 * 1024 * 1024   // 2 MiB — fast but real I/O
         let tester = SpeedTester()
 
-        var progressFires = 0
+        let progressFires = LockedCounter()
         let run = try await tester.run(
             directory: dir,
             totalBytesPerProfile: perProfile,
             temperatureSampler: { 42 },
-            onProgress: { _, _, _, _ in progressFires += 1 }
+            onProgress: { _, _, _, _ in progressFires.increment() }
         )
 
         // Full CrystalDiskMark suite = 4 patterns × (write + read) = 8.
@@ -32,7 +49,7 @@ final class SpeedTesterTests: XCTestCase {
         XCTAssertEqual(run.bytesWritten, 4 * perProfile)
 
         // Progress fired at least once per profile (final 100% tick).
-        XCTAssertGreaterThanOrEqual(progressFires, 8)
+        XCTAssertGreaterThanOrEqual(progressFires.value, 8)
 
         // Scratch file removed.
         let scratch = dir.appendingPathComponent(".nvmeter-speedtest.bin")

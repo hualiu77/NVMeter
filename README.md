@@ -45,6 +45,12 @@ SwiftUI menu-bar app on top of `smartctl` that:
 
 Current release: **[v0.3.0](https://github.com/hualiu77/NVMeter/releases/latest)** — disk speed test with temperature overlay.
 
+Next up — **v0.4.0 (in preparation):** extended self-test runner, speed-drop
+attribution (thermal vs SLC-cache), wear-trend projection, endurance &
+warranty (rated TBW + used-endurance % + offline warranty countdown), a
+configurable menu-bar metric, and an automatic USB-SATA `-d` probe ladder.
+See [CHANGELOG.md](CHANGELOG.md).
+
 | Layer | State |
 |---|---|
 | `smartctl` JSON wrapper | ✅ |
@@ -58,6 +64,7 @@ Current release: **[v0.3.0](https://github.com/hualiu77/NVMeter/releases/latest)
 | **Disk speed test** (CrystalDiskMark-style) with temperature overlay + link-ceiling comparison | ✅ |
 | Speed-drop attribution (thermal-throttle vs SLC-cache, read off the temperature track) | ✅ |
 | Wear-trend projection (local linear extrapolation of stored history → "reaches N% around …") | ✅ |
+| Endurance & warranty (per-model rated TBW + used-endurance %, official warranty links, offline purchase-date countdown) | ✅ |
 | Configurable menu-bar metric (temperature / wear / health dot) | ✅ |
 | Bridge-DB loader + runtime `-d` auto-retry | ✅ |
 | **USB-SATA `-d` probe ladder** — auto-tries every translation mode to unlock cooperative bridges, no kext | ✅ |
@@ -85,6 +92,14 @@ returning `Operation not supported by device` regardless of which `-d`
 argument is tried. This is **not** a NVMeter bug — it's a fundamental
 limitation of macOS's user-space SCSI stack.
 
+NVMeter doesn't give up at the first failure: when the default open is
+blocked it automatically walks the full `-d` translation ladder (`sat`,
+`sat,16`, `usbjmicron`, `sntrealtek`, …) and uses the first mode that
+returns real SMART data — unlocking cooperative bridges with no kext, and
+offering to contribute the working flags back to the community database.
+Only when *every* mode is filtered at the macOS SCSI layer does it fall
+back to the "blocked" state below.
+
 For context: Linux's kernel includes a generic SAT (SCSI/ATA Translation)
 layer in `sd_mod` that handles most USB-SATA bridges transparently. macOS
 has no equivalent. Closed-source tools like DriveDx work around this by
@@ -98,6 +113,23 @@ and relatives), most older Seagate Backup Plus, and various no-brand
 USB-SATA enclosures. When NVMeter detects one, it shows a friendly
 "SMART pass-through blocked by macOS — try an NVMe enclosure or use Linux"
 message instead of a scary error.
+
+### ⚠️ Extended self-test: depends on the drive
+
+The built-in **extended self-test** asks the drive to run its own media
+scan. Whether that works is entirely up to the drive's controller:
+
+- **Works:** most mid-range and high-end NVMe SSDs (Samsung, WD SN-series,
+  Kioxia, …) connected over Thunderbolt or native PCIe.
+- **Not implemented:** Apple Fabric internal SSDs don't expose a self-test
+  command at all, and some budget NVMe drives *advertise* the capability
+  but reject the actual command (`admin opcode 0x14 is not supported`).
+- **Blocked:** drives whose SMART is already blocked over USB (above) can't
+  self-test either.
+
+NVMeter detects each of these up front and tells you plainly rather than
+spinning — but it does mean the self-test feature is only useful on drives
+that genuinely implement it. Live SMART monitoring works regardless.
 
 ### ⛔ Not supported
 

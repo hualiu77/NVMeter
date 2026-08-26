@@ -146,28 +146,36 @@ footer p { margin: 4px 0; }
   <div class="grid">
     <div class="feat"><div class="ico">⚡️</div>
       <h3 class="en">Speed test with temperature overlay</h3><h3 class="zh">测速 + 温度叠加</h3>
-      <p class="en">CrystalDiskMark-style read/write bars, plus a temperature track recorded during the run — so it can tell you whether a slowdown is SLC cache or thermal throttling. No pure speed tool does this. A dashed line marks the interface's theoretical ceiling.</p>
-      <p class="zh">CrystalDiskMark 风格读写条状图,测速时同步记录温度叠加成曲线——能告诉你掉速是 SLC 缓存还是过热降频。纯测速工具做不到。虚线标出接口理论上限作对比。</p></div>
+      <p class="en">CrystalDiskMark-style read/write bars, plus a temperature track recorded during the run. NVMeter reads both and states the verdict in plain words — thermal throttling, SLC-cache exhaustion, or held steady. No pure speed tool does this. A dashed line marks the interface's theoretical ceiling.</p>
+      <p class="zh">CrystalDiskMark 风格读写条状图,测速时同步记录温度曲线。NVMeter 综合两者直接给出结论——过热降频、SLC 缓存耗尽,还是全程稳定。纯测速工具做不到。虚线标出接口理论上限作对比。</p></div>
+    <div class="feat"><div class="ico">🩺</div>
+      <h3 class="en">Extended self-test</h3><h3 class="zh">扩展自检</h3>
+      <p class="en">Run the drive's own built-in long self-test with live progress, a completion notification, and a local history of past results. It runs on the drive itself, so it survives sleep and quitting the app.</p>
+      <p class="zh">一键发起硬盘内置的扩展自检:实时进度、完成通知、本地历史留档。自检跑在硬盘内部,睡眠或退出 App 都不中断。</p></div>
     <div class="feat"><div class="ico">🌡</div>
-      <h3 class="en">Live menu-bar temperature</h3><h3 class="zh">菜单栏实时温度</h3>
-      <p class="en">Hottest drive at a glance, color-coded green / yellow / red against your thresholds.</p>
-      <p class="zh">最热硬盘一目了然,按你的阈值显示绿/黄/红。</p></div>
+      <h3 class="en">Configurable menu-bar metric</h3><h3 class="zh">菜单栏指标可选</h3>
+      <p class="en">Show temperature, NAND wear, or a health dot for the worst drive — color-coded green / yellow / red against your thresholds.</p>
+      <p class="zh">菜单栏可选显示温度、NAND 磨损,或状态最差硬盘的健康灯——按你的阈值显示绿/黄/红。</p></div>
     <div class="feat"><div class="ico">📋</div>
       <h3 class="en">Full SMART detail</h3><h3 class="zh">完整 SMART 属性</h3>
       <p class="en">Every NVMe health-log field — wear, spare, media errors, unsafe shutdowns — grouped into pre-fail vs life-span. No fabricated columns.</p>
       <p class="zh">NVMe 健康日志的每个字段——磨损、备用块、介质错误、非正常关机——按故障预警/寿命计数分组,不造假数据。</p></div>
     <div class="feat"><div class="ico">📈</div>
-      <h3 class="en">Trend charts</h3><h3 class="zh">趋势图表</h3>
-      <p class="en">Temperature, wear, and lifetime writes over 24 h / 7 d / 30 d, stored locally in SQLite.</p>
-      <p class="zh">温度、磨损、累计写入的 24 小时 / 7 天 / 30 天曲线,本地 SQLite 存储。</p></div>
+      <h3 class="en">Trend charts + wear projection</h3><h3 class="zh">趋势图表 + 磨损预测</h3>
+      <p class="en">Temperature, wear, and lifetime writes over 24 h / 7 d / 30 d, stored locally in SQLite — plus a projection of when NAND wear will reach its rated limit, extrapolated from your own history.</p>
+      <p class="zh">温度、磨损、累计写入的 24 小时 / 7 天 / 30 天曲线,本地 SQLite 存储;并根据你自己的历史外推,预测 NAND 磨损达到额定上限的大致时间。</p></div>
+    <div class="feat"><div class="ico">🛡️</div>
+      <h3 class="en">Endurance & warranty</h3><h3 class="zh">耐久与质保</h3>
+      <p class="en">Per-model rated TBW and warranty length, with a "used endurance" bar from your lifetime writes. One click opens the manufacturer's official warranty page; enter a purchase date for an offline countdown to when coverage ends. Your serial never leaves the Mac.</p>
+      <p class="zh">按型号显示额定 TBW 与质保年限,用累计写入算出"已用耐久"进度条。一键打开厂商官方质保页;填入购买日期即可本地算出质保到期倒计时。序列号绝不离开你的 Mac。</p></div>
     <div class="feat"><div class="ico">🔔</div>
       <h3 class="en">Threshold notifications</h3><h3 class="zh">阈值通知</h3>
       <p class="en">Native macOS alerts when a drive crosses your warning or critical temperature.</p>
       <p class="zh">硬盘越过警告或危险温度时发送原生 macOS 通知。</p></div>
     <div class="feat"><div class="ico">🔌</div>
       <h3 class="en">External drives included</h3><h3 class="zh">外置硬盘也支持</h3>
-      <p class="en">Thunderbolt enclosures read natively. USB bridges auto-retry against a community quirks database — and you can grow it with one click.</p>
-      <p class="zh">雷电硬盘盒原生读取;USB 桥接按社区数据库自动重试参数,一键就能帮数据库添砖加瓦。</p></div>
+      <p class="en">Thunderbolt enclosures read natively. For USB bridges, NVMeter auto-probes every translation mode to unlock cooperative chips — no kext — then offers a one-click contribution to the community quirks database.</p>
+      <p class="zh">雷电硬盘盒原生读取;USB 桥接会自动遍历所有翻译模式解锁配合型芯片(无需内核扩展),再一键贡献到社区数据库。</p></div>
     <div class="feat"><div class="ico">🔒</div>
       <h3 class="en">Private by design</h3><h3 class="zh">隐私优先</h3>
       <p class="en">No telemetry, no account, no cloud. AGPL-3.0 — read every line.</p>

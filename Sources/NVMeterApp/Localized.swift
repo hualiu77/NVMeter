@@ -29,7 +29,9 @@ func L(_ key: String.LocalizationValue) -> String {
     String(localized: key, bundle: localizationBundle)
 }
 
-/// Same idea for SwiftUI `Text` etc. that accept a `LocalizedStringResource`.
-func LR(_ key: String.LocalizationValue) -> LocalizedStringResource {
-    LocalizedStringResource(key, bundle: .atURL(localizationBundle.bundleURL))
+/// Same idea for SwiftUI controls. Returning the already-resolved `String`
+/// keeps the call sites compatible with Xcode 15's `StringProtocol`-based
+/// control initializers while still using NVMeter's packaged bundle.
+func LR(_ key: String.LocalizationValue) -> String {
+    L(key)
 }

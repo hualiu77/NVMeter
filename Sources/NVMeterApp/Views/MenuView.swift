@@ -3,7 +3,6 @@ import NVMeterCore
 
 struct MenuView: View {
     @ObservedObject var model: AppModel
-    @Environment(\.openSettings) private var openSettings
     @Environment(\.openWindow)   private var openWindow
 
     var body: some View {
@@ -90,8 +89,8 @@ struct MenuView: View {
 
     private func entryCard(
         icon: String,
-        title: LocalizedStringResource,
-        subtitle: LocalizedStringResource,
+        title: String,
+        subtitle: String,
         windowID: String
     ) -> some View {
         Button {
@@ -176,7 +175,7 @@ struct MenuView: View {
             Spacer()
 
             Button {
-                showSettingsWindow(using: { openSettings() })
+                showSettingsWindow()
             } label: {
                 Image(systemName: "gearshape")
             }

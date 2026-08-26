@@ -220,13 +220,20 @@ struct SettingsView: View {
 ///    it entirely. We discriminate by window *class* (skip popovers,
 ///    panels, status windows) instead.
 ///
-/// 3. **Timing.** `openSettings()` returns before SwiftUI has actually
+/// 3. **Timing.** Opening Settings returns before SwiftUI has actually
 ///    created/raised the window. We retry the focus pass over a few
 ///    runloop ticks to catch every state (already-open behind another
 ///    app, just-being-created, already-frontmost).
 @MainActor
-func showSettingsWindow(using openSettings: () -> Void) {
-    bringWindowToFront { openSettings() }
+func showSettingsWindow() {
+    bringWindowToFront {
+        // `EnvironmentValues.openSettings` is unavailable in the Xcode 15.4
+        // SDK used by CI. SwiftUI's Settings scene still installs the
+        // standard AppKit action, so invoke it without requiring a newer SDK.
+        if !NSApp.sendAction(Selector(("showSettingsWindow:")), to: nil, from: nil) {
+            NSApp.sendAction(Selector(("showPreferencesWindow:")), to: nil, from: nil)
+        }
+    }
 }
 
 /// Generic "open this window AND make it the key foreground window" —

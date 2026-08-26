@@ -293,7 +293,9 @@ struct DeviceCard: View {
                 .help(L("This enclosure's bridge chip is already catalogued in NVMeter-drivedb. macOS still blocks SMART pass-through for it."))
             } else {
                 Button {
-                    IssueReporter.report(for: snapshot)
+                    Task { @MainActor in
+                        IssueReporter.report(for: snapshot)
+                    }
                 } label: {
                     HStack(spacing: 4) {
                         Image(systemName: "paperplane.fill").imageScale(.small)
