@@ -229,7 +229,7 @@ struct SpeedTestView: View {
         .frame(height: height)
     }
 
-    private func legendDot(_ color: Color, _ label: LocalizedStringResource) -> some View {
+    private func legendDot(_ color: Color, _ label: String) -> some View {
         HStack(spacing: 4) {
             Circle().fill(color).frame(width: 7, height: 7)
             Text(label)
@@ -318,7 +318,7 @@ struct SpeedTestView: View {
         .background(RoundedRectangle(cornerRadius: 6).fill(Color.primary.opacity(0.04)))
     }
 
-    private func bar(_ tag: LocalizedStringResource, _ value: Double, _ maxValue: Double, _ color: Color, _ refLine: Double? = nil) -> some View {
+    private func bar(_ tag: String, _ value: Double, _ maxValue: Double, _ color: Color, _ refLine: Double? = nil) -> some View {
         HStack(spacing: Theme.Spacing.s) {
             Text(tag).font(.caption).foregroundStyle(.secondary).frame(width: 38, alignment: .leading)
             GeometryReader { geo in
@@ -378,14 +378,14 @@ struct SpeedTestView: View {
         }
     }
 
-    private func thermalDetail(_ v: SlowdownVerdict) -> LocalizedStringResource {
+    private func thermalDetail(_ v: SlowdownVerdict) -> String {
         if let rise = v.tempRiseC, let mt = v.maxTempC {
             return LR("The drive warmed \(rise)°C during the write, peaking at \(mt)°C, and speed fell to ~\(Int(v.sustainedMBps)) MB/s as it throttled. Better cooling (a heatsink or a ventilated enclosure) would help sustain it.")
         }
         return LR("The drive reached \(v.maxTempC ?? 0)°C and throttled to ~\(Int(v.sustainedMBps)) MB/s. Better cooling would help sustain it.")
     }
 
-    private func verdictRow(icon: String, tint: Color, headline: LocalizedStringResource, detail: LocalizedStringResource) -> some View {
+    private func verdictRow(icon: String, tint: Color, headline: String, detail: String) -> some View {
         HStack(alignment: .top, spacing: 6) {
             Image(systemName: icon).foregroundStyle(tint).imageScale(.small)
             VStack(alignment: .leading, spacing: 2) {

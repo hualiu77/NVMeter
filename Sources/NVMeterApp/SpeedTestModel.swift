@@ -93,9 +93,11 @@ final class SpeedTestModel: ObservableObject {
         // Probe the link ceiling off the main thread (system_profiler/ioreg).
         let model = device.modelName
         let bus = device.facts.bus
-        Task.detached { [weak self] in
-            let ls = LinkSpeedProbe.probe(modelName: model, bus: bus)
-            await MainActor.run { self?.theoretical = ls }
+        Task {
+            let ls = await Task.detached {
+                LinkSpeedProbe.probe(modelName: model, bus: bus)
+            }.value
+            theoretical = ls
         }
     }
 
@@ -150,15 +152,15 @@ final class SpeedTestModel: ObservableObject {
         }
 
         let start = runStart
-        let onProgress: @Sendable (SpeedTestProfile, Double, Double, Int?) -> Void = { [weak self] profile, frac, mbps, temp in
+        let progressOwner = self
+        let onProgress: @Sendable (SpeedTestProfile, Double, Double, Int?) -> Void = { profile, frac, mbps, temp in
             Task { @MainActor in
-                guard let self else { return }
-                self.currentProfileLabel = profile.label
-                self.currentIsRead = profile.isRead
-                self.fraction = frac
-                self.liveMBps = mbps
-                self.liveTemp = temp
-                self.liveSamples.append(SpeedSample(
+                progressOwner.currentProfileLabel = profile.label
+                progressOwner.currentIsRead = profile.isRead
+                progressOwner.fraction = frac
+                progressOwner.liveMBps = mbps
+                progressOwner.liveTemp = temp
+                progressOwner.liveSamples.append(SpeedSample(
                     elapsed: Date().timeIntervalSince(start),
                     profileID: profile.id,
                     isRead: profile.isRead,
@@ -170,8 +172,9 @@ final class SpeedTestModel: ObservableObject {
 
         // Each profile lands as soon as it finishes, so the bar chart fills
         // in incrementally instead of all-at-once at the end.
-        let onComplete: @Sendable (ProfileResult) -> Void = { [weak self] result in
-            Task { @MainActor in self?.completed.append(result) }
+        let completionOwner = self
+        let onComplete: @Sendable (ProfileResult) -> Void = { result in
+            Task { @MainActor in completionOwner.completed.append(result) }
         }
 
         let profiles = includeRandom
