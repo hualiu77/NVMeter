@@ -1,43 +1,50 @@
-name: My USB / Thunderbolt enclosure doesn't read SMART
-description: Triage data so we (or you!) can add a bridge entry
+name: USB / Thunderbolt enclosure compatibility
+description: Share a short SMART compatibility result for one enclosure
 labels: [bridge-db, help wanted]
 body:
   - type: markdown
     attributes:
       value: |
-        ## Wrong repo?
-        New enclosure adapters live in **NVMeter-drivedb** (CC0, no Swift).
-        If you already have the data, please submit a YAML PR there instead:
-        <https://github.com/hualiu77/NVMeter-drivedb>
+        Bridge entries live in [NVMeter-drivedb](https://github.com/hualiu77/NVMeter-drivedb). Use this form if you need help collecting the information for an entry.
 
-        This issue template is only for **collecting** the data needed to
-        write a YAML entry, when you don't have it yet.
+        Report only the affected device. Leave out serial numbers, volume names, UUIDs, and unrelated devices. Summarize what happened instead of pasting full System Information, ioreg, or smartctl output.
   - type: input
     id: model
-    attributes: { label: Enclosure brand + model, placeholder: "Orico M2PVC3-G20" }
+    attributes: { label: Enclosure brand and model, placeholder: "Orico M2PVC3-G20" }
     validations: { required: true }
   - type: input
-    id: nvme
-    attributes: { label: Drive inside, placeholder: "Crucial P3 Plus 1TB" }
-  - type: textarea
-    id: usb
+    id: usb_id
     attributes:
-      label: USB device info
-      description: "Paste `system_profiler SPUSBDataType | grep -A 6 -i <enclosure-name>` or the whole SPUSBDataType."
-      render: text
+      label: USB vendor:product ID (if known)
+      description: "In System Information → USB, copy only the Vendor ID and Product ID for this enclosure."
+      placeholder: "0bda:9210"
+  - type: input
+    id: macos
+    attributes: { label: macOS version, placeholder: "14.6.1" }
     validations: { required: true }
-  - type: textarea
-    id: smartctl
+  - type: input
+    id: nvmeter
+    attributes: { label: NVMeter version (if used) }
+  - type: dropdown
+    id: smart
     attributes:
-      label: smartctl probe output
-      description: |
-        Run all of these and paste:
-        ```
-        smartctl --scan
-        smartctl -a /dev/diskN
-        smartctl -d sat -a /dev/diskN
-        smartctl -d sat,16 -a /dev/diskN
-        smartctl -d jmb39x -a /dev/diskN
-        ```
-      render: text
+      label: SMART result
+      options:
+        - Works
+        - Blocked
+        - Unsure
     validations: { required: true }
+  - type: input
+    id: working
+    attributes:
+      label: Working smartctl flag (if known)
+      description: "Enter only the flag and its value, or 'default' if no flag was needed. Leave blank if unknown."
+      placeholder: "-d sat,16"
+  - type: input
+    id: drive
+    attributes: { label: Drive model (optional) }
+  - type: textarea
+    id: details
+    attributes:
+      label: Connection or short error summary (optional)
+      description: "A cable, hub, dock, or short redacted error can help. Do not paste diagnostic logs."

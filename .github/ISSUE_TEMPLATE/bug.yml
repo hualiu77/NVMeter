@@ -2,6 +2,10 @@ name: Bug report
 description: Something doesn't work
 labels: [bug]
 body:
+  - type: markdown
+    attributes:
+      value: |
+        Report only the affected device. Leave out serial numbers, volume names, UUIDs, and unrelated devices. Summarize what happened instead of pasting full System Information, ioreg, or smartctl output.
   - type: input
     id: mac
     attributes: { label: Mac model + macOS version, placeholder: "Mac Studio M2 Ultra, macOS 14.5" }
@@ -15,8 +19,7 @@ body:
     attributes: { label: Steps to reproduce }
     validations: { required: true }
   - type: textarea
-    id: smartctl
+    id: diagnostics
     attributes:
-      label: smartctl output for the affected device
-      description: "Paste `smartctl -a /dev/diskN` here. Redact serial numbers if you wish."
-      render: text
+      label: Short error summary for the affected device (optional)
+      description: "Summarize the symptom or share only the relevant redacted error line. Do not paste a full log."
