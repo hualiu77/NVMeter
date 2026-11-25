@@ -36,7 +36,7 @@
 "Notifications" = "通知";
 "Notify when a drive crosses a threshold" = "温度跨阈值时发送通知";
 "Open-source SMART monitor for macOS" = "macOS 上的开源 SMART 监控工具";
-"Opens a pre-filled GitHub Issue with your ioreg + smartctl probe results so we can add this enclosure to the community database." = "打开浏览器，预填好 ioreg 与 smartctl 诊断结果，自动提交到 GitHub，帮社区数据库加上这个硬盘盒。";
+"Opens a GitHub issue draft with the SMART result and USB vendor and product IDs when available. Review before submitting." = "打开 GitHub Issue 草稿，预填 SMART 结果及可识别的 USB 厂商和产品 ID。请检查后再提交。";
 "Posts a system notification when a drive enters the warning or critical band. Debounced to once per device per 5 minutes." = "当某块硬盘进入警告或危险温度时发送系统通知。同一设备 5 分钟内只发一次。";
 "Power-on" = "通电";
 "Quit NVMeter" = "退出 NVMeter";
