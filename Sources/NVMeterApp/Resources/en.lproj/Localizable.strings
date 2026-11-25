@@ -36,7 +36,7 @@
 "Notifications" = "Notifications";
 "Notify when a drive crosses a threshold" = "Notify when a drive crosses a threshold";
 "Open-source SMART monitor for macOS" = "Open-source SMART monitor for macOS";
-"Opens a pre-filled GitHub Issue with your ioreg + smartctl probe results so we can add this enclosure to the community database." = "Opens a pre-filled GitHub Issue with your ioreg + smartctl probe results so we can add this enclosure to the community database.";
+"Opens a GitHub issue draft with the SMART result and USB vendor and product IDs when available. Review before submitting." = "Opens a GitHub issue draft with the SMART result and USB vendor and product IDs when available. Review before submitting.";
 "Posts a system notification when a drive enters the warning or critical band. Debounced to once per device per 5 minutes." = "Posts a system notification when a drive enters the warning or critical band. Debounced to once per device per 5 minutes.";
 "Power-on" = "Power-on";
 "Quit NVMeter" = "Quit NVMeter";

@@ -310,7 +310,7 @@ struct DeviceCard: View {
                     )
                 }
                 .buttonStyle(.plain)
-                .help(L("Opens a pre-filled GitHub Issue with your ioreg + smartctl probe results so we can add this enclosure to the community database."))
+                .help(L("Opens a GitHub issue draft with the SMART result and USB vendor and product IDs when available. Review before submitting."))
             }
 
             // Concrete next step — NVMeter already tried every `-d` variant
